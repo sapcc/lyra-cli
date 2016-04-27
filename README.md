@@ -1,2 +1,2 @@
- Command line interface for new automation service for monsoon converged cloud
+ Command line interface for the new monsoon converged cloud automation service 
 ===============================================================================

@@ -34,8 +34,6 @@ var AutomationCmd = &cobra.Command{
 	Short: "Automation service.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	Run: func(cmd *cobra.Command, args []string) {
-	},
 }
 
 func init() {
@@ -43,7 +41,7 @@ func init() {
 
 	token_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME)
 	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
-	AutomationCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token you can use the authenticate command. (default ", token_default_env_name, ")"))
+	AutomationCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
 	AutomationCmd.PersistentFlags().StringVarP(&AutomationUrl, "automation-endpoint", "a", "", fmt.Sprint("Automation endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
 
 	// setup flags with environment variablen

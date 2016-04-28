@@ -15,19 +15,26 @@
 package cmd
 
 import (
+	// "bufio"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	"os"
+	"syscall"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/endpoints"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/services"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
 	"github.com/rackspace/gophercloud/pagination"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/spf13/cobra"
 )
 
+var ENV_VAR_USERNAME = "USERNAME"
+var ENV_VAR_USERID = "USERID"
+var ENV_VAR_PASSWORD = "PASSWORD"
 var identityEndpoint, username, userId, password, projectName, projectId, userDomainName, userDomainId, projectDomainName, projectDomainId string
 
 // authenticateCmd represents the authenticate command
@@ -37,16 +44,22 @@ var authenticateCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		setup()
 		authenticate()
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(authenticateCmd)
+
+	username_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERNAME)
+	userid_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERID)
+	password_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD)
+
 	authenticateCmd.Flags().StringVarP(&identityEndpoint, "identity-endpoint", "e", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
-	authenticateCmd.Flags().StringVar(&username, "username", "", "Name of the user that wants to log in.")
-	authenticateCmd.Flags().StringVar(&userId, "userId", "", "Name of the user that wants to log in.")
-	authenticateCmd.Flags().StringVarP(&password, "password", "p", "", "Password of the user that wants to log in.")
+	authenticateCmd.Flags().StringVar(&username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
+	authenticateCmd.Flags().StringVar(&userId, "userId", "", fmt.Sprint("Name of the user that wants to log in. (default ", userid_default_env_name, ")"))
+	authenticateCmd.Flags().StringVarP(&password, "password", "p", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
 
 	authenticateCmd.Flags().StringVar(&projectName, "project-name", "", "Name of the project.")
 	authenticateCmd.Flags().StringVar(&projectId, "project-id", "", "Id of the project.")
@@ -56,6 +69,37 @@ func init() {
 
 	authenticateCmd.Flags().StringVar(&projectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
 	authenticateCmd.Flags().StringVar(&projectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
+}
+
+func setup() {
+	// setup flags with environment variablen
+	if len(username) == 0 {
+		username = os.Getenv(ENV_VAR_USERNAME)
+	}
+	if len(userId) == 0 {
+		userId = os.Getenv(ENV_VAR_USERID)
+	}
+
+	if len(username) == 0 && len(userId) == 0 {
+		log.Fatalf("Error: username or userid not given.")
+	}
+
+	if len(password) == 0 {
+		if len(os.Getenv(ENV_VAR_PASSWORD)) == 0 {
+
+			// ask the user for the password
+			fmt.Print("Enter password: ")
+			bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+			if err != nil {
+				log.Fatalf(err.Error())
+			}
+			fmt.Print("\n")
+			password = string(bytePassword)
+
+		} else {
+			password = os.Getenv(ENV_VAR_PASSWORD)
+		}
+	}
 }
 
 func authenticate() {

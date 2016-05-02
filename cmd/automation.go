@@ -43,7 +43,9 @@ func init() {
 	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 	AutomationCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
 	AutomationCmd.PersistentFlags().StringVarP(&AutomationUrl, "automation-endpoint", "a", "", fmt.Sprint("Automation endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
+}
 
+func setupRestClient() {
 	// setup flags with environment variablen
 	if len(Token) == 0 {
 		if len(os.Getenv(ENV_VAR_TOKEN_NAME)) == 0 {

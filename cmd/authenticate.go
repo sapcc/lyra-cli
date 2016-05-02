@@ -44,7 +44,7 @@ var authenticateCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		setup()
+		setupAuthentication()
 		authenticate()
 	},
 }
@@ -71,7 +71,7 @@ func init() {
 	authenticateCmd.Flags().StringVar(&projectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
 }
 
-func setup() {
+func setupAuthentication() {
 	// setup flags with environment variablen
 	if len(username) == 0 {
 		username = os.Getenv(ENV_VAR_USERNAME)

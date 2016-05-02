@@ -15,18 +15,37 @@
 package cmd
 
 import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/url"
+	"os"
+
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/helpers"
 )
 
+type Chef struct {
+	Name               string            `json:"name"`                // required
+	Repository         string            `json:"repository"`          // required
+	RepositoryRevision string            `json:"repository_revision"` // required
+	Timeout            int               `json:"timeout"`             // required
+	Tags               map[string]string `json:"tags,omitempty"`      // JSON
+	AutomationType     string            `json:"type"`
+	Runlist            []string          `json:"run_list,omitempty"`        // required, JSON
+	Attributes         string            `json:"chef_attributes,omitempty"` // JSON
+	LogLevel           string            `json:"log_level,omitempty"`
+}
+
 var (
-	name              string
-	repository        string
-	repositoryVersion string
-	timeout           int
-	tags              string // JSON (1 level key value)
-	runlist           string // JSON (1 level array)
-	attributes        string // JSON
-	logLevel          string
+	chef               = Chef{}
+	tags               string // JSON (1 level key value)
+	runlist            string // JSON (1 level array)
+	attributes         string // JSON
+	attributesFromFile string // paht to a file
 )
 
 // createCmd represents the create command
@@ -36,16 +55,67 @@ var AutomationCreateChefCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		setupRestClient()
+		setupCreateChef()
+		create()
 	},
 }
 
 func init() {
 	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
-	AutomationCreateChefCmd.Flags().StringVarP(&name, "name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
-	AutomationCreateChefCmd.Flags().StringVarP(&repository, "repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
-	AutomationCreateChefCmd.Flags().StringVarP(&repositoryVersion, "repository-version", "", "master", "Describes the repository branch.")
-	AutomationCreateChefCmd.Flags().IntVarP(&timeout, "timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
+	AutomationCreateChefCmd.Flags().StringVarP(&chef.Name, "name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
+	AutomationCreateChefCmd.Flags().StringVarP(&chef.Repository, "repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
+	AutomationCreateChefCmd.Flags().StringVarP(&chef.RepositoryRevision, "repository-revision", "", "master", "Describes the repository branch.")
+	AutomationCreateChefCmd.Flags().IntVarP(&chef.Timeout, "timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
 	AutomationCreateChefCmd.Flags().StringVarP(&tags, "tags", "", "", "Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
 	AutomationCreateChefCmd.Flags().StringVarP(&runlist, "runlist", "", "", "Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.")
-	AutomationCreateChefCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON based. JSON Schema defines seven primitive types for JSON values: array, boolean, integer, number, null, object and string. Example: {'title':'root'}")
+	AutomationCreateChefCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON based.")
+	AutomationCreateChefCmd.Flags().StringVarP(&attributesFromFile, "attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
+	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "logLevel", "", "", "Describe the level should be used when logging.")
+}
+
+func setupCreateChef() {
+	chef.Tags = helpers.StringTokeyValueMap(tags)
+	chef.Runlist = helpers.StringToArray(runlist)
+
+	// read attributes
+	if len(attributes) > 0 {
+		chef.Attributes = attributes
+	} else {
+		// check for a dash
+		if len(attributesFromFile) == 1 && attributesFromFile == "-" {
+			// read from input
+			var buffer bytes.Buffer
+			scanner := bufio.NewScanner(os.Stdin)
+			for scanner.Scan() {
+				buffer.WriteString(scanner.Text())
+			}
+			chef.Attributes = buffer.String()
+		} else {
+			// read file
+			dat, err := ioutil.ReadFile(attributesFromFile)
+			if err != nil {
+				log.Fatalf("%s\n", err.Error())
+			}
+			chef.Attributes = string(dat)
+		}
+	}
+
+}
+
+func create() {
+
+	// add the type
+	chef.AutomationType = "Chef"
+	// convert to Json
+	body, err := json.Marshal(chef)
+	if err != nil {
+		log.Fatalf("%s\n", err.Error())
+	}
+
+	response, err := RestClient.Post("automations", url.Values{}, string(body))
+	if err != nil {
+		log.Fatalf("%s\n", err.Error())
+	}
+	fmt.Println(response)
 }

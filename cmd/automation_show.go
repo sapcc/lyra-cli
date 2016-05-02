@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
 	"path"
 
 	log "github.com/Sirupsen/logrus"
@@ -37,6 +38,9 @@ and usage of using your command.`,
 			log.Fatalf("Error: no automation id given.")
 		}
 
+		// setup rest client
+		setupRestClient()
+
 		show()
 	},
 }
@@ -47,7 +51,7 @@ func init() {
 }
 
 func show() {
-	response, err := RestClient.Get(path.Join("automations", automationId))
+	response, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
 	if err != nil {
 		log.Fatalf("%s\n", err.Error())
 	}

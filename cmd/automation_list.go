@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -28,6 +29,7 @@ var AutomationListCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		setupRestClient()
 		list()
 	},
 }
@@ -37,7 +39,7 @@ func init() {
 }
 
 func list() {
-	response, err := RestClient.Get("automations")
+	response, err := RestClient.Get("automations", url.Values{})
 	if err != nil {
 		log.Fatalf("%s\n", err.Error())
 	}

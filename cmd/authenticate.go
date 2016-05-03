@@ -16,6 +16,7 @@ package cmd
 
 import (
 	// "bufio"
+	"errors"
 	"fmt"
 	"os"
 	"syscall"
@@ -43,9 +44,21 @@ var authenticateCmd = &cobra.Command{
 	Short: "Get an authentication token project based.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		setupAuthentication()
-		authenticate()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// setup
+		err := setupAuthentication()
+		if err != nil {
+			return err
+		}
+		// authenticate
+		response, err := authenticate()
+		if err != nil {
+			return err
+		}
+		// print response
+		cmd.Print(response)
+
+		return nil
 	},
 }
 
@@ -71,7 +84,7 @@ func init() {
 	authenticateCmd.Flags().StringVar(&projectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
 }
 
-func setupAuthentication() {
+func setupAuthentication() error {
 	// setup flags with environment variablen
 	if len(username) == 0 {
 		username = os.Getenv(ENV_VAR_USERNAME)
@@ -79,14 +92,13 @@ func setupAuthentication() {
 	if len(userId) == 0 {
 		userId = os.Getenv(ENV_VAR_USERID)
 	}
-
+	// check we have user name or id
 	if len(username) == 0 && len(userId) == 0 {
-		log.Fatalf("Error: username or userid not given.")
+		return errors.New("Username or userid not given.")
 	}
-
+	// check password
 	if len(password) == 0 {
 		if len(os.Getenv(ENV_VAR_PASSWORD)) == 0 {
-
 			// ask the user for the password
 			fmt.Print("Enter password: ")
 			bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
@@ -100,9 +112,11 @@ func setupAuthentication() {
 			password = os.Getenv(ENV_VAR_PASSWORD)
 		}
 	}
+
+	return nil
 }
 
-func authenticate() {
+func authenticate() (string, error) {
 	// add auth options
 	authOpts := gophercloud.AuthOptions{
 		IdentityEndpoint: identityEndpoint,
@@ -116,7 +130,7 @@ func authenticate() {
 	// get provider client struct
 	provider, err := openstack.AuthenticatedClient(authOpts)
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
 
 	// Creates a ServiceClient that may be used to access the v3 identity service
@@ -142,7 +156,7 @@ func authenticate() {
 		return true, nil
 	})
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
 
 	// get automation service endpoints
@@ -169,7 +183,7 @@ func authenticate() {
 		return true, nil
 	})
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
 
 	// set the project scope
@@ -183,10 +197,8 @@ func authenticate() {
 	// get the token
 	token, err := tokens.Create(client, authOpts, &scope).Extract()
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", nil
 	}
 
-	// output
-	fmt.Printf("export %s=%s\n", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint)
-	fmt.Printf("export %s=%s\n", ENV_VAR_TOKEN_NAME, token.ID)
+	return fmt.Sprintf("export %s=%s\nexport %s=%s\n", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_TOKEN_NAME, token.ID), nil
 }

@@ -36,9 +36,11 @@ func (c *Client) Post(pathAction string, params url.Values, body string) (string
 	if err != nil {
 		return "", err
 	}
-
 	req.Header.Add("X-Auth-Token", c.Token)
 	req.Header.Add("Content-Type", "application/json")
+
+	// log.Infof(fmt.Sprintf("RestClient Request: %+v", req))
+
 	resp, err := httpclient.Do(req)
 	if err != nil {
 		return "", err
@@ -67,6 +69,9 @@ func (c *Client) Get(pathAction string, params url.Values) (string, error) {
 		return "", err
 	}
 	req.Header.Add("X-Auth-Token", c.Token)
+
+	// log.Infof(fmt.Sprintf("RestClient Request: %+v", req))
+
 	resp, err := httpclient.Do(req)
 	if err != nil {
 		return "", err

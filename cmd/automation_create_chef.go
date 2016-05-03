@@ -18,12 +18,10 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/url"
 	"os"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/helpers"
 )
@@ -54,10 +52,26 @@ var AutomationCreateChefCmd = &cobra.Command{
 	Short: "Create a new chef automation.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		setupRestClient()
-		setupCreateChef()
-		create()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// setup
+		err := setupRestClient()
+		if err != nil {
+			return err
+		}
+		// setup attributes
+		err = setupCreateChef()
+		if err != nil {
+			return nil
+		}
+		// create automation
+		response, err := create()
+		if err != nil {
+			return err
+		}
+		// Print response
+		cmd.Print(response)
+
+		return nil
 	},
 }
 
@@ -74,7 +88,7 @@ func init() {
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "logLevel", "", "", "Describe the level should be used when logging.")
 }
 
-func setupCreateChef() {
+func setupCreateChef() error {
 	chef.Tags = helpers.StringTokeyValueMap(tags)
 	chef.Runlist = helpers.StringToArray(runlist)
 
@@ -95,27 +109,28 @@ func setupCreateChef() {
 			// read file
 			dat, err := ioutil.ReadFile(attributesFromFile)
 			if err != nil {
-				log.Fatalf("%s\n", err.Error())
+				return err
 			}
 			chef.Attributes = string(dat)
 		}
 	}
 
+	return nil
 }
 
-func create() {
-
+func create() (string, error) {
 	// add the type
 	chef.AutomationType = "Chef"
 	// convert to Json
 	body, err := json.Marshal(chef)
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
 
 	response, err := RestClient.Post("automations", url.Values{}, string(body))
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
-	fmt.Println(response)
+
+	return response, nil
 }

@@ -15,12 +15,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
 	"path"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/restclient"
 )
@@ -32,8 +32,7 @@ var RestClient *restclient.Client
 var AutomationCmd = &cobra.Command{
 	Use:   "automation",
 	Short: "Automation service.",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
+	Long:  `A longer description for automation.`,
 }
 
 func init() {
@@ -45,18 +44,18 @@ func init() {
 	AutomationCmd.PersistentFlags().StringVarP(&AutomationUrl, "automation-endpoint", "a", "", fmt.Sprint("Automation endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
 }
 
-func setupRestClient() {
+func setupRestClient() error {
 	// setup flags with environment variablen
 	if len(Token) == 0 {
 		if len(os.Getenv(ENV_VAR_TOKEN_NAME)) == 0 {
-			log.Fatalf("Error: Token not given. To create a token you can use the authenticate command.")
+			return errors.New("Token not given. To create a token you can use the authenticate command.")
 		} else {
 			Token = os.Getenv(ENV_VAR_TOKEN_NAME)
 		}
 	}
 	if len(AutomationUrl) == 0 {
 		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
-			log.Fatalf("Error: Endpoint not given. To get the automation endpoint run the authenticate command.")
+			return errors.New("Endpoint not given. To get the automation endpoint run the authenticate command.")
 		} else {
 			AutomationUrl = os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 		}
@@ -65,10 +64,12 @@ func setupRestClient() {
 	// add to the endpoint the api version
 	u, err := url.Parse(AutomationUrl)
 	if err != nil {
-		log.Fatalf(err.Error())
+		return err
 	}
 	u.Path = path.Join(u.Path, "/api/v1/")
 
 	// init rest client
 	RestClient = restclient.NewClient(u.String(), Token)
+
+	return nil
 }

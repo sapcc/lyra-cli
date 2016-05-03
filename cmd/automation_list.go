@@ -15,11 +15,8 @@
 package cmd
 
 import (
-	"fmt"
-	"net/url"
-
-	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"net/url"
 )
 
 // automation/listCmd represents the automation/list command
@@ -28,9 +25,21 @@ var AutomationListCmd = &cobra.Command{
 	Short: "List all available automations",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		setupRestClient()
-		list()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// setup
+		err := setupRestClient()
+		if err != nil {
+			return err
+		}
+		// list automation
+		response, err := list()
+		if err != nil {
+			return err
+		}
+		// print response
+		cmd.Print(response)
+
+		return nil
 	},
 }
 
@@ -38,11 +47,10 @@ func init() {
 	AutomationCmd.AddCommand(AutomationListCmd)
 }
 
-func list() {
+func list() (string, error) {
 	response, err := RestClient.Get("automations", url.Values{})
 	if err != nil {
-		log.Fatalf("%s\n", err.Error())
+		return "", err
 	}
-
-	fmt.Println(response)
+	return response, nil
 }

@@ -40,7 +40,7 @@ var AutomationShowCmd = &cobra.Command{
 			return err
 		}
 		// show automation
-		response, err := show()
+		response, err := automationShow()
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func init() {
 	AutomationShowCmd.Flags().StringVarP(&automationId, "id", "i", "", "Id of the automation to show.")
 }
 
-func show() (string, error) {
+func automationShow() (string, error) {
 	response, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
 	if err != nil {
 		return "", err

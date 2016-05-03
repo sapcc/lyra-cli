@@ -6,7 +6,9 @@ import (
 	"github.com/spf13/cobra"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
+	"testing"
 )
 
 type resulter struct {
@@ -42,4 +44,66 @@ func TestServer(code int, body string) *httptest.Server {
 	}))
 
 	return server
+}
+
+func resetAutomationFlagVars() {
+	Token = ""
+	AutomationUrl = ""
+}
+
+func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, input string) {
+	// clean env variablen
+	os.Unsetenv(ENV_VAR_TOKEN_NAME)
+	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+
+	// check
+	resulter := FullCmdTester(cmd, input)
+	if resulter.Error == nil {
+		t.Error(`Command expected to get an error because of missing token and endpoint`)
+	}
+}
+
+func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input string) {
+	// just token
+	os.Setenv(ENV_VAR_TOKEN_NAME, "token_123")
+	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+
+	// check
+	resulter := FullCmdTester(cmd, input)
+	if resulter.Error == nil {
+		t.Error(`Command expected to get an error because of missing endpoint`)
+	}
+}
+
+func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string) {
+	// set test server
+	responseBody := "Miau"
+	server := TestServer(200, responseBody)
+	defer server.Close()
+
+	// just endpoitn
+	os.Unsetenv(ENV_VAR_TOKEN_NAME)
+	os.Setenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME, server.URL)
+
+	// check
+	resulter := FullCmdTester(cmd, input)
+	if resulter.Error == nil {
+		t.Error(`Command expected to get an error because of missing token`)
+	}
+}
+
+func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, input string, responseBody string) {
+	// clean env variablen
+	os.Unsetenv(ENV_VAR_TOKEN_NAME)
+	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+
+	resulter := FullCmdTester(cmd, input)
+
+	if !strings.Contains(resulter.Output, responseBody) {
+		t.Error(`Command response body doesn't match.'`)
+	}
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
 }

@@ -32,7 +32,7 @@ and usage of using your command.`,
 			return err
 		}
 		// list automation
-		response, err := list()
+		response, err := automationList()
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func init() {
 	AutomationCmd.AddCommand(AutomationListCmd)
 }
 
-func list() (string, error) {
+func automationList() (string, error) {
 	response, err := RestClient.Get("automations", url.Values{})
 	if err != nil {
 		return "", err

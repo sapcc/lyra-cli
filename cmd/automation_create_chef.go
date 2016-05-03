@@ -64,7 +64,7 @@ and usage of using your command.`,
 			return nil
 		}
 		// create automation
-		response, err := create()
+		response, err := AutomationCreateChef()
 		if err != nil {
 			return err
 		}
@@ -118,7 +118,7 @@ func setupCreateChef() error {
 	return nil
 }
 
-func create() (string, error) {
+func AutomationCreateChef() (string, error) {
 	// add the type
 	chef.AutomationType = "Chef"
 	// convert to Json

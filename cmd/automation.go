@@ -53,6 +53,7 @@ func setupRestClient() error {
 			Token = os.Getenv(ENV_VAR_TOKEN_NAME)
 		}
 	}
+
 	if len(AutomationUrl) == 0 {
 		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
 			return errors.New("Endpoint not given. To get the automation endpoint run the authenticate command.")

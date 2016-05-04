@@ -46,11 +46,6 @@ func TestServer(code int, body string) *httptest.Server {
 	return server
 }
 
-func resetAutomationFlagVars() {
-	Token = ""
-	AutomationUrl = ""
-}
-
 func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, input string) {
 	// clean env variablen
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)

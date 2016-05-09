@@ -14,10 +14,15 @@ func resetAutomationCreateChefFlagVars() {
 	runlist = ""
 	attributes = ""
 	attributesFromFile = ""
+
 	// reset automation flag vars
-	resetAutomationFlagVars()
+	resetRootFlagVars()
+	// reset commands
+	RootCmd.ResetCommands()
 	AutomationCmd.ResetCommands()
 	AutomationCreateCmd.ResetCommands()
+	// build commands
+	RootCmd.AddCommand(AutomationCmd)
 	AutomationCmd.AddCommand(AutomationCreateCmd)
 	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
 }
@@ -29,8 +34,8 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationCreateChefFlagVars()
-	resulter := FullCmdTester(AutomationCmd,
-		fmt.Sprintf("automation create chef --automation-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --runlist=%s --attributes=%s --log-level=%s",
+	resulter := FullCmdTester(RootCmd,
+		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --runlist=%s --attributes=%s --log-level=%s",
 			server.URL,
 			"token123",
 			"chef_test",
@@ -86,8 +91,8 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	txt, _ := ioutil.ReadFile(file)
 
 	resetAutomationCreateChefFlagVars()
-	resulter := FullCmdTester(AutomationCmd,
-		fmt.Sprintf("automation create chef --automation-endpoint=%s --token=%s --attributes-from-file=%s",
+	resulter := FullCmdTester(RootCmd,
+		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --token=%s --attributes-from-file=%s",
 			server.URL,
 			"token123",
 			file))
@@ -126,8 +131,8 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 //   fmt.Fprintf(w, string(txt))
 //
 //   resetAutomationCreateChefFlagVars()
-//   resulter := FullCmdTester(AutomationCmd,
-//     fmt.Sprintf("automation create chef --automation-endpoint=%s --token=%s --attributes-from-file=%s",
+//   resulter := FullCmdTester(RootCmd,
+//     fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --token=%s --attributes-from-file=%s",
 //       server.URL,
 //       "token123",
 //       "-"))

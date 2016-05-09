@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Arturo Reuschenbach <a.reuschenbach.puncernau@sap.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,27 +15,32 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/restclient"
 )
 
-var cfgFile string
-var ENV_VAR_TOKEN_NAME = "LYRA_AUTH_TOKEN"
-var ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
+var (
+	cfgFile                          string
+	Token                            string
+	AutomationUrl                    string
+	RestClient                       *restclient.Client
+	ENV_VAR_TOKEN_NAME               = "LYRA_AUTH_TOKEN"
+	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "lyra-cli",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+examples and usage of using your application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -60,7 +65,13 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lyra-cli.yaml)")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().BoolP("toggle", "g", false, "Help message for toggle")
+
+	// Custom flags
+	token_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME)
+	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	RootCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
+	RootCmd.PersistentFlags().StringVarP(&AutomationUrl, "lyra-service-endpoint", "l", "", fmt.Sprint("Automation service endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -77,4 +88,36 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+}
+
+// setup the rest client
+func setupRestClient() error {
+	// setup flags with environment variablen
+	if len(Token) == 0 {
+		if len(os.Getenv(ENV_VAR_TOKEN_NAME)) == 0 {
+			return errors.New("Token not given. To create a token you can use the authenticate command.")
+		} else {
+			Token = os.Getenv(ENV_VAR_TOKEN_NAME)
+		}
+	}
+
+	if len(AutomationUrl) == 0 {
+		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
+			return errors.New("Endpoint not given. To get the automation endpoint run the authenticate command.")
+		} else {
+			AutomationUrl = os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+		}
+	}
+
+	// add to the endpoint the api version
+	u, err := url.Parse(AutomationUrl)
+	if err != nil {
+		return err
+	}
+	u.Path = path.Join(u.Path, "/api/v1/")
+
+	// init rest client
+	RestClient = restclient.NewClient(u.String(), Token)
+
+	return nil
 }

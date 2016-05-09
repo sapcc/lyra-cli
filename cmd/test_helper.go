@@ -102,3 +102,8 @@ func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, inp
 		t.Error(`Command expected to not get an error`)
 	}
 }
+
+func resetRootFlagVars() {
+	Token = ""
+	AutomationUrl = ""
+}

@@ -6,18 +6,24 @@ import (
 )
 
 func resetAutomationList() {
-	resetAutomationFlagVars()
+	// reset automation flag vars
+	resetRootFlagVars()
+	// reset commands
+	RootCmd.ResetCommands()
 	AutomationCmd.ResetCommands()
+	AutomationListCmd.ResetCommands()
+	// build commands
+	RootCmd.AddCommand(AutomationCmd)
 	AutomationCmd.AddCommand(AutomationListCmd)
 }
 
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
 	resetAutomationList()
-	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, AutomationCmd, "automation list")
+	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra-cli automation list")
 	resetAutomationList()
-	CheckhErrorWhenNoEnvEndpointSet(t, AutomationCmd, "automation list")
+	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra-cli automation list")
 	resetAutomationList()
-	CheckhErrorWhenNoEnvTokenSet(t, AutomationCmd, "automation list")
+	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra-cli automation list")
 }
 
 func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
@@ -27,5 +33,5 @@ func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationList()
-	CheckCmdWorksWithEndpointAndTokenFlag(t, AutomationCmd, fmt.Sprintf("automation list --automation-endpoint=%s --token=%s", server.URL, "token123"), responseBody)
+	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra-cli automation list --lyra-service-endpoint=%s --token=%s", server.URL, "token123"), responseBody)
 }

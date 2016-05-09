@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Arturo Reuschenbach <a.reuschenbach.puncernau@sap.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,10 +33,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ENV_VAR_USERNAME = "USERNAME"
-var ENV_VAR_USERID = "USERID"
-var ENV_VAR_PASSWORD = "PASSWORD"
-var identityEndpoint, username, userId, password, projectName, projectId, userDomainName, userDomainId, projectDomainName, projectDomainId string
+type Auth struct {
+	IdentityEndpoint  string
+	Username          string
+	UserId            string
+	Password          string
+	ProjectName       string
+	ProjectId         string
+	UserDomainName    string
+	UserDomainId      string
+	ProjectDomainName string
+	ProjectDomainId   string
+}
+
+var (
+	ENV_VAR_USERNAME = "USERNAME"
+	ENV_VAR_USERID   = "USERID"
+	ENV_VAR_PASSWORD = "PASSWORD"
+	lyraAuthOps      = Auth{}
+)
 
 // authenticateCmd represents the authenticate command
 var authenticateCmd = &cobra.Command{
@@ -69,35 +84,35 @@ func init() {
 	userid_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERID)
 	password_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD)
 
-	authenticateCmd.Flags().StringVarP(&identityEndpoint, "identity-endpoint", "e", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
-	authenticateCmd.Flags().StringVar(&username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
-	authenticateCmd.Flags().StringVar(&userId, "userId", "", fmt.Sprint("Name of the user that wants to log in. (default ", userid_default_env_name, ")"))
-	authenticateCmd.Flags().StringVarP(&password, "password", "p", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.IdentityEndpoint, "identity-endpoint", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.Username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "userId", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.Password, "password", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
 
-	authenticateCmd.Flags().StringVar(&projectName, "project-name", "", "Name of the project.")
-	authenticateCmd.Flags().StringVar(&projectId, "project-id", "", "Id of the project.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectName, "project-name", "", "Name of the project.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectId, "project-id", "", "Id of the project.")
 
-	authenticateCmd.Flags().StringVar(&userDomainName, "user-domain-name", "", "Name of the domain where the user is created.")
-	authenticateCmd.Flags().StringVar(&userDomainId, "user-domain-id", "", "Id of the domain where the user is created.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainName, "user-domain-name", "", "Name of the domain where the user is created.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainId, "user-domain-id", "", "Id of the domain where the user is created.")
 
-	authenticateCmd.Flags().StringVar(&projectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
-	authenticateCmd.Flags().StringVar(&projectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
 }
 
 func setupAuthentication() error {
 	// setup flags with environment variablen
-	if len(username) == 0 {
-		username = os.Getenv(ENV_VAR_USERNAME)
+	if len(lyraAuthOps.Username) == 0 {
+		lyraAuthOps.Username = os.Getenv(ENV_VAR_USERNAME)
 	}
-	if len(userId) == 0 {
-		userId = os.Getenv(ENV_VAR_USERID)
+	if len(lyraAuthOps.UserId) == 0 {
+		lyraAuthOps.UserId = os.Getenv(ENV_VAR_USERID)
 	}
 	// check we have user name or id
-	if len(username) == 0 && len(userId) == 0 {
+	if len(lyraAuthOps.Username) == 0 && len(lyraAuthOps.UserId) == 0 {
 		return errors.New("Username or userid not given.")
 	}
 	// check password
-	if len(password) == 0 {
+	if len(lyraAuthOps.Password) == 0 {
 		if len(os.Getenv(ENV_VAR_PASSWORD)) == 0 {
 			// ask the user for the password
 			fmt.Print("Enter password: ")
@@ -106,10 +121,10 @@ func setupAuthentication() error {
 				log.Fatalf(err.Error())
 			}
 			fmt.Print("\n")
-			password = string(bytePassword)
+			lyraAuthOps.Password = string(bytePassword)
 
 		} else {
-			password = os.Getenv(ENV_VAR_PASSWORD)
+			lyraAuthOps.Password = os.Getenv(ENV_VAR_PASSWORD)
 		}
 	}
 
@@ -119,12 +134,12 @@ func setupAuthentication() error {
 func authenticate() (string, error) {
 	// add auth options
 	authOpts := gophercloud.AuthOptions{
-		IdentityEndpoint: identityEndpoint,
-		Username:         username,
-		UserID:           userId,
-		Password:         password,
-		DomainName:       userDomainName,
-		DomainID:         userDomainId,
+		IdentityEndpoint: lyraAuthOps.IdentityEndpoint,
+		Username:         lyraAuthOps.Username,
+		UserID:           lyraAuthOps.UserId,
+		Password:         lyraAuthOps.Password,
+		DomainName:       lyraAuthOps.UserDomainName,
+		DomainID:         lyraAuthOps.UserDomainId,
 	}
 
 	// get provider client struct
@@ -188,10 +203,10 @@ func authenticate() (string, error) {
 
 	// set the project scope
 	scope := tokens.Scope{
-		ProjectName: projectName,
-		ProjectID:   projectId,
-		DomainName:  projectDomainName,
-		DomainID:    projectDomainId,
+		ProjectName: lyraAuthOps.ProjectName,
+		ProjectID:   lyraAuthOps.ProjectId,
+		DomainName:  lyraAuthOps.ProjectDomainName,
+		DomainID:    lyraAuthOps.ProjectDomainId,
 	}
 
 	// get the token

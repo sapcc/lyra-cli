@@ -5,20 +5,20 @@ import (
 	"testing"
 )
 
-func resetAutomationFlagVars() {
-	Token = ""
-	AutomationUrl = ""
-}
-
 func resetAutomation() {
-	resetAutomationFlagVars()
+	// reset automation flag vars
+	resetRootFlagVars()
+	// reset commands
+	RootCmd.ResetCommands()
 	AutomationCmd.ResetCommands()
+	// build commands
+	RootCmd.AddCommand(AutomationCmd)
 }
 
 func TestAutomationShouldDoNothing(t *testing.T) {
 	resetAutomation()
 	// check
-	resulter := FullCmdTester(AutomationCmd, "automation")
+	resulter := FullCmdTester(RootCmd, "lyra-cli automation")
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}

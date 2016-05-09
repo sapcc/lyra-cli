@@ -15,18 +15,20 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-	"net/url"
-	"os"
-	"path"
-
 	"github.com/spf13/cobra"
-	"github.com/sapcc/lyra-cli/restclient"
 )
 
-var Token, AutomationUrl string
-var RestClient *restclient.Client
+type Chef struct {
+	Name               string            `json:"name"`                // required
+	Repository         string            `json:"repository"`          // required
+	RepositoryRevision string            `json:"repository_revision"` // required
+	Timeout            int               `json:"timeout"`             // required
+	Tags               map[string]string `json:"tags,omitempty"`      // JSON
+	AutomationType     string            `json:"type"`
+	Runlist            []string          `json:"run_list,omitempty"`        // required, JSON
+	Attributes         string            `json:"chef_attributes,omitempty"` // JSON
+	LogLevel           string            `json:"log_level,omitempty"`
+}
 
 // automationCmd represents the automation command
 var AutomationCmd = &cobra.Command{
@@ -37,40 +39,4 @@ var AutomationCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(AutomationCmd)
-
-	token_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME)
-	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
-	AutomationCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
-	AutomationCmd.PersistentFlags().StringVarP(&AutomationUrl, "automation-endpoint", "a", "", fmt.Sprint("Automation endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
-}
-
-func setupRestClient() error {
-	// setup flags with environment variablen
-	if len(Token) == 0 {
-		if len(os.Getenv(ENV_VAR_TOKEN_NAME)) == 0 {
-			return errors.New("Token not given. To create a token you can use the authenticate command.")
-		} else {
-			Token = os.Getenv(ENV_VAR_TOKEN_NAME)
-		}
-	}
-
-	if len(AutomationUrl) == 0 {
-		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
-			return errors.New("Endpoint not given. To get the automation endpoint run the authenticate command.")
-		} else {
-			AutomationUrl = os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
-		}
-	}
-
-	// add to the endpoint the api version
-	u, err := url.Parse(AutomationUrl)
-	if err != nil {
-		return err
-	}
-	u.Path = path.Join(u.Path, "/api/v1/")
-
-	// init rest client
-	RestClient = restclient.NewClient(u.String(), Token)
-
-	return nil
 }

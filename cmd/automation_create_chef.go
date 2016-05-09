@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Arturo Reuschenbach <a.reuschenbach.puncernau@sap.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,18 +25,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/helpers"
 )
-
-type Chef struct {
-	Name               string            `json:"name"`                // required
-	Repository         string            `json:"repository"`          // required
-	RepositoryRevision string            `json:"repository_revision"` // required
-	Timeout            int               `json:"timeout"`             // required
-	Tags               map[string]string `json:"tags,omitempty"`      // JSON
-	AutomationType     string            `json:"type"`
-	Runlist            []string          `json:"run_list,omitempty"`        // required, JSON
-	Attributes         string            `json:"chef_attributes,omitempty"` // JSON
-	LogLevel           string            `json:"log_level,omitempty"`
-}
 
 var (
 	chef               = Chef{}

@@ -6,15 +6,21 @@ import (
 )
 
 func resetAutomationCreateFlagVars() {
-	resetAutomationFlagVars()
+	// reset automation flag vars
+	resetRootFlagVars()
+	// reset commands
+	RootCmd.ResetCommands()
 	AutomationCmd.ResetCommands()
+	AutomationCreateCmd.ResetCommands()
+	// build commands
+	RootCmd.AddCommand(AutomationCmd)
 	AutomationCmd.AddCommand(AutomationCreateCmd)
 }
 
 func TestAutomationCreateShouldDoNothing(t *testing.T) {
 	resetAutomationCreateFlagVars()
 	// check
-	resulter := FullCmdTester(AutomationCmd, "automation create")
+	resulter := FullCmdTester(RootCmd, "lyra-cli automation create")
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}

@@ -15,17 +15,32 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-// createCmd represents the create command
-var AutomationCreateCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a new automation.",
+var (
+// chef               = Chef{}
+// tags               string
+// runlist            string
+// attributes         string
+// attributesFromFile string
+)
+
+// updateCmd represents the update command
+var AutomationUpdateChefCmd = &cobra.Command{
+	Use:   "update",
+	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// TODO: Work your own magic here
+		fmt.Println("update called")
+	},
 }
 
 func init() {
-	AutomationCmd.AddCommand(AutomationCreateCmd)
+	AutomationCreateCmd.AddCommand(AutomationUpdateChefCmd)
+
 }

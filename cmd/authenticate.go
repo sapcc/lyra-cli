@@ -15,20 +15,17 @@
 package cmd
 
 import (
-	// "bufio"
 	"errors"
 	"fmt"
 	"os"
-	"syscall"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/howeyc/gopass"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/endpoints"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/services"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
 	"github.com/rackspace/gophercloud/pagination"
-	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/spf13/cobra"
 )
@@ -116,12 +113,11 @@ func setupAuthentication() error {
 		if len(os.Getenv(ENV_VAR_PASSWORD)) == 0 {
 			// ask the user for the password
 			fmt.Print("Enter password: ")
-			bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+			pass, err := gopass.GetPasswd()
 			if err != nil {
-				log.Fatalf(err.Error())
+				return err
 			}
-			fmt.Print("\n")
-			lyraAuthOps.Password = string(bytePassword)
+			lyraAuthOps.Password = string(pass)
 
 		} else {
 			lyraAuthOps.Password = os.Getenv(ENV_VAR_PASSWORD)

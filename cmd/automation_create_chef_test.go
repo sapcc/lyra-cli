@@ -53,6 +53,9 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	if !strings.Contains(resulter.Output, responseBody) {
 		t.Error(`Command response body doesn't match.'`)
 	}
+	if !strings.Contains(chef.AutomationType, "Chef") {
+		t.Error(`Command create chef expected to have Chef type'`)
+	}
 	if !strings.Contains(chef.Name, "chef_test") {
 		t.Error(`Command create chef expected to have same name'`)
 	}

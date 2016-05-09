@@ -19,13 +19,15 @@ import (
 )
 
 // updateCmd represents the update command
-var AutomationUpdateChefCmd = &cobra.Command{
-	Use:   "chef",
-	Short: "Updates a chef automation",
+var AutomationUpdateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Updates an exsiting automation",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 }
 
 func init() {
-	AutomationUpdateCmd.AddCommand(AutomationUpdateChefCmd)
+	AutomationCmd.AddCommand(AutomationUpdateCmd)
+	//flags
+	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "id", "", "", "Id from the automation that should be updated.")
 }

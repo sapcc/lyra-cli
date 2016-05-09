@@ -12,11 +12,6 @@
 			"Rev": "f706d00e3de6abe700c994cdd545a1a4915af060"
 		},
 		{
-			"ImportPath": "github.com/Sirupsen/logrus",
-			"Comment": "v0.9.0-17-ga26f435",
-			"Rev": "a26f43589d737684363ff856c5a0f9f24b946510"
-		},
-		{
 			"ImportPath": "github.com/fsnotify/fsnotify",
 			"Comment": "v1.3.0",
 			"Rev": "30411dbcefb7a1da7e84f75530ad3abe4011b4f8"
@@ -56,6 +51,10 @@
 		{
 			"ImportPath": "github.com/hashicorp/hcl/json/token",
 			"Rev": "27a57f2605e04995c111273c263d51cee60d9bc4"
+		},
+		{
+			"ImportPath": "github.com/howeyc/gopass",
+			"Rev": "66487b23f2880ba32e185121d2cd51a338ea069a"
 		},
 		{
 			"ImportPath": "github.com/inconshreveable/mousetrap",

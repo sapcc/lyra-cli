@@ -1,6 +1,10 @@
 package helpers
 
 import (
+	"bufio"
+	"bytes"
+	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -34,4 +38,30 @@ func StringToArray(data string) []string {
 		return []string{}
 	}
 	return result_array
+}
+
+// read content from file
+// path containing a dash will mean read from std in
+func ReadFromFile(path string) (string, error) {
+	// check for a dash
+	if len(path) == 1 && path == "-" {
+		// read from input
+		var buffer bytes.Buffer
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			buffer.WriteString(scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			return "", err
+		}
+		return buffer.String(), nil
+	} else if len(path) > 1 {
+		// read file
+		dat, err := ioutil.ReadFile(path)
+		if err != nil {
+			return "", err
+		}
+		return string(dat), nil
+	}
+	return "", nil
 }

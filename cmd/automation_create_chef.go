@@ -15,23 +15,11 @@
 package cmd
 
 import (
-	"bufio"
-	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"net/url"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/helpers"
-)
-
-var (
-	chef               = Chef{}
-	tags               string // JSON (1 level key value)
-	runlist            string // JSON (1 level array)
-	attributes         string // JSON
-	attributesFromFile string // paht to a file
 )
 
 // createCmd represents the create command
@@ -47,12 +35,12 @@ and usage of using your command.`,
 			return err
 		}
 		// setup attributes
-		err = setupCreateChef()
+		err = setupAutomationCreateChef()
 		if err != nil {
 			return nil
 		}
 		// create automation
-		response, err := AutomationCreateChef()
+		response, err := automationCreateChef()
 		if err != nil {
 			return err
 		}
@@ -65,6 +53,8 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
+	// flags
+	chef = Chef{}
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.Name, "name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.Repository, "repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.RepositoryRevision, "repository-revision", "", "master", "Describes the repository branch.")
@@ -76,7 +66,9 @@ func init() {
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "log-level", "", "", "Describe the level should be used when logging.")
 }
 
-func setupCreateChef() error {
+// private
+
+func setupAutomationCreateChef() error {
 	chef.Tags = helpers.StringTokeyValueMap(tags)
 	chef.Runlist = helpers.StringToArray(runlist)
 
@@ -84,32 +76,17 @@ func setupCreateChef() error {
 	if len(attributes) > 0 {
 		chef.Attributes = attributes
 	} else {
-		// check for a dash
-		if len(attributesFromFile) == 1 && attributesFromFile == "-" {
-			// read from input
-			var buffer bytes.Buffer
-			scanner := bufio.NewScanner(os.Stdin)
-			for scanner.Scan() {
-				buffer.WriteString(scanner.Text())
-			}
-			if err := scanner.Err(); err != nil {
-				return err
-			}
-			chef.Attributes = buffer.String()
-		} else if len(attributesFromFile) > 1 {
-			// read file
-			dat, err := ioutil.ReadFile(attributesFromFile)
-			if err != nil {
-				return err
-			}
-			chef.Attributes = string(dat)
+		attr, err := helpers.ReadFromFile(attributesFromFile)
+		if err != nil {
+			return err
 		}
+		chef.Attributes = attr
 	}
 
 	return nil
 }
 
-func AutomationCreateChef() (string, error) {
+func automationCreateChef() (string, error) {
 	// add the type
 	chef.AutomationType = "Chef"
 	// convert to Json

@@ -30,6 +30,15 @@ type Chef struct {
 	LogLevel           string            `json:"log_level,omitempty"`
 }
 
+var (
+	chef               = Chef{}
+	tags               string // JSON (1 level key value)
+	runlist            string // JSON (1 level array)
+	attributes         string // JSON
+	attributesFromFile string // paht to a file
+	automationId       string
+)
+
 // automationCmd represents the automation command
 var AutomationCmd = &cobra.Command{
 	Use:   "automation",

@@ -22,8 +22,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var automationId string
-
 // showCmd represents the show command
 var AutomationShowCmd = &cobra.Command{
 	Use:   "show",

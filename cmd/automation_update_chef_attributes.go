@@ -19,13 +19,19 @@ import (
 )
 
 // updateCmd represents the update command
-var AutomationUpdateChefCmd = &cobra.Command{
-	Use:   "chef",
-	Short: "Updates a chef automation",
+var AutomationUpdateChefAttributesCmd = &cobra.Command{
+	Use:   "attributes",
+	Short: "Updates chef attributes",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
 }
 
 func init() {
-	AutomationUpdateCmd.AddCommand(AutomationUpdateChefCmd)
+	AutomationUpdateChefCmd.AddCommand(AutomationUpdateChefAttributesCmd)
+	//flags
+	AutomationUpdateChefAttributesCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON format.")
+	AutomationUpdateChefAttributesCmd.Flags().StringVarP(&attributesFromFile, "attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
 }

@@ -85,7 +85,7 @@ func init() {
 	AutomationCreateChefCmd.Flags().StringVarP(&runlist, "runlist", "", "", "Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.")
 	AutomationCreateChefCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON based.")
 	AutomationCreateChefCmd.Flags().StringVarP(&attributesFromFile, "attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
-	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "logLevel", "", "", "Describe the level should be used when logging.")
+	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "log-level", "", "", "Describe the level should be used when logging.")
 }
 
 func setupCreateChef() error {
@@ -104,8 +104,11 @@ func setupCreateChef() error {
 			for scanner.Scan() {
 				buffer.WriteString(scanner.Text())
 			}
+			if err := scanner.Err(); err != nil {
+				return err
+			}
 			chef.Attributes = buffer.String()
-		} else {
+		} else if len(attributesFromFile) > 1 {
 			// read file
 			dat, err := ioutil.ReadFile(attributesFromFile)
 			if err != nil {

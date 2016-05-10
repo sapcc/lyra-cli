@@ -20,6 +20,7 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 // showCmd represents the show command
@@ -27,7 +28,7 @@ var AutomationShowCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Show a specific automation",
 	Long:  `A longer description for automation show.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
 		if len(automationId) == 0 {
 			return errors.New("No automation id given.")
@@ -37,6 +38,10 @@ var AutomationShowCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
 		response, err := automationShow()
 		if err != nil {
@@ -51,7 +56,7 @@ var AutomationShowCmd = &cobra.Command{
 
 func init() {
 	AutomationCmd.AddCommand(AutomationShowCmd)
-	AutomationShowCmd.Flags().StringVarP(&automationId, "id", "i", "", "Id of the automation to show.")
+	AutomationShowCmd.Flags().StringVarP(&automationId, "id", "i", "", locales.AttributeDescription("automation-id"))
 }
 
 func automationShow() (string, error) {

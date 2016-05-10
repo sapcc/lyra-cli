@@ -1,4 +1,4 @@
-// Copyright © 2016 Arturo Reuschenbach <a.reuschenbach.puncernau@sap.com>
+// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,22 +18,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// createCmd represents the create command
-var AutomationCreateCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a new automation.",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
+type Run struct {
+	AutomationId string `json:"automation_id"`
+	Selector     string `json:"selector"`
+}
+
+var (
+	run = Run{}
+)
+
+// automationCmd represents the automation command
+var RunCmd = &cobra.Command{
+	Use:   "run",
+	Short: "Automation run service.",
+	Long:  `A longer description for automation.`,
 }
 
 func init() {
-	AutomationCmd.AddCommand(AutomationCreateCmd)
+	RootCmd.AddCommand(RunCmd)
 }

@@ -25,12 +25,15 @@ var AutomationListCmd = &cobra.Command{
 	Short: "List all available automations",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		// setup
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		// setup rest client
 		err := setupRestClient()
 		if err != nil {
 			return err
 		}
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
 		// list automation
 		response, err := automationList()
 		if err != nil {

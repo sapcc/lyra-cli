@@ -31,18 +31,8 @@ var AutomationUpdateChefAttributesCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		// setup automation update attributes
-		err = setupAutomationUpdate()
-		if err != nil {
-			return err
-		}
 		// setup update chef attributes
-		err = setupAutomationUpdateChefAttributes()
+		err := setupAutomationUpdateChefAttributes()
 		if err != nil {
 			return err
 		}

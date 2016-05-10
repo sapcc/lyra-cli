@@ -28,17 +28,15 @@ var AutomationCreateChefCmd = &cobra.Command{
 	Short: "Create a new chef automation.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		// setup automation create chef attributes
+		err := setupAutomationCreateChef()
+		if err != nil {
+			return err
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// setup
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		// setup attributes
-		err = setupAutomationCreateChef()
-		if err != nil {
-			return err
-		}
 		// create automation
 		response, err := automationCreateChef()
 		if err != nil {

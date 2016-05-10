@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 )
 
@@ -30,4 +32,12 @@ func init() {
 	AutomationCmd.AddCommand(AutomationUpdateCmd)
 	//flags
 	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "id", "", "", "Id from the automation that should be updated.")
+}
+
+func setupAutomationUpdate() error {
+	// check required automation id
+	if len(automationId) == 0 {
+		return errors.New("No automation id given.")
+	}
+	return nil
 }

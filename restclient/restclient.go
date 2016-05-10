@@ -23,10 +23,40 @@ func NewClient(endpoint, token string) *Client {
 	}
 }
 
-func (c *Client) Post(pathAction string, params url.Values, body string) (string, error) {
-	u, err := url.Parse(c.Endpoint) //	u, err := url.Parse("http://localhost:3003/api/v1/")
+func (c *Client) Put(pathAction string, params url.Values, body string) (string, int, error) {
+	u, err := url.Parse(c.Endpoint)
 	if err != nil {
-		return "", err
+		return "", 0, err
+	}
+	u.Path = path.Join(u.Path, pathAction)
+	u.RawQuery = params.Encode()
+
+	httpclient := &http.Client{}
+	req, err := http.NewRequest("PUT", u.String(), bytes.NewBufferString(body))
+	if err != nil {
+		return "", 0, err
+	}
+	req.Header.Add("X-Auth-Token", c.Token)
+	req.Header.Add("Content-Type", "application/json")
+
+	resp, err := httpclient.Do(req)
+	if err != nil {
+		return "", 0, err
+	}
+	defer resp.Body.Close()
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
+}
+
+func (c *Client) Post(pathAction string, params url.Values, body string) (string, int, error) {
+	u, err := url.Parse(c.Endpoint)
+	if err != nil {
+		return "", 0, err
 	}
 	u.Path = path.Join(u.Path, pathAction)
 	u.RawQuery = params.Encode()
@@ -34,31 +64,29 @@ func (c *Client) Post(pathAction string, params url.Values, body string) (string
 	httpclient := &http.Client{}
 	req, err := http.NewRequest("POST", u.String(), bytes.NewBufferString(body))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	req.Header.Add("X-Auth-Token", c.Token)
 	req.Header.Add("Content-Type", "application/json")
 
-	// log.Infof(fmt.Sprintf("RestClient Request: %+v", req))
-
 	resp, err := httpclient.Do(req)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return jsonPrettyPrint(string(respBody)), nil
+	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
 }
 
-func (c *Client) Get(pathAction string, params url.Values) (string, error) {
+func (c *Client) Get(pathAction string, params url.Values) (string, int, error) {
 	u, err := url.Parse(c.Endpoint)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	u.Path = path.Join(u.Path, pathAction)
 	u.RawQuery = params.Encode()
@@ -66,24 +94,22 @@ func (c *Client) Get(pathAction string, params url.Values) (string, error) {
 	httpclient := &http.Client{}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	req.Header.Add("X-Auth-Token", c.Token)
 
-	// log.Infof(fmt.Sprintf("RestClient Request: %+v", req))
-
 	resp, err := httpclient.Do(req)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return jsonPrettyPrint(string(body)), nil
+	return jsonPrettyPrint(string(body)), resp.StatusCode, nil
 }
 
 func jsonPrettyPrint(in string) string {

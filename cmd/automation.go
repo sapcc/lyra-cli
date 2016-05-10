@@ -19,6 +19,7 @@ import (
 )
 
 type Chef struct {
+	Id                 int               `json:"id"`
 	Name               string            `json:"name"`                // required
 	Repository         string            `json:"repository"`          // required
 	RepositoryRevision string            `json:"repository_revision"` // required
@@ -26,7 +27,7 @@ type Chef struct {
 	Tags               map[string]string `json:"tags,omitempty"`      // JSON
 	AutomationType     string            `json:"type"`
 	Runlist            []string          `json:"run_list,omitempty"`        // required, JSON
-	Attributes         string            `json:"chef_attributes,omitempty"` // JSON
+	Attributes         interface{}       `json:"chef_attributes,omitempty"` // JSON
 	LogLevel           string            `json:"log_level,omitempty"`
 }
 

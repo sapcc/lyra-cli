@@ -3,6 +3,7 @@ package helpers
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -38,6 +39,16 @@ func StringToArray(data string) []string {
 		return []string{}
 	}
 	return result_array
+}
+
+func JSONStringToStructure(jsonString string, structure interface{}) error {
+	jsonBytes := []byte(jsonString)
+	return json.Unmarshal(jsonBytes, structure)
+}
+
+func StructureToJSON(structure interface{}) (string, error) {
+	bin, err := json.Marshal(structure)
+	return string(bin), err
 }
 
 // read content from file

@@ -37,7 +37,7 @@ and usage of using your command.`,
 		// setup attributes
 		err = setupAutomationCreateChef()
 		if err != nil {
-			return nil
+			return err
 		}
 		// create automation
 		response, err := automationCreateChef()
@@ -74,13 +74,19 @@ func setupAutomationCreateChef() error {
 
 	// read attributes
 	if len(attributes) > 0 {
-		chef.Attributes = attributes
+		err := helpers.JSONStringToStructure(attributes, &chef.Attributes)
+		if err != nil {
+			return err
+		}
 	} else {
 		attr, err := helpers.ReadFromFile(attributesFromFile)
 		if err != nil {
 			return err
 		}
-		chef.Attributes = attr
+		err = helpers.JSONStringToStructure(attr, &chef.Attributes)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -95,7 +101,7 @@ func automationCreateChef() (string, error) {
 		return "", err
 	}
 
-	response, err := RestClient.Post("automations", url.Values{}, string(body))
+	response, _, err := RestClient.Post("automations", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

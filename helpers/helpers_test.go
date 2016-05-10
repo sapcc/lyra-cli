@@ -2,8 +2,33 @@ package helpers
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
+
+func TestJSONStringToStructure(t *testing.T) {
+	var testStructure interface{}
+	testString := `{"test":"test"}`
+	err := JSONStringToStructure(testString, &testStructure)
+	if err != nil {
+		t.Error(`JSONStringToStructure expected to not get an error`)
+	}
+	mapStructure := testStructure.(map[string]interface{})
+	if mapStructure["test"] != "test" {
+		t.Error(`JSONStringToStructure expected right convertion to structure`)
+	}
+}
+
+func TestStructureToJSON(t *testing.T) {
+	testStructure := map[string]interface{}{"miau": "bup"}
+	testString, err := StructureToJSON(testStructure)
+	if err != nil {
+		t.Error(`StructureToJSON expected to not get an error`)
+	}
+	if !strings.Contains(testString, `{"miau":"bup"}`) {
+		t.Error(`Command create chef expected to have same repository revision'`)
+	}
+}
 
 func TestStringTokeyValueMap(t *testing.T) {
 	result := StringTokeyValueMap("")

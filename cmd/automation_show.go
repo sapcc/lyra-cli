@@ -55,7 +55,7 @@ func init() {
 }
 
 func automationShow() (string, error) {
-	response, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
+	response, _, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
 	if err != nil {
 		return "", err
 	}

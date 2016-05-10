@@ -1,11 +1,15 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/sapcc/lyra-cli/helpers"
 )
 
 func resetAutomationCreateChefFlagVars() {
@@ -74,7 +78,8 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	if len(chef.Runlist) != 2 {
 		t.Error(`Command create chef expected to have runlist.'`)
 	}
-	if !strings.Contains(chef.Attributes, `{"test":"test"}`) {
+	testString, _ := helpers.StructureToJSON(chef.Attributes)
+	if !strings.Contains(testString, `{"test":"test"}`) {
 		t.Error(`Command create chef expected to have same attributes'`)
 	}
 	if !strings.Contains(chef.LogLevel, "info") {
@@ -106,7 +111,12 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	if len(txt) == 0 {
 		t.Error(`Command create chef expected to find an attributes file with content'`)
 	}
-	if !strings.Contains(chef.Attributes, string(txt)) {
+
+	// convert interface to string and compare
+	testString, _ := helpers.StructureToJSON(chef.Attributes)
+	buffer := new(bytes.Buffer)
+	json.Compact(buffer, txt)
+	if !strings.Contains(testString, buffer.String()) {
 		t.Error(`Command create chef expected to have same attributes'`)
 	}
 }

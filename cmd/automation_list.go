@@ -48,7 +48,7 @@ func init() {
 }
 
 func automationList() (string, error) {
-	response, err := RestClient.Get("automations", url.Values{})
+	response, _, err := RestClient.Get("automations", url.Values{})
 	if err != nil {
 		return "", err
 	}

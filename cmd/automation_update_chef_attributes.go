@@ -46,7 +46,7 @@ and usage of using your command.`,
 			return err
 		}
 		// Print response
-		cmd.Print(response)
+		cmd.Println(response)
 
 		return nil
 	},

@@ -48,7 +48,7 @@ var AutomationShowCmd = &cobra.Command{
 			return err
 		}
 		// print response
-		cmd.Print(response)
+		cmd.Println(response)
 
 		return nil
 	},

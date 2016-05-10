@@ -40,7 +40,7 @@ and usage of using your command.`,
 			return err
 		}
 		// print response
-		cmd.Print(response)
+		cmd.Println(response)
 
 		return nil
 	},

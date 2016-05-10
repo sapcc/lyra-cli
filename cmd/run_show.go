@@ -24,14 +24,14 @@ import (
 )
 
 // showCmd represents the show command
-var AutomationShowCmd = &cobra.Command{
+var RunShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "Show a specific automation",
-	Long:  `A longer description for automation show.`,
+	Short: "Show a specific automation run",
+	Long:  `A longer description for automation run show.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
-		if len(automationId) == 0 {
-			return errors.New("No automation id given.")
+		if len(runId) == 0 {
+			return errors.New(locales.ErrorMessages("run-id-missing"))
 		}
 		// setup rest client
 		err := setupRestClient()
@@ -43,7 +43,7 @@ var AutomationShowCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
-		response, err := automationShow()
+		response, err := runShow()
 		if err != nil {
 			return err
 		}
@@ -55,12 +55,12 @@ var AutomationShowCmd = &cobra.Command{
 }
 
 func init() {
-	AutomationCmd.AddCommand(AutomationShowCmd)
-	AutomationShowCmd.Flags().StringVarP(&automationId, "automation-id", "i", "", locales.AttributeDescription("automation-id"))
+	RunCmd.AddCommand(RunShowCmd)
+	RunShowCmd.Flags().StringVar(&runId, "run-id", "", locales.AttributeDescription("run-id"))
 }
 
-func automationShow() (string, error) {
-	response, _, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
+func runShow() (string, error) {
+	response, _, err := RestClient.Get(path.Join("runs", runId), url.Values{})
 	if err != nil {
 		return "", err
 	}

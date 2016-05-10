@@ -24,14 +24,15 @@ type Run struct {
 }
 
 var (
-	run = Run{}
+	run   = Run{}
+	runId string
 )
 
 // automationCmd represents the automation command
 var RunCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Automation run service.",
-	Long:  `A longer description for automation.`,
+	Long:  `A longer description for run.`,
 }
 
 func init() {

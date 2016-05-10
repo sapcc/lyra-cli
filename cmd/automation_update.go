@@ -45,7 +45,7 @@ and usage of using your command.`,
 func init() {
 	AutomationCmd.AddCommand(AutomationUpdateCmd)
 	//flags
-	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "id", "", "", "Id from the automation that should be updated.")
+	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "automation-id", "", "", "Id from the automation that should be updated.")
 }
 
 func setupAutomationUpdate() error {

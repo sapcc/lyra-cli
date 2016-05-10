@@ -60,7 +60,7 @@ func init() {
 	AutomationCmd.AddCommand(AutomationRunCmd)
 	//flags
 	run = Run{}
-	AutomationRunCmd.Flags().StringVarP(&run.AutomationId, "id", "", "", locales.AttributeDescription("automation-id"))
+	AutomationRunCmd.Flags().StringVarP(&run.AutomationId, "automation-id", "", "", locales.AttributeDescription("automation-id"))
 	AutomationRunCmd.Flags().StringVarP(&run.Selector, "selector", "", "", locales.AttributeDescription("automation-selector"))
 }
 

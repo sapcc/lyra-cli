@@ -15,8 +15,11 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"net/url"
+
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 // automation/listCmd represents the automation/list command
@@ -48,12 +51,15 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCmd.AddCommand(AutomationListCmd)
+	AutomationListCmd.Flags().IntVarP(&PaginationPage, "page", "", 1, locales.AttributeDescription("page"))
+	AutomationListCmd.Flags().IntVarP(&PaginationPerPage, "per-page", "", 10, locales.AttributeDescription("per-page"))
 }
 
 func automationList() (string, error) {
-	response, _, err := RestClient.Get("automations", url.Values{})
+	response, _, err := RestClient.Get("automations", url.Values{"page": []string{fmt.Sprintf("%d", PaginationPage)}, "per-page": []string{fmt.Sprintf("%d", PaginationPerPage)}}, true)
 	if err != nil {
 		return "", err
 	}
+
 	return response, nil
 }

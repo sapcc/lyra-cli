@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"net/http"
@@ -36,13 +37,15 @@ func FullCmdTester(testCommand *cobra.Command, input string) resulter {
 	return resulter{err, output, c}
 }
 
-func TestServer(code int, body string) *httptest.Server {
+func TestServer(code int, body string, headers map[string]string) *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(code)
 		w.Header().Set("Content-Type", "application/json")
+		for k, v := range headers {
+			w.Header().Set(k, v)
+		}
+		w.WriteHeader(code) // keep the code after setting headers. If not they will disapear...
 		fmt.Fprintln(w, body)
 	}))
-
 	return server
 }
 
@@ -73,7 +76,7 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string) {
 	// set test server
 	responseBody := "Miau"
-	server := TestServer(200, responseBody)
+	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
 	// just endpoitn
@@ -94,7 +97,9 @@ func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, inp
 
 	resulter := FullCmdTester(cmd, input)
 
-	if !strings.Contains(resulter.Output, responseBody) {
+	buffer := new(bytes.Buffer)
+	json.Compact(buffer, []byte(resulter.Output))
+	if !strings.Contains(buffer.String(), responseBody) {
 		t.Error(`Command response body doesn't match.'`)
 	}
 

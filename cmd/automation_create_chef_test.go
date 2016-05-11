@@ -34,7 +34,7 @@ func resetAutomationCreateChefFlagVars() {
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	// set test server
 	responseBody := "Miau"
-	server := TestServer(200, responseBody)
+	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
 	resetAutomationCreateChefFlagVars()
@@ -90,7 +90,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	// set test server
 	responseBody := "Miau"
-	server := TestServer(200, responseBody)
+	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
 	// path to the current directory

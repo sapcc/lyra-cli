@@ -28,8 +28,8 @@ func TestAutomationShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {
 
 func TestAutomationShowCmdWithEndpointTokenFlag(t *testing.T) {
 	// set test server
-	responseBody := "Miau"
-	server := TestServer(200, responseBody)
+	responseBody := `{"miau":"bup"}`
+	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
 	resetAutomationShow()

@@ -60,7 +60,7 @@ func init() {
 }
 
 func runShow() (string, error) {
-	response, _, err := RestClient.Get(path.Join("runs", runId), url.Values{})
+	response, _, err := RestClient.Get(path.Join("runs", runId), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

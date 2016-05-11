@@ -60,7 +60,7 @@ func init() {
 }
 
 func automationShow() (string, error) {
-	response, _, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
+	response, _, err := RestClient.Get(path.Join("automations", automationId), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

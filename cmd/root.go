@@ -31,6 +31,8 @@ var (
 	Token                            string
 	AutomationUrl                    string
 	RestClient                       *restclient.Client
+	PaginationPage                   int
+	PaginationPerPage                int
 	ENV_VAR_TOKEN_NAME               = "LYRA_AUTH_TOKEN"
 	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
 )

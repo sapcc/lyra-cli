@@ -211,5 +211,5 @@ func authenticate() (string, error) {
 		return "", nil
 	}
 
-	return fmt.Sprintf("export %s=%s\nexport %s=%s\n", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_TOKEN_NAME, token.ID), nil
+	return fmt.Sprintf("export %s=%s\nexport %s=%s", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_TOKEN_NAME, token.ID), nil
 }

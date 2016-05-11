@@ -75,7 +75,7 @@ func setupAutomationUpdateChefAttributes() error {
 }
 
 func automationUpdateChefAttributes() (string, error) {
-	response, code, err := RestClient.Get(path.Join("automations", automationId), url.Values{})
+	response, code, err := RestClient.Get(path.Join("automations", automationId), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

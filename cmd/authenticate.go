@@ -147,57 +147,38 @@ func authenticate() (string, error) {
 	// Creates a ServiceClient that may be used to access the v3 identity service
 	client := openstack.NewIdentityV3(provider)
 
-	// get the automation entry id from the catalog
-	opts := services.ListOpts{ServiceType: "automation", Page: 1, PerPage: 1}
-	servicesPager := services.List(client, opts)
-	automationServiceId := ""
-	err = servicesPager.EachPage(func(page pagination.Page) (bool, error) {
-		servicesList, err := services.ExtractServices(page)
-		if err != nil {
-			return false, err
-		}
-		if len(servicesList) != 1 {
-			return false, fmt.Errorf("No service automation found in catalog.")
-		}
-		if len(servicesList[0].ID) == 0 {
-			return false, fmt.Errorf("No service automation id found in catalog.")
-		}
-		// save the automation id
-		automationServiceId = servicesList[0].ID
-		return true, nil
-	})
+	// get automation service id from the catalog
+	automationServiceId, err := getServiceId("automation", client)
+	if err != nil {
+		return "", err
+	}
+	// get automation service endpoints from catalog
+	automationPublicEndpoint, err := getServicePublicEndpoint(automationServiceId, client)
 	if err != nil {
 		return "", err
 	}
 
-	// get automation service endpoints
-	endpointsOpts := endpoints.ListOpts{ServiceID: automationServiceId, Page: 1, PerPage: 1}
-	endpointsPager := endpoints.List(client, endpointsOpts)
-	automationPublicEndpoint := ""
-	err = endpointsPager.EachPage(func(page pagination.Page) (bool, error) {
-		endpointList, err := endpoints.ExtractEndpoints(page)
-		if err != nil {
-			return false, err
-		}
-		if len(endpointList) == 0 {
-			return false, fmt.Errorf("No endpoints for service automation found in catalog.")
-		}
-		for _, e := range endpointList {
-			if e.Availability == "public" {
-				automationPublicEndpoint = e.URL
-				break
-			}
-		}
-		if len(automationPublicEndpoint) == 0 {
-			return false, fmt.Errorf("No service automation public url found in catalog.")
-		}
-		return true, nil
-	})
+	// get automation service id from the catalog
+	arcServiceId, err := getServiceId("arc", client)
+	if err != nil {
+		return "", err
+	}
+	// get automation service endpoints from catalog
+	arcPublicEndpoint, err := getServicePublicEndpoint(arcServiceId, client)
 	if err != nil {
 		return "", err
 	}
 
-	// set the project scope
+	// get the token
+	token, err := getToken(authOpts, client)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("export %s=%s\nexport %s=%s\nexport %s=%s", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_ARC_ENDPOINT_NAME, arcPublicEndpoint, ENV_VAR_TOKEN_NAME, token), nil
+}
+
+func getToken(authOpts gophercloud.AuthOptions, client *gophercloud.ServiceClient) (string, error) {
 	scope := tokens.Scope{
 		ProjectName: lyraAuthOps.ProjectName,
 		ProjectID:   lyraAuthOps.ProjectId,
@@ -211,5 +192,63 @@ func authenticate() (string, error) {
 		return "", nil
 	}
 
-	return fmt.Sprintf("export %s=%s\nexport %s=%s", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_TOKEN_NAME, token.ID), nil
+	return token.ID, nil
+}
+
+func getServicePublicEndpoint(serviceId string, client *gophercloud.ServiceClient) (string, error) {
+	publicEndpoint := ""
+	endpointsOpts := endpoints.ListOpts{ServiceID: serviceId, Page: 1, PerPage: 1}
+	endpointsPager := endpoints.List(client, endpointsOpts)
+
+	err := endpointsPager.EachPage(func(page pagination.Page) (bool, error) {
+		endpointList, err := endpoints.ExtractEndpoints(page)
+		if err != nil {
+			return false, err
+		}
+		if len(endpointList) == 0 {
+			return false, fmt.Errorf("No endpoints for service automation found in catalog.")
+		}
+		for _, e := range endpointList {
+			if e.Availability == "public" {
+				publicEndpoint = e.URL
+				break
+			}
+		}
+		if len(publicEndpoint) == 0 {
+			return false, fmt.Errorf("No service automation public url found in catalog.")
+		}
+		return true, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return publicEndpoint, nil
+}
+
+func getServiceId(serviceType string, client *gophercloud.ServiceClient) (string, error) {
+	serviceId := ""
+	opts := services.ListOpts{ServiceType: serviceType, Page: 1, PerPage: 1}
+	servicesPager := services.List(client, opts)
+
+	err := servicesPager.EachPage(func(page pagination.Page) (bool, error) {
+		servicesList, err := services.ExtractServices(page)
+		if err != nil {
+			return false, err
+		}
+		if len(servicesList) != 1 {
+			return false, fmt.Errorf("No service automation found in catalog.")
+		}
+		if len(servicesList[0].ID) == 0 {
+			return false, fmt.Errorf("No service automation id found in catalog.")
+		}
+		// save the automation id
+		serviceId = servicesList[0].ID
+		return true, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return serviceId, nil
 }

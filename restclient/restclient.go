@@ -16,8 +16,18 @@ import (
 var AUTOMATION_URI = "https://automation-staging.***REMOVED***/api/v1/"
 
 type Client struct {
-	Endpoint string
+	Services Services
 	Token    string
+}
+
+type Endpoint struct {
+	Url   string
+	token string
+}
+
+type Services struct {
+	Automation Endpoint
+	Arc        Endpoint
 }
 
 type Pagination struct {
@@ -31,15 +41,17 @@ type PagResp struct {
 	Data       interface{} `json:"data"`
 }
 
-func NewClient(endpoint, token string) *Client {
+func NewClient(services Services, token string) *Client {
+	services.Automation.token = token
+	services.Arc.token = token
 	return &Client{
-		Endpoint: endpoint,
+		Services: services,
 		Token:    token,
 	}
 }
 
-func (c *Client) Put(pathAction string, params url.Values, body string) (string, int, error) {
-	resp, err := c.restCall(pathAction, "PUT", params, bytes.NewBufferString(body))
+func (e *Endpoint) Put(pathAction string, params url.Values, body string) (string, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "PUT", params, bytes.NewBufferString(body))
 	if err != nil {
 		return "", 0, err
 	}
@@ -53,8 +65,8 @@ func (c *Client) Put(pathAction string, params url.Values, body string) (string,
 	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
 }
 
-func (c *Client) Post(pathAction string, params url.Values, body string) (string, int, error) {
-	resp, err := c.restCall(pathAction, "POST", params, bytes.NewBufferString(body))
+func (e *Endpoint) Post(pathAction string, params url.Values, body string) (string, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "POST", params, bytes.NewBufferString(body))
 	if err != nil {
 		return "", 0, err
 	}
@@ -68,8 +80,8 @@ func (c *Client) Post(pathAction string, params url.Values, body string) (string
 	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
 }
 
-func (c *Client) Get(pathAction string, params url.Values, showPagination bool) (string, int, error) {
-	resp, err := c.restCall(pathAction, "GET", params, nil)
+func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool) (string, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, nil)
 	if err != nil {
 		return "", 0, err
 	}
@@ -103,9 +115,9 @@ func (c *Client) Get(pathAction string, params url.Values, showPagination bool) 
 	return jsonPrettyPrint(string(data)), resp.StatusCode, nil
 }
 
-func (c *Client) restCall(pathAction string, method string, params url.Values, body *bytes.Buffer) (*http.Response, error) {
+func restCall(endpoint string, token string, pathAction string, method string, params url.Values, body *bytes.Buffer) (*http.Response, error) {
 	// set up the rest url
-	u, err := url.Parse(c.Endpoint)
+	u, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +136,7 @@ func (c *Client) restCall(pathAction string, method string, params url.Values, b
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", c.Token)
+	req.Header.Add("X-Auth-Token", token)
 	req.Header.Add("Content-Type", "application/json")
 
 	// send the request

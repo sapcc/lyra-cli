@@ -56,7 +56,7 @@ func init() {
 }
 
 func automationList() (string, error) {
-	response, _, err := RestClient.Get("automations", url.Values{"page": []string{fmt.Sprintf("%d", PaginationPage)}, "per-page": []string{fmt.Sprintf("%d", PaginationPerPage)}}, true)
+	response, _, err := RestClient.Services.Automation.Get("automations", url.Values{"page": []string{fmt.Sprintf("%d", PaginationPage)}, "per-page": []string{fmt.Sprintf("%d", PaginationPerPage)}}, true)
 	if err != nil {
 		return "", err
 	}

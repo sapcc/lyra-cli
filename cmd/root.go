@@ -30,6 +30,7 @@ var (
 	cfgFile                          string
 	Token                            string
 	AutomationUrl                    string
+	ArcUrl                           string
 	RestClient                       *restclient.Client
 	PaginationPage                   int
 	PaginationPerPage                int
@@ -73,8 +74,10 @@ func init() {
 	// Custom flags
 	token_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME)
 	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	arc_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_ARC_ENDPOINT_NAME)
 	RootCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
 	RootCmd.PersistentFlags().StringVarP(&AutomationUrl, "lyra-service-endpoint", "l", "", fmt.Sprint("Automation service endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
+	RootCmd.PersistentFlags().StringVarP(&ArcUrl, "arc-service-endpoint", "a", "", fmt.Sprint("Arc service endpoint. To get the arc endpoint run the authenticate command. (default ", arc_default_env_name, ")"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -106,21 +109,41 @@ func setupRestClient() error {
 
 	if len(AutomationUrl) == 0 {
 		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
-			return errors.New("Endpoint not given. To get the automation endpoint run the authenticate command.")
+			return errors.New("Automation endpoint not given. To get the automation endpoint run the authenticate command.")
 		} else {
 			AutomationUrl = os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 		}
 	}
 
-	// add to the endpoint the api version
-	u, err := url.Parse(AutomationUrl)
+	if len(ArcUrl) == 0 {
+		if len(os.Getenv(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 {
+			return errors.New("Arc endpoint not given. To get the arc endpoint run the authenticate command.")
+		} else {
+			ArcUrl = os.Getenv(ENV_VAR_ARC_ENDPOINT_NAME)
+		}
+	}
+
+	// add api version to the automation url
+	autoUri, err := url.Parse(AutomationUrl)
 	if err != nil {
 		return err
 	}
-	u.Path = path.Join(u.Path, "/api/v1/")
+	autoUri.Path = path.Join(autoUri.Path, "/api/v1/")
+
+	// add api version to the arc url
+	arcUri, err := url.Parse(ArcUrl)
+	if err != nil {
+		return err
+	}
+	arcUri.Path = path.Join(arcUri.Path, "/api/v1/")
+
+	services := restclient.Services{
+		Automation: restclient.Endpoint{Url: autoUri.String()},
+		Arc:        restclient.Endpoint{Url: arcUri.String()},
+	}
 
 	// init rest client
-	RestClient = restclient.NewClient(u.String(), Token)
+	RestClient = restclient.NewClient(services, Token)
 
 	return nil
 }

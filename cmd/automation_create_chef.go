@@ -99,7 +99,7 @@ func automationCreateChef() (string, error) {
 		return "", err
 	}
 
-	response, _, err := RestClient.Post("automations", url.Values{}, string(body))
+	response, _, err := RestClient.Services.Automation.Post("automations", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

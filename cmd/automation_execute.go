@@ -24,8 +24,8 @@ import (
 )
 
 // updateCmd represents the update command
-var AutomationRunCmd = &cobra.Command{
-	Use:   "run",
+var AutomationExecuteCmd = &cobra.Command{
+	Use:   "execute",
 	Short: "Runs an exsiting automation",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
@@ -57,11 +57,11 @@ and usage of using your command.`,
 }
 
 func init() {
-	AutomationCmd.AddCommand(AutomationRunCmd)
+	AutomationCmd.AddCommand(AutomationExecuteCmd)
 	//flags
 	run = Run{}
-	AutomationRunCmd.Flags().StringVarP(&run.AutomationId, "automation-id", "", "", locales.AttributeDescription("automation-id"))
-	AutomationRunCmd.Flags().StringVarP(&run.Selector, "selector", "", "", locales.AttributeDescription("automation-selector"))
+	AutomationExecuteCmd.Flags().StringVarP(&run.AutomationId, "automation-id", "", "", locales.AttributeDescription("automation-id"))
+	AutomationExecuteCmd.Flags().StringVarP(&run.Selector, "selector", "", "", locales.AttributeDescription("automation-selector"))
 }
 
 func setupAutomationRun() error {
@@ -84,7 +84,7 @@ func automationRun() (string, error) {
 		return "", err
 	}
 	// send request
-	response, _, err := RestClient.Post("runs", url.Values{}, string(body))
+	response, _, err := RestClient.Services.Automation.Post("runs", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

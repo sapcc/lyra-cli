@@ -12,4 +12,4 @@ A release candidate of the lyra cli.
 EOF
 
 mkdir release/artifacts
-cp build/* release/artifcats/
+cp build/* release/artifacts/

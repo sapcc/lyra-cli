@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e -x
+
+export GOPATH=$PWD/gopath
+
+go build \
+  -o build/lyra-cli \
+  -ldflags "-s -w"
+  github.com/sapcc/lyra-cli

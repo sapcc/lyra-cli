@@ -1,0 +1,35 @@
+jobs:
+  - name: build
+    serial: true
+    plan:
+      - get: cli.git 
+        trigger: true
+        params:
+          USERNAME: {{swift_username}}
+          PASSWORD: {{swift_password}}
+          DOMAIN:   {{swift_domain}}
+          AUTH_URL: {{swift_auth_url}}
+          PROJECT:  {{swift_project}}
+      - task: build
+        # workaround thisb ug: https://www.pivotaltracker.com/n/projects/1158420/stories/115239057
+        privileged: true
+        file: cli.git/ci/build-linux.yml
+        params:
+          RSA_PRIVATE_KEY: {{package_signing_key}}
+      - task: update-repository
+        file: alpine-packages/ci/publish.yml
+        params:
+          USERNAME: {{swift_username}}
+          PASSWORD: {{swift_password}}
+          DOMAIN:   {{swift_domain}}
+          AUTH_URL: {{swift_auth_url}}
+          PROJECT:  {{swift_project}}
+
+
+
+resources:
+  - name: cli.git 
+    type: git
+    source:
+      uri: git://github.com/sapcc/lyra-cli.git
+      branch: master

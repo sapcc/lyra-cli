@@ -5,6 +5,6 @@ set -e -x
 export GOPATH=$PWD/gopath
 
 go build \
-  -o build/lyra-cli \
+  -o build/lyra-cli_linux_amd64 \
   -ldflags "-s -w" \
   github.com/sapcc/lyra-cli

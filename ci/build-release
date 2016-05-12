@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e -x
+
+version=$(date +%Y%m%d%H%M%S)
+echo "v$version" > release/name
+echo "v$version" > release/tag
+git -C cli.git rev-parse HEAD > release/commitish
+
+cat > release/body <<EOF
+A release candidate of the lyra cli.
+EOF
+
+mkdir release/artifacts
+cp build/* release/artifcats/

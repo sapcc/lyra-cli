@@ -61,14 +61,21 @@ func init() {
 
 func setupAutomationUpdateChefAttributes() error {
 	// read attributes
+	chef = Chef{}
 	if len(attributes) > 0 {
-		chef.Attributes = attributes
+		err := helpers.JSONStringToStructure(attributes, &chef.Attributes)
+		if err != nil {
+			return err
+		}
 	} else {
 		attr, err := helpers.ReadFromFile(attributesFromFile)
 		if err != nil {
 			return err
 		}
-		chef.Attributes = attr
+		err = helpers.JSONStringToStructure(attr, &chef.Attributes)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -85,17 +92,17 @@ func automationUpdateChefAttributes() (string, error) {
 	}
 
 	// get the existing data
-	chef = Chef{}
+	oldChef := Chef{}
 	respByt := []byte(response)
-	if err := json.Unmarshal(respByt, &chef); err != nil {
+	if err := json.Unmarshal(respByt, &oldChef); err != nil {
 		return "", err
 	}
 
 	// change attributres
-	chef.Attributes = attributes
+	oldChef.Attributes = chef.Attributes
 
 	// convert to Json
-	body, err := json.Marshal(chef)
+	body, err := json.Marshal(oldChef)
 	if err != nil {
 		return "", err
 	}

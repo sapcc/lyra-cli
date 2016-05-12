@@ -18,7 +18,7 @@ func resetAutomation() {
 func TestAutomationShouldDoNothing(t *testing.T) {
 	resetAutomation()
 	// check
-	resulter := FullCmdTester(RootCmd, "lyra-cli automation")
+	resulter := FullCmdTester(RootCmd, "lyra automation")
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}

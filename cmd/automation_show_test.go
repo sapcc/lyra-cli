@@ -19,11 +19,11 @@ func resetAutomationShow() {
 
 func TestAutomationShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {
 	resetAutomationShow()
-	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra-cli automation show")
+	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra automation show")
 	resetAutomationShow()
-	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra-cli automation show")
+	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra automation show")
 	resetAutomationShow()
-	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra-cli automation show")
+	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra automation show")
 }
 
 func TestAutomationShowCmdWithEndpointTokenFlag(t *testing.T) {
@@ -33,5 +33,5 @@ func TestAutomationShowCmdWithEndpointTokenFlag(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationShow()
-	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra-cli automation show --lyra-service-endpoint=%s --token=%s -i=%s", server.URL, "token123", "automation_id"), responseBody)
+	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --token=%s -i=%s", server.URL, "token123", "automation_id"), responseBody)
 }

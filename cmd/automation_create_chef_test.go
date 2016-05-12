@@ -39,7 +39,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --runlist=%s --attributes=%s --log-level=%s",
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --runlist=%s --attributes=%s --log-level=%s",
 			server.URL,
 			server.URL,
 			"token123",
@@ -101,7 +101,7 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --attributes-from-file=%s",
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --attributes-from-file=%s",
 			server.URL,
 			server.URL,
 			"token123",

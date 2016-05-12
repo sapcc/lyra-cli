@@ -22,11 +22,11 @@ func resetAutomationList() {
 
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
 	resetAutomationList()
-	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra-cli automation list")
+	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra automation list")
 	resetAutomationList()
-	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra-cli automation list")
+	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra automation list")
 	resetAutomationList()
-	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra-cli automation list")
+	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra automation list")
 }
 
 func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
@@ -36,7 +36,7 @@ func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationList()
-	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra-cli automation list --lyra-service-endpoint=%s --token=%s", server.URL, "token123"), responseBody)
+	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --token=%s", server.URL, "token123"), responseBody)
 }
 
 func TestAutomationListCmdWithPagination(t *testing.T) {
@@ -46,7 +46,7 @@ func TestAutomationListCmdWithPagination(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationList()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra-cli automation list --lyra-service-endpoint=%s --token=%s", server.URL, "token123"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --token=%s", server.URL, "token123"))
 
 	pagData := restclient.PagResp{}
 	helpers.JSONStringToStructure(string(resulter.Output), &pagData)

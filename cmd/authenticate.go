@@ -83,7 +83,7 @@ func init() {
 
 	authenticateCmd.Flags().StringVar(&lyraAuthOps.IdentityEndpoint, "identity-endpoint", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
 	authenticateCmd.Flags().StringVar(&lyraAuthOps.Username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "userId", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
+	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "user-id", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
 	authenticateCmd.Flags().StringVar(&lyraAuthOps.Password, "password", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
 
 	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectName, "project-name", "", "Name of the project.")

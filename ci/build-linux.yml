@@ -8,10 +8,10 @@ image_resource:
 
 inputs:
 - name: cli.git 
-  path: gopath/src/github.com/lyra-cli
+  path: gopath/src/github.com/sapcc/lyra-cli
 
 outputs:
 - name: build 
 
 run:
-  path: gopath/src/github.com/lyra-cli/ci/build-linux
+  path: gopath/src/github.com/sapcc/lyra-cli/ci/build-linux

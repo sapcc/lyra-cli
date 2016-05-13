@@ -31,6 +31,39 @@ func resetAutomationCreateChefFlagVars() {
 	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
 }
 
+func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
+	// set test server
+	responseBody := "Miau"
+	server := TestServer(200, responseBody, map[string]string{})
+	defer server.Close()
+
+	resetAutomationCreateChefFlagVars()
+	resulter := FullCmdTester(RootCmd,
+		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --runlist=%s",
+			server.URL,
+			server.URL,
+			"token123",
+			"chef_test",
+			"http://some_repository",
+			"recipe[nginx]"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, responseBody) {
+		t.Error(`Command response body doesn't match.'`)
+	}
+	if !strings.Contains(chef.Name, "chef_test") {
+		t.Error(`Command create chef expected to have same name'`)
+	}
+	if !strings.Contains(chef.Repository, "http://some_repository") {
+		t.Error(`Command create chef expected to have same repository'`)
+	}
+	if len(chef.Runlist) != 1 {
+		t.Error(`Command create chef expected to have runlist.'`)
+	}
+}
+
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	// set test server
 	responseBody := "Miau"

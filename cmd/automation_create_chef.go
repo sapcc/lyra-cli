@@ -81,9 +81,11 @@ func setupAutomationCreateChef() error {
 		if err != nil {
 			return err
 		}
-		err = helpers.JSONStringToStructure(attr, &chef.Attributes)
-		if err != nil {
-			return err
+		if len(attr) > 0 {
+			err = helpers.JSONStringToStructure(attr, &chef.Attributes)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

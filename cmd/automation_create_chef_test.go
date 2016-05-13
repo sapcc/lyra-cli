@@ -39,7 +39,7 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --runlist=%s",
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --runlist=%s",
 			server.URL,
 			server.URL,
 			"token123",

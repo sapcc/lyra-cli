@@ -33,5 +33,5 @@ func TestAutomationShowCmdWithEndpointTokenFlag(t *testing.T) {
 	defer server.Close()
 
 	resetAutomationShow()
-	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --token=%s -i=%s", server.URL, "token123", "automation_id"), responseBody)
+	CheckCmdWorksWithEndpointAndTokenFlag(t, RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s -i=%s", server.URL, "https://somewhere.com", "token123", "automation_id"), responseBody)
 }

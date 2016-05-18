@@ -15,11 +15,11 @@
 package cmd
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
 	"net/url"
+	"os"
 
-	"github.com/sapcc/lyra-cli/locales"
+	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/print"
 )
 
 // automation/listCmd represents the automation/list command
@@ -42,8 +42,15 @@ and usage of using your command.`,
 		if err != nil {
 			return err
 		}
+
+		printer := print.Print{Data: response, Writer: os.Stdout}
+		tablePrint, err := printer.TableList([]string{"id", "name", "repository", "repository_revision", "run_list", "chef_attributes", "log_level", "arguments"})
+		if err != nil {
+			return err
+		}
+
 		// print response
-		cmd.Println(response)
+		cmd.Println(tablePrint)
 
 		return nil
 	},
@@ -51,12 +58,11 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCmd.AddCommand(AutomationListCmd)
-	AutomationListCmd.Flags().IntVarP(&PaginationPage, "page", "", 1, locales.AttributeDescription("page"))
-	AutomationListCmd.Flags().IntVarP(&PaginationPerPage, "per-page", "", 10, locales.AttributeDescription("per-page"))
 }
 
-func automationList() (string, error) {
-	response, _, err := RestClient.Services.Automation.Get("automations", url.Values{"page": []string{fmt.Sprintf("%d", PaginationPage)}, "per-page": []string{fmt.Sprintf("%d", PaginationPerPage)}}, true)
+func automationList() (interface{}, error) {
+	// collect all automations do the pagination
+	response, _, err := RestClient.Services.Automation.GetList("automations", url.Values{})
 	if err != nil {
 		return "", err
 	}

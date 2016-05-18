@@ -17,10 +17,13 @@ package cmd
 import (
 	"errors"
 	"net/url"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/print"
 )
 
 var JobShowCmd = &cobra.Command{
@@ -47,8 +50,22 @@ and usage of using your command.`,
 		if err != nil {
 			return err
 		}
+
+		// convert data to struct
+		var dataStruct map[string]interface{}
+		err = helpers.JSONStringToStructure(response, &dataStruct)
+		if err != nil {
+			return err
+		}
+
+		printer := print.Print{Data: dataStruct, Writer: os.Stdout}
+		bodyPrint, err := printer.Table()
+		if err != nil {
+			return err
+		}
+
 		// print response
-		cmd.Println(response)
+		cmd.Println(bodyPrint)
 
 		return nil
 	},
@@ -60,13 +77,9 @@ func init() {
 }
 
 func jobShow() (string, error) {
-	response, code, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId), url.Values{}, false)
+	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId), url.Values{}, false)
 	if err != nil {
 		return "", err
-	}
-
-	if int(code) >= 404 {
-		return "", errors.New(locales.ErrorMessages("job-missing"))
 	}
 
 	return response, nil

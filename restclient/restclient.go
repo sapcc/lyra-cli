@@ -3,6 +3,8 @@ package restclient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -37,8 +39,8 @@ type Pagination struct {
 }
 
 type PagResp struct {
-	Pagination Pagination  `json:"pagination"`
-	Data       interface{} `json:"data"`
+	Pagination Pagination    `json:"pagination"`
+	Data       []interface{} `json:"data"`
 }
 
 func NewClient(services Services, token string) *Client {
@@ -62,6 +64,11 @@ func (e *Endpoint) Put(pathAction string, params url.Values, body string) (strin
 		return "", 0, err
 	}
 
+	// check response code
+	if resp.StatusCode >= 400 {
+		return "", resp.StatusCode, errors.New(string(respBody))
+	}
+
 	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
 }
 
@@ -77,7 +84,38 @@ func (e *Endpoint) Post(pathAction string, params url.Values, body string) (stri
 		return "", 0, err
 	}
 
+	// check response code
+	if resp.StatusCode >= 400 {
+		return "", resp.StatusCode, errors.New(string(respBody))
+	}
+
 	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
+}
+
+func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{}, int, error) {
+	page := 1
+	pages := 1
+	result := []interface{}{}
+
+	for i := 0; i < pages; i++ {
+		// merge orig url values with the pagination
+		helpers.MapMerge(params, url.Values{"page": []string{fmt.Sprintf("%d", page)}, "per_page": []string{fmt.Sprintf("%d", 1)}})
+
+		// get list entry
+		pagData, _, err := e.getListEntry(pathAction, params)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		// update pagination data
+		pages = pagData.Pagination.Pages
+		page++
+
+		// add to the resutls
+		result = append(result, pagData.Data...)
+	}
+
+	return result, 0, nil
 }
 
 func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool) (string, int, error) {
@@ -86,33 +124,49 @@ func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool
 		return "", 0, err
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, err
 	}
 	defer resp.Body.Close()
 
-	//extract pagination data
-	if showPagination {
-		// get pag params
-		pagination := extractPagination(resp.Header)
-		// create response
-		pagData := PagResp{}
-		// save pagination
-		pagData.Pagination = pagination
-		// save response
-		err := helpers.JSONStringToStructure(string(data), &pagData.Data)
-		if err != nil {
-			return "", 0, err
-		}
-		data, err := json.Marshal(pagData)
-		if err != nil {
-			return "", 0, err
-		}
-		return jsonPrettyPrint(string(data)), resp.StatusCode, nil
+	// check response code
+	if resp.StatusCode >= 400 {
+		return "", resp.StatusCode, errors.New(string(respBody))
 	}
 
-	return jsonPrettyPrint(string(data)), resp.StatusCode, nil
+	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
+}
+
+// private
+
+func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// read body
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+
+	// check response code
+	if resp.StatusCode >= 400 {
+		return nil, resp.StatusCode, errors.New(string(data))
+	}
+
+	// create a paginated response
+	pagData := PagResp{}
+	pagData.Pagination = extractPagination(resp.Header)
+	err = helpers.JSONStringToStructure(string(data), &pagData.Data)
+	if err != nil {
+		pagData.Data = []interface{}{string(data)}
+	}
+
+	return &pagData, resp.StatusCode, nil
 }
 
 func restCall(endpoint string, token string, pathAction string, method string, params url.Values, body *bytes.Buffer) (*http.Response, error) {

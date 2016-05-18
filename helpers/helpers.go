@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 )
@@ -75,4 +76,12 @@ func ReadFromFile(path string) (string, error) {
 		return string(dat), nil
 	}
 	return "", nil
+}
+
+func MapMerge(dst, src interface{}) {
+	dv, sv := reflect.ValueOf(dst), reflect.ValueOf(src)
+
+	for _, k := range sv.MapKeys() {
+		dv.SetMapIndex(k, sv.MapIndex(k))
+	}
 }

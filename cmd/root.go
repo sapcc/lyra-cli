@@ -32,8 +32,6 @@ var (
 	AutomationUrl                    string
 	ArcUrl                           string
 	RestClient                       *restclient.Client
-	PaginationPage                   int
-	PaginationPerPage                int
 	ENV_VAR_TOKEN_NAME               = "OS_TOKEN"
 	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
 	ENV_VAR_ARC_ENDPOINT_NAME        = "ARC_SERVICE_ENDPOINT"

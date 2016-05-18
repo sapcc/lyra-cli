@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/restclient"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -53,6 +54,7 @@ func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, i
 	// clean env variablen
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)
 	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
 
 	// check
 	resulter := FullCmdTester(cmd, input)
@@ -65,6 +67,7 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 	// just token
 	os.Setenv(ENV_VAR_TOKEN_NAME, "token_123")
 	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
 
 	// check
 	resulter := FullCmdTester(cmd, input)
@@ -82,6 +85,7 @@ func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string
 	// just endpoitn
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)
 	os.Setenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME, server.URL)
+	os.Setenv(ENV_VAR_ARC_ENDPOINT_NAME, server.URL)
 
 	// check
 	resulter := FullCmdTester(cmd, input)
@@ -111,4 +115,9 @@ func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, inp
 func resetRootFlagVars() {
 	Token = ""
 	AutomationUrl = ""
+	ArcUrl = ""
+	RestClient = restclient.NewClient(restclient.Services{}, "")
+	os.Unsetenv(ENV_VAR_TOKEN_NAME)
+	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
 }

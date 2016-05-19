@@ -116,6 +116,7 @@ func resetRootFlagVars() {
 	Token = ""
 	AutomationUrl = ""
 	ArcUrl = ""
+	JsonOutput = false
 	RestClient = restclient.NewClient(restclient.Services{}, "")
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)
 	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)

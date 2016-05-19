@@ -44,9 +44,17 @@ and usage of using your command.`,
 		}
 
 		printer := print.Print{Data: response, Writer: os.Stdout}
-		tablePrint, err := printer.TableList([]string{"id", "name", "repository", "repository_revision", "run_list", "chef_attributes", "log_level", "arguments"})
-		if err != nil {
-			return err
+		tablePrint := ""
+		if JsonOutput {
+			tablePrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			tablePrint, err = printer.TableList([]string{"id", "name", "repository", "repository_revision", "run_list", "chef_attributes", "log_level", "arguments"})
+			if err != nil {
+				return err
+			}
 		}
 
 		// print response

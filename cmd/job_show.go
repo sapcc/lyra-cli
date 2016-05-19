@@ -58,10 +58,19 @@ and usage of using your command.`,
 			return err
 		}
 
+		// print the data out
 		printer := print.Print{Data: dataStruct, Writer: os.Stdout}
-		bodyPrint, err := printer.Table()
-		if err != nil {
-			return err
+		bodyPrint := ""
+		if JsonOutput {
+			bodyPrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			bodyPrint, err = printer.Table()
+			if err != nil {
+				return err
+			}
 		}
 
 		// print response

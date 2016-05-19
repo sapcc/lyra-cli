@@ -31,6 +31,7 @@ var (
 	Token                            string
 	AutomationUrl                    string
 	ArcUrl                           string
+	JsonOutput                       bool
 	RestClient                       *restclient.Client
 	ENV_VAR_TOKEN_NAME               = "OS_TOKEN"
 	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
@@ -76,6 +77,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
 	RootCmd.PersistentFlags().StringVarP(&AutomationUrl, "lyra-service-endpoint", "l", "", fmt.Sprint("Automation service endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
 	RootCmd.PersistentFlags().StringVarP(&ArcUrl, "arc-service-endpoint", "a", "", fmt.Sprint("Arc service endpoint. To get the arc endpoint run the authenticate command. (default ", arc_default_env_name, ")"))
+	RootCmd.PersistentFlags().BoolVarP(&JsonOutput, "json", "j", false, fmt.Sprint("Print out the data in JSON format."))
 }
 
 // initConfig reads in config file and ENV variables if set.

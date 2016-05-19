@@ -85,21 +85,21 @@ func (p *Print) Table() (string, error) {
 	return buf.String(), nil
 }
 
-func (p *Print) JSON() error {
+func (p *Print) JSON() (string, error) {
 	// convert data
 	jsonData, err := helpers.StructureToJSON(p.Data)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var out bytes.Buffer
 	err = json.Indent(&out, []byte(jsonData), "", "  ")
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// print out
 	fmt.Fprintln(p.Writer, out.String())
 
-	return nil
+	return "", nil
 }

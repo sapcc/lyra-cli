@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"net/url"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/print"
@@ -43,7 +42,7 @@ and usage of using your command.`,
 			return err
 		}
 
-		printer := print.Print{Data: response, Writer: os.Stdout}
+		printer := print.Print{Data: response}
 		tablePrint := ""
 		if JsonOutput {
 			tablePrint, err = printer.JSON()

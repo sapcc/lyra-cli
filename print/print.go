@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"sort"
 
 	"github.com/mitchellh/go-wordwrap"
@@ -13,8 +12,7 @@ import (
 )
 
 type Print struct {
-	Data   interface{}
-	Writer io.Writer
+	Data interface{}
 }
 
 var TypeAssertionError = fmt.Errorf("Not able to convert the data.")
@@ -98,8 +96,5 @@ func (p *Print) JSON() (string, error) {
 		return "", err
 	}
 
-	// print out
-	fmt.Fprintln(p.Writer, out.String())
-
-	return "", nil
+	return out.String(), nil
 }

@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -66,26 +68,93 @@ func TestAutomationListCmdResultTable(t *testing.T) {
 	}
 }
 
-func TestAutomationListCmdResultTableExtraCustomColumns(t *testing.T) {
-	// pagData := restclient.PagResp{}
-	// helpers.JSONStringToStructure(string(resulter.Output), &pagData)
-	//
-	// if pagData.Pagination.Page != 1 {
-	//   t.Error(`Automation list command pagination response doesn't match.'`)
-	// }
-	// if pagData.Pagination.PerPage != 2 {
-	//   t.Error(`Automation list command pagination response doesn't match.'`)
-	// }
-	// if pagData.Pagination.Pages != 3 {
-	//   t.Error(`Automation list command pagination response doesn't match.'`)
-	// }
-	// if resulter.Error != nil {
-	//   t.Error(`Command expected to not get an error`)
-	// }
+func TestAutomationListCmdWithResultJSON(t *testing.T) {
+	// set test server
+	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	server := TestServer(200, responseBody, map[string]string{})
+	defer server.Close()
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
+
+	source := []map[string]interface{}{}
+	err := json.Unmarshal([]byte(responseBody), &source)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	response := []map[string]interface{}{}
+	err = json.Unmarshal([]byte(resulter.Output), &response)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	eq := reflect.DeepEqual(source, response)
+	if eq == false {
+		t.Error("Json response body and print out Json do not match.")
+	}
 }
+
+func TestAutomationListCmdResultTableExtraCustomColumns(t *testing.T) {}
 
 func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 	// set test server
+	server := paginationServer()
+	defer server.Close()
+
+	want := `+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
+| ID |    NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
++----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
+| 1  | Chef_test1 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
+| 2  | Chef_test2 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
+| 3  | Chef_test3 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
++----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
+
+	resetAutomationList()
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "http://somewhere.com", "token123"))
+
+	if !strings.Contains(resulter.Output, want) {
+		t.Error(`Command response body doesn't match.'`)
+	}
+}
+
+func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
+	// set test server
+	server := paginationServer()
+	defer server.Close()
+
+	resetAutomationList()
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
+
+	responseBody := `[{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"2","name":"Chef_test2","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"3","name":"Chef_test3","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+
+	source := []map[string]interface{}{}
+	err := json.Unmarshal([]byte(responseBody), &source)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	response := []map[string]interface{}{}
+	err = json.Unmarshal([]byte(resulter.Output), &response)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	eq := reflect.DeepEqual(source, response)
+	if eq == false {
+		t.Error("Json response body and print out Json do not match.")
+	}
+}
+
+func paginationServer() *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		page := r.URL.Query().Get("page")
@@ -109,22 +178,5 @@ func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 			fmt.Fprintln(w, `[{"id":"3","name":"Chef_test3","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		}
 	}))
-	defer server.Close()
-
-	want := `+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| ID |    NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
-+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| 1  | Chef_test1 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-| 2  | Chef_test2 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-| 3  | Chef_test3 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
-
-	resetAutomationList()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "http://somewhere.com", "token123"))
-
-	if !strings.Contains(resulter.Output, want) {
-		t.Error(`Command response body doesn't match.'`)
-	}
+	return server
 }
-
-func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {}

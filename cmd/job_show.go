@@ -17,7 +17,6 @@ package cmd
 import (
 	"errors"
 	"net/url"
-	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -59,7 +58,7 @@ and usage of using your command.`,
 		}
 
 		// print the data out
-		printer := print.Print{Data: dataStruct, Writer: os.Stdout}
+		printer := print.Print{Data: dataStruct}
 		bodyPrint := ""
 		if JsonOutput {
 			bodyPrint, err = printer.JSON()

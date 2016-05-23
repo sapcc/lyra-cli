@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/sapcc/lyra-cli/restclient"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/foize/go.sgr"
+	"github.com/sergi/go-diff/diffmatchpatch"
+	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/restclient"
 )
 
 type resulter struct {
@@ -110,6 +113,36 @@ func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, inp
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
+}
+
+func StringDiff(text1, text2 string) string {
+	// find diffs
+	dmp := diffmatchpatch.New()
+	test := dmp.DiffMain(text1, text2, false)
+	diffs := dmp.DiffCleanupSemantic(test)
+
+	// output with colors
+	var buffer bytes.Buffer
+	for _, v := range diffs {
+		// scape text
+		v.Text = strings.Replace(v.Text, "[", "[[", -1)
+		v.Text = strings.Replace(v.Text, "]", "]]", -1)
+
+		if v.Type == 0 {
+			buffer.WriteString(v.Text)
+		} else if v.Type == -1 {
+			buffer.WriteString("[bg-red bold]")
+			buffer.WriteString(v.Text)
+			buffer.WriteString("[reset]")
+		} else if v.Type == 1 {
+			buffer.WriteString("[bg-blue bold]")
+			buffer.WriteString(v.Text)
+			buffer.WriteString("[reset]")
+		}
+	}
+	// parse to set colors
+	colorDiff := sgr.MustParseln(buffer.String())
+	return colorDiff
 }
 
 func resetRootFlagVars() {

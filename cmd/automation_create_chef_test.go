@@ -33,7 +33,28 @@ func resetAutomationCreateChefFlagVars() {
 
 func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 	// set test server
-	responseBody := "Miau"
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
+	want := `+---------------------+---------------------------------------------------------+
+|         KEY         |                          VALUE                          |
++---------------------+---------------------------------------------------------+
+| arguments           | <nil>                                                   |
+| chef_attributes     | <nil>                                                   |
+| chef_version        | <nil>                                                   |
+| created_at          | 2016-05-19T12:48:51.629Z                                |
+| environment         | <nil>                                                   |
+| id                  | 40                                                      |
+| log_level           | <nil>                                                   |
+| name                | test                                                    |
+| path                | <nil>                                                   |
+| project_id          | p-9597d2775                                             |
+| repository          | https://github.com/user123/automation-test.git |
+| repository_revision | master                                                  |
+| run_list            | [recipe[nginx]]                                         |
+| tags                | <nil>                                                   |
+| timeout             | 3600                                                    |
+| type                | Chef                                                    |
+| updated_at          | 2016-05-19T12:48:51.629Z                                |
++---------------------+---------------------------------------------------------+`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
@@ -50,14 +71,18 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
-	if !strings.Contains(resulter.Output, responseBody) {
-		t.Error(`Command response body doesn't match.'`)
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		return
 	}
 	if !strings.Contains(chef.Name, "chef_test") {
 		t.Error(`Command create chef expected to have same name'`)
+		return
 	}
 	if !strings.Contains(chef.Repository, "http://some_repository") {
 		t.Error(`Command create chef expected to have same repository'`)
+		return
 	}
 	if len(chef.Runlist) != 1 {
 		t.Error(`Command create chef expected to have runlist.'`)
@@ -66,9 +91,30 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	// set test server
-	responseBody := "Miau"
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
+	want := `+---------------------+---------------------------------------------------------+
+|         KEY         |                          VALUE                          |
++---------------------+---------------------------------------------------------+
+| arguments           | <nil>                                                   |
+| chef_attributes     | <nil>                                                   |
+| chef_version        | <nil>                                                   |
+| created_at          | 2016-05-19T12:48:51.629Z                                |
+| environment         | <nil>                                                   |
+| id                  | 40                                                      |
+| log_level           | <nil>                                                   |
+| name                | test                                                    |
+| path                | <nil>                                                   |
+| project_id          | p-9597d2775                                             |
+| repository          | https://github.com/user123/automation-test.git |
+| repository_revision | master                                                  |
+| run_list            | [recipe[nginx]]                                         |
+| tags                | <nil>                                                   |
+| timeout             | 3600                                                    |
+| type                | Chef                                                    |
+| updated_at          | 2016-05-19T12:48:51.629Z                                |
++---------------------+---------------------------------------------------------+`
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
@@ -88,8 +134,10 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
-	if !strings.Contains(resulter.Output, responseBody) {
-		t.Error(`Command response body doesn't match.'`)
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		return
 	}
 	if !strings.Contains(chef.AutomationType, "Chef") {
 		t.Error(`Command create chef expected to have Chef type'`)
@@ -123,7 +171,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	// set test server
-	responseBody := "Miau"
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 

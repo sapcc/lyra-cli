@@ -12,6 +12,10 @@
 			"Rev": "f706d00e3de6abe700c994cdd545a1a4915af060"
 		},
 		{
+			"ImportPath": "github.com/foize/go.sgr",
+			"Rev": "40bdfc98040cd18ebb4d68e91ab97f6c58366ad8"
+		},
+		{
 			"ImportPath": "github.com/fsnotify/fsnotify",
 			"Comment": "v1.3.0",
 			"Rev": "30411dbcefb7a1da7e84f75530ad3abe4011b4f8"
@@ -145,6 +149,10 @@
 			"ImportPath": "github.com/rackspace/gophercloud/testhelper/client",
 			"Comment": "v1.0.0-884-gc54bbac",
 			"Rev": "c54bbac81d19eb4df3ad167764dbb6ff2e7194de"
+		},
+		{
+			"ImportPath": "github.com/sergi/go-diff/diffmatchpatch",
+			"Rev": "ec7fdbb58eb3e300c8595ad5ac74a5aa50019cc7"
 		},
 		{
 			"ImportPath": "github.com/spf13/cast",

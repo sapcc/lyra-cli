@@ -20,7 +20,9 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/print"
 )
 
 // showCmd represents the show command
@@ -47,8 +49,31 @@ var AutomationShowCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		// print response
-		cmd.Println(response)
+
+		// convert data to struct
+		var dataStruct map[string]interface{}
+		err = helpers.JSONStringToStructure(response, &dataStruct)
+		if err != nil {
+			return err
+		}
+
+		// print the data out
+		printer := print.Print{Data: dataStruct}
+		bodyPrint := ""
+		if JsonOutput {
+			bodyPrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			bodyPrint, err = printer.Table()
+			if err != nil {
+				return err
+			}
+		}
+
+		// Print response
+		cmd.Println(bodyPrint)
 
 		return nil
 	},

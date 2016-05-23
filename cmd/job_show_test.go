@@ -74,7 +74,8 @@ func TestJobShowCmdResultTable(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --job-id=123456789", "http://somewhere.com", server.URL, "token123"))
 
 	if !strings.Contains(resulter.Output, want) {
-		t.Error(`Command response body doesn't match.'`)
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
 	}
 }
 

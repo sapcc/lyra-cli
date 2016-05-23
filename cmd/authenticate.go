@@ -26,11 +26,12 @@ import (
 	"github.com/rackspace/gophercloud/openstack/identity/v3/services"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
 	"github.com/rackspace/gophercloud/pagination"
+	"github.com/sapcc/lyra-cli/print"
 
 	"github.com/spf13/cobra"
 )
 
-type Auth struct {
+type LyraAuthOps struct {
 	IdentityEndpoint  string
 	Username          string
 	UserId            string
@@ -47,7 +48,8 @@ var (
 	ENV_VAR_USERNAME = "USERNAME"
 	ENV_VAR_USERID   = "USERID"
 	ENV_VAR_PASSWORD = "PASSWORD"
-	lyraAuthOps      = Auth{}
+	lyraAuthOps      = LyraAuthOps{}
+	AuthenticationV3 = newAuthenticationV3
 )
 
 // authenticateCmd represents the authenticate command
@@ -62,13 +64,30 @@ and usage of using your command.`,
 		if err != nil {
 			return err
 		}
+
+		// authentication object
+		authV3 := AuthenticationV3(lyraAuthOps)
+
 		// authenticate
-		response, err := authenticate()
+		response, err := authenticate(authV3)
 		if err != nil {
 			return err
 		}
-		// print response
-		cmd.Println(response)
+
+		// print the data out
+		printer := print.Print{Data: response}
+		bodyPrint := ""
+		if JsonOutput {
+			bodyPrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			bodyPrint = fmt.Sprintf("export %s=%s\nexport %s=%s\nexport %s=%s", ENV_VAR_AUTOMATION_ENDPOINT_NAME, response[ENV_VAR_AUTOMATION_ENDPOINT_NAME], ENV_VAR_ARC_ENDPOINT_NAME, response[ENV_VAR_ARC_ENDPOINT_NAME], ENV_VAR_TOKEN_NAME, response[ENV_VAR_TOKEN_NAME])
+		}
+
+		// Print response
+		cmd.Println(bodyPrint)
 
 		return nil
 	},
@@ -127,80 +146,124 @@ func setupAuthentication() error {
 	return nil
 }
 
-func authenticate() (string, error) {
-	// add auth options
-	authOpts := gophercloud.AuthOptions{
-		IdentityEndpoint: lyraAuthOps.IdentityEndpoint,
-		Username:         lyraAuthOps.Username,
-		UserID:           lyraAuthOps.UserId,
-		Password:         lyraAuthOps.Password,
-		DomainName:       lyraAuthOps.UserDomainName,
-		DomainID:         lyraAuthOps.UserDomainId,
+func authenticate(authV3 Authentication) (map[string]string, error) {
+	// get automation service id from the catalog
+	automationServiceId, err := authV3.GetServiceId("automation")
+	if err != nil {
+		return map[string]string{}, err
+	}
+	// get automation service endpoints from catalog
+	automationPublicEndpoint, err := authV3.GetServicePublicEndpoint(automationServiceId)
+	if err != nil {
+		return map[string]string{}, err
 	}
 
-	// get provider client struct
-	provider, err := openstack.AuthenticatedClient(authOpts)
+	// get automation service id from the catalog
+	arcServiceId, err := authV3.GetServiceId("arc")
 	if err != nil {
-		return "", err
+		return map[string]string{}, err
+	}
+	// get automation service endpoints from catalog
+	arcPublicEndpoint, err := authV3.GetServicePublicEndpoint(arcServiceId)
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	// get the token
+	token, err := authV3.GetToken()
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	return map[string]string{
+		ENV_VAR_AUTOMATION_ENDPOINT_NAME: automationPublicEndpoint,
+		ENV_VAR_ARC_ENDPOINT_NAME:        arcPublicEndpoint,
+		ENV_VAR_TOKEN_NAME:               token,
+	}, nil
+}
+
+//
+// Interface Authentication V3
+//
+type Authentication interface {
+	GetToken() (string, error)
+	GetServicePublicEndpoint(serviceId string) (string, error)
+	GetServiceId(serviceType string) (string, error)
+}
+
+type V3 struct {
+	AuthOpts LyraAuthOps
+	client   *gophercloud.ServiceClient
+}
+
+func newAuthenticationV3(authOpts LyraAuthOps) Authentication {
+	return &V3{AuthOpts: authOpts}
+}
+
+func (a *V3) getAuthOptions() gophercloud.AuthOptions {
+	return gophercloud.AuthOptions{
+		IdentityEndpoint: a.AuthOpts.IdentityEndpoint,
+		Username:         a.AuthOpts.Username,
+		UserID:           a.AuthOpts.UserId,
+		Password:         a.AuthOpts.Password,
+		DomainName:       a.AuthOpts.UserDomainName,
+		DomainID:         a.AuthOpts.UserDomainId,
+	}
+}
+
+func (a *V3) getClient() (*gophercloud.ServiceClient, error) {
+	// get provider client struct
+	provider, err := openstack.AuthenticatedClient(a.getAuthOptions())
+	if err != nil {
+		return nil, err
 	}
 
 	// Creates a ServiceClient that may be used to access the v3 identity service
-	client := openstack.NewIdentityV3(provider)
-
-	// get automation service id from the catalog
-	automationServiceId, err := getServiceId("automation", client)
-	if err != nil {
-		return "", err
-	}
-	// get automation service endpoints from catalog
-	automationPublicEndpoint, err := getServicePublicEndpoint(automationServiceId, client)
-	if err != nil {
-		return "", err
-	}
-
-	// get automation service id from the catalog
-	arcServiceId, err := getServiceId("arc", client)
-	if err != nil {
-		return "", err
-	}
-	// get automation service endpoints from catalog
-	arcPublicEndpoint, err := getServicePublicEndpoint(arcServiceId, client)
-	if err != nil {
-		return "", err
-	}
-
-	// get the token
-	token, err := getToken(authOpts, client)
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("export %s=%s\nexport %s=%s\nexport %s=%s", ENV_VAR_AUTOMATION_ENDPOINT_NAME, automationPublicEndpoint, ENV_VAR_ARC_ENDPOINT_NAME, arcPublicEndpoint, ENV_VAR_TOKEN_NAME, token), nil
+	return openstack.NewIdentityV3(provider), nil
 }
 
-func getToken(authOpts gophercloud.AuthOptions, client *gophercloud.ServiceClient) (string, error) {
+func (a *V3) GetToken() (string, error) {
 	scope := tokens.Scope{
-		ProjectName: lyraAuthOps.ProjectName,
-		ProjectID:   lyraAuthOps.ProjectId,
-		DomainName:  lyraAuthOps.ProjectDomainName,
-		DomainID:    lyraAuthOps.ProjectDomainId,
+		ProjectName: a.AuthOpts.ProjectName,
+		ProjectID:   a.AuthOpts.ProjectId,
+		DomainName:  a.AuthOpts.ProjectDomainName,
+		DomainID:    a.AuthOpts.ProjectDomainId,
+	}
+
+	// init the v3 client
+	var err error
+	if a.client == nil {
+		a.client, err = a.getClient()
+		if err != nil {
+			return "", err
+		}
 	}
 
 	// get the token
-	token, err := tokens.Create(client, authOpts, &scope).Extract()
+	token, err := tokens.Create(a.client, a.getAuthOptions(), &scope).Extract()
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return token.ID, nil
 }
 
-func getServicePublicEndpoint(serviceId string, client *gophercloud.ServiceClient) (string, error) {
+func (a *V3) GetServicePublicEndpoint(serviceId string) (string, error) {
+	// init the v3 client
+	var err error
+	if a.client == nil {
+		a.client, err = a.getClient()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// get the endpoints
 	publicEndpoint := ""
 	endpointsOpts := endpoints.ListOpts{ServiceID: serviceId, Page: 1, PerPage: 1}
-	endpointsPager := endpoints.List(client, endpointsOpts)
+	endpointsPager := endpoints.List(a.client, endpointsOpts)
 
-	err := endpointsPager.EachPage(func(page pagination.Page) (bool, error) {
+	err = endpointsPager.EachPage(func(page pagination.Page) (bool, error) {
 		endpointList, err := endpoints.ExtractEndpoints(page)
 		if err != nil {
 			return false, err
@@ -226,12 +289,22 @@ func getServicePublicEndpoint(serviceId string, client *gophercloud.ServiceClien
 	return publicEndpoint, nil
 }
 
-func getServiceId(serviceType string, client *gophercloud.ServiceClient) (string, error) {
+func (a *V3) GetServiceId(serviceType string) (string, error) {
+	// init the v3 client
+	var err error
+	if a.client == nil {
+		a.client, err = a.getClient()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// get the service
 	serviceId := ""
 	opts := services.ListOpts{ServiceType: serviceType, Page: 1, PerPage: 1}
-	servicesPager := services.List(client, opts)
+	servicesPager := services.List(a.client, opts)
 
-	err := servicesPager.EachPage(func(page pagination.Page) (bool, error) {
+	err = servicesPager.EachPage(func(page pagination.Page) (bool, error) {
 		servicesList, err := services.ExtractServices(page)
 		if err != nil {
 			return false, err

@@ -9,6 +9,7 @@ import (
 )
 
 func resetJobShow() {
+	jobId = ""
 	// reset automation flag vars
 	resetRootFlagVars()
 	// reset commands

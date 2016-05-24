@@ -20,14 +20,12 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
-	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
-	"github.com/sapcc/lyra-cli/print"
 )
 
-var JobShowCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Shows an especific job",
+var JobLogCmd = &cobra.Command{
+	Use:   "log",
+	Short: "Shows job log",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -45,47 +43,25 @@ and usage of using your command.`,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// list automation
-		response, err := jobShow()
+		response, err := jobLog()
 		if err != nil {
 			return err
-		}
-
-		// convert data to struct
-		var dataStruct map[string]interface{}
-		err = helpers.JSONStringToStructure(response, &dataStruct)
-		if err != nil {
-			return err
-		}
-
-		// print the data out
-		printer := print.Print{Data: dataStruct}
-		bodyPrint := ""
-		if JsonOutput {
-			bodyPrint, err = printer.JSON()
-			if err != nil {
-				return err
-			}
-		} else {
-			bodyPrint, err = printer.Table()
-			if err != nil {
-				return err
-			}
 		}
 
 		// print response
-		cmd.Println(bodyPrint)
+		cmd.Println(response)
 
 		return nil
 	},
 }
 
 func init() {
-	JobCmd.AddCommand(JobShowCmd)
-	JobShowCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
+	JobCmd.AddCommand(JobLogCmd)
+	JobLogCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
 }
 
-func jobShow() (string, error) {
-	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId), url.Values{}, false)
+func jobLog() (string, error) {
+	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId, "log"), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

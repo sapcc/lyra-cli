@@ -31,38 +31,15 @@ func TestRunListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
 	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra run list")
 }
 
-func TestRunListCmdWithEndpointTokenFlag(t *testing.T) {
-	// set test server
-	responseBody := `[{"name":"bup"}]`
-	server := TestServer(200, responseBody, map[string]string{})
-	defer server.Close()
-
-	// reset stuff
-	resetRunList()
-	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "token123"))
-
-	if resulter.Error != nil {
-		t.Error(`Command expected to not get an error`)
-	}
-}
-
 func TestRunListCmdResultTable(t *testing.T) {
 	// set test server
 	responseBody := `[{
   "id": "30",
-  "log": "Selecting nodes with selector @identity='0128e993-c709-4ce1-bccf-e06eb10900a0'\nSelected nodes:\n0128e993-c709-4ce1-bccf-e06eb10900a0 mo-85b92ea6f",
   "created_at": "2016-04-07T21:42:07.416Z",
-  "updated_at": "2016-04-07T21:42:14.294Z",
-  "repository_revision": "0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc",
   "state": "executing",
-  "jobs": [
-    "b843bbe9-fa95-4a0b-9329-aed05d1de8b8"
-  ],
   "owner": "u-fa35bbc5f",
   "automation_id": "6",
-  "automation_name": "Chef_test",
-  "selector": "@identity='0128e993-c709-4ce1-bccf-e06eb10900a0'"
+  "automation_name": "Chef_test"
 }]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
@@ -76,6 +53,11 @@ func TestRunListCmdResultTable(t *testing.T) {
 	resetRunList()
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "http://somewhere.com", "token123"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+		return
+	}
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)

@@ -204,53 +204,56 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	}
 }
 
-// func TestAutomationCreateChefShouldSetAttributesFromStdInput(t *testing.T) {
-//   // set test server
-//   responseBody := "Miau"
-//   server := TestServer(200, responseBody)
-//   defer server.Close()
-//
-//   // path to the current directory
-//   pwd, _ := os.Getwd()
-//   file := fmt.Sprint(pwd, "/../examples/example1.JSON")
-//   // read example
-//   txt, _ := ioutil.ReadFile(file)
-//
-//   // NOT WORKING
-//   // pipe std in and out
-//   oldStdout := os.Stdout
-//   oldStdin := os.Stdin
-//   r, w, _ := os.Pipe() //type *os.File
-//   os.Stdout = w
-//   os.Stdin = r
-//   // writing in stdout
-//   fmt.Fprintf(w, string(txt))
-//
-//   resetAutomationCreateChefFlagVars()
-//   resulter := FullCmdTester(RootCmd,
-//     fmt.Sprintf("lyra-cli automation create chef --lyra-service-endpoint=%s --token=%s --attributes-from-file=%s",
-//       server.URL,
-//       "token123",
-//       "-"))
-//
-//   fmt.Println("#####")
-//   fmt.Println(chef.Attributes)
-//   fmt.Println("#####")
-//
-//   // back to normal state
-//   w.Close()
-//   //r.Close()
-//   // restoring the real stdout
-//   os.Stdout = oldStdout
-//   os.Stdin = oldStdin
-//
-//   if resulter.Error != nil {
-//     t.Error(`Command expected to not get an error`)
-//   }
-//   if len(txt) == 0 {
-//     t.Error(`Command create chef expected to find an attributes file with content'`)
-//   }
-//   if !strings.Contains(chef.Attributes, string(txt)) {
-//     t.Error(`Command create chef expected to have same attributes'`)
-//   }
-// }
+func TestAutomationCreateChefShouldSetAttributesFromStdInput(t *testing.T) {
+	// set test server
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	server := TestServer(200, responseBody, map[string]string{})
+	defer server.Close()
+
+	// path to the current directory
+	pwd, _ := os.Getwd()
+	file := fmt.Sprint(pwd, "/../examples/example1.JSON")
+	// read example
+	txt, _ := ioutil.ReadFile(file)
+
+	// keep backup of the real stdout
+	oldStdout := os.Stdout
+
+	// write passowrd
+	_, err := pipeToStdin(string(txt))
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	// pipe std out
+	_, w, err := os.Pipe()
+	if err != nil {
+		fmt.Println(err)
+	}
+	os.Stdout = w
+
+	resetAutomationCreateChefFlagVars()
+	resulter := FullCmdTester(RootCmd,
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --attributes-from-file=%s",
+			server.URL,
+			"http://some_nice_url",
+			"token123",
+			"-"))
+
+	// flush, restore close
+	os.Stdout = oldStdout
+	flushStdin()
+	w.Close()
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	// convert interface to string and compare
+	testString, _ := helpers.StructureToJSON(chef.Attributes)
+	buffer := new(bytes.Buffer)
+	json.Compact(buffer, txt)
+	if !strings.Contains(testString, buffer.String()) {
+		t.Error(`Command create chef expected to have same attributes'`)
+	}
+}

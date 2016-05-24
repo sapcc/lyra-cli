@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/rackspace/gophercloud"
@@ -9,7 +8,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 )
 
 func resetAuthenticate() {
@@ -134,54 +132,6 @@ func TestAuthenticationResultJSON(t *testing.T) {
 		t.Error("Json response body and print out Json do not match.")
 	}
 
-}
-
-//
-// Helpers
-//
-
-func pipeToStdin(s string) (int, error) {
-	pipeReader, pipeWriter, err := os.Pipe()
-	if err != nil {
-		fmt.Println("Error getting os pipes:", err)
-		os.Exit(1)
-	}
-	os.Stdin = pipeReader
-	w, err := pipeWriter.WriteString(s)
-	pipeWriter.Close()
-	return w, err
-}
-
-// flushStdin reads from stdin for .5 seconds to ensure no bytes are left on
-// the buffer.  Returns the number of bytes read.
-func flushStdin() int {
-	ch := make(chan byte)
-	go func(ch chan byte) {
-		reader := bufio.NewReader(os.Stdin)
-		for {
-			b, err := reader.ReadByte()
-			if err != nil { // Maybe log non io.EOF errors, if you want
-				close(ch)
-				return
-			}
-			ch <- b
-		}
-		close(ch)
-	}(ch)
-
-	numBytes := 0
-	for {
-		select {
-		case _, ok := <-ch:
-			if !ok {
-				return numBytes
-			}
-			numBytes++
-		case <-time.After(500 * time.Millisecond):
-			return numBytes
-		}
-	}
-	return numBytes
 }
 
 //

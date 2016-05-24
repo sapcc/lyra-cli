@@ -81,7 +81,7 @@ var AutomationShowCmd = &cobra.Command{
 
 func init() {
 	AutomationCmd.AddCommand(AutomationShowCmd)
-	AutomationShowCmd.Flags().StringVarP(&automationId, "automation-id", "i", "", locales.AttributeDescription("automation-id"))
+	AutomationShowCmd.Flags().StringVar(&automationId, "automation-id", "", locales.AttributeDescription("automation-id"))
 }
 
 func automationShow() (string, error) {

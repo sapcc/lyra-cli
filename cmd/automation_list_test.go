@@ -40,7 +40,7 @@ func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
 	// reset stuff
 	resetAutomationList()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "token123"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, server.URL, "token123"))
 
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
@@ -104,7 +104,7 @@ func TestAutomationListCmdResultTableExtraCustomColumns(t *testing.T) {}
 
 func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 	// set test server
-	server := paginationServer()
+	server := automationPaginationServer()
 	defer server.Close()
 
 	want := `+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
@@ -126,7 +126,7 @@ func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 
 func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
 	// set test server
-	server := paginationServer()
+	server := automationPaginationServer()
 	defer server.Close()
 
 	resetAutomationList()
@@ -156,7 +156,7 @@ func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
 	}
 }
 
-func paginationServer() *httptest.Server {
+func automationPaginationServer() *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		page := r.URL.Query().Get("page")

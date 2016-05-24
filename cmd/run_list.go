@@ -15,76 +15,58 @@
 package cmd
 
 import (
-	"errors"
 	"net/url"
-	"path"
 
 	"github.com/spf13/cobra"
-	"github.com/sapcc/lyra-cli/helpers"
-	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
 
-var RunShowCmd = &cobra.Command{
-	Use:   "show",
-	Short: "Show a specific automation run",
+var RunListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List all automation runs",
 	Long:  `A longer description for automation run show.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// check required automation id
-		if len(runId) == 0 {
-			return errors.New(locales.ErrorMessages("run-id-missing"))
-		}
 		// setup rest client
 		err := setupRestClient()
 		if err != nil {
 			return err
 		}
-
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
-		response, err := runShow()
+		response, err := runList()
 		if err != nil {
 			return err
 		}
 
-		// convert data to struct
-		var dataStruct map[string]interface{}
-		err = helpers.JSONStringToStructure(response, &dataStruct)
-		if err != nil {
-			return err
-		}
-
-		// print the data out
-		printer := print.Print{Data: dataStruct}
-		bodyPrint := ""
+		printer := print.Print{Data: response}
+		tablePrint := ""
 		if JsonOutput {
-			bodyPrint, err = printer.JSON()
+			tablePrint, err = printer.JSON()
 			if err != nil {
 				return err
 			}
 		} else {
-			bodyPrint, err = printer.Table()
+			tablePrint, err = printer.TableList([]string{"id", "automation_id", "automation_name", "state", "owner", "created_at"})
 			if err != nil {
 				return err
 			}
 		}
 
-		// Print response
-		cmd.Println(bodyPrint)
+		// print response
+		cmd.Println(tablePrint)
 
 		return nil
 	},
 }
 
 func init() {
-	RunCmd.AddCommand(RunShowCmd)
-	RunShowCmd.Flags().StringVar(&runId, "run-id", "", locales.AttributeDescription("run-id"))
+	RunCmd.AddCommand(RunListCmd)
 }
 
-func runShow() (string, error) {
-	response, _, err := RestClient.Services.Automation.Get(path.Join("runs", runId), url.Values{}, false)
+func runList() (interface{}, error) {
+	response, _, err := RestClient.Services.Automation.GetList("runs", url.Values{})
 	if err != nil {
 		return "", err
 	}

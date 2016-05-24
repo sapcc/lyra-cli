@@ -9,6 +9,7 @@ import (
 )
 
 func resetAutomationShow() {
+	automationId = ""
 	// reset automation flag vars
 	resetRootFlagVars()
 	// reset commands
@@ -50,7 +51,7 @@ func TestAutomationShowCmdWithResultTable(t *testing.T) {
 	// reset stuff
 	resetAutomationShow()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s -i=%s", server.URL, "https://somewhere.com", "token123", "automation_id"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --automation-id=%s", server.URL, "https://somewhere.com", "token123", "automation_id"))
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -67,7 +68,12 @@ func TestAutomationShowCmdWithResultJSON(t *testing.T) {
 	// reset stuff
 	resetAutomationShow()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s -i=%s --json", server.URL, "https://somewhere.com", "token123", "automation_id"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --automation-id=%s --json", server.URL, "https://somewhere.com", "token123", "automation_id"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+		return
+	}
 
 	source := map[string]interface{}{}
 	err := json.Unmarshal([]byte(responseBody), &source)

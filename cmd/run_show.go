@@ -44,7 +44,7 @@ var RunShowCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
-		response, err := runShow()
+		response, err := runShow(runId)
 		if err != nil {
 			return err
 		}
@@ -83,8 +83,8 @@ func init() {
 	RunShowCmd.Flags().StringVar(&runId, "run-id", "", locales.AttributeDescription("run-id"))
 }
 
-func runShow() (string, error) {
-	response, _, err := RestClient.Services.Automation.Get(path.Join("runs", runId), url.Values{}, false)
+func runShow(id string) (string, error) {
+	response, _, err := RestClient.Services.Automation.Get(path.Join("runs", id), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

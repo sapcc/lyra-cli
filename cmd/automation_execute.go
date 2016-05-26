@@ -17,9 +17,12 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -44,11 +47,31 @@ and usage of using your command.`,
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// run automation
+		//run automation
 		response, err := automationRun()
 		if err != nil {
 			return err
 		}
+
+		//     test := `{
+		//   "id": "85",
+		//   "log": null,
+		//   "created_at": "2016-05-25T11:32:51.723Z",
+		//   "updated_at": "2016-05-25T11:32:51.723Z",
+		//   "repository_revision": null,
+		//   "state": "preparing",
+		//   "jobs": null,
+		//   "owner": "u-519166a05",
+		//   "automation_id": "6",
+		//   "automation_name": "Chef_test",
+		//   "selector": "@identity=\"0128e993-c709-4ce1-bccf-e06eb10900a0\""
+		// }`
+
+		// err := automationRunWait(test)
+		// if err != nil {
+		//   return err
+		// }
+
 		// Print response
 		cmd.Println(response)
 
@@ -90,4 +113,133 @@ func automationRun() (string, error) {
 	}
 
 	return response, nil
+}
+
+type ExecRun struct {
+	Id    string   `json:"id"`
+	State string   `json:"state"`
+	Jobs  []string `json:"jobs"`
+}
+
+func automationRunWait(runData string) error {
+	// convert data to struct
+	execRun := ExecRun{}
+	err := helpers.JSONStringToStructure(runData, &execRun)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Run automation is created with id %s\n", execRun.Id)
+	fmt.Printf("Automation state %s\n", execRun.State)
+
+	// update data
+	tickChan := time.NewTicker(time.Second * 5)
+	runningJobs := []string{}
+	// jobState := map[string]string{}
+	for {
+		select {
+		case <-tickChan.C:
+
+			var err error
+			var runUpdate *ExecRun
+
+			switch execRun.State {
+			case RunPreparing:
+				// get new run update
+				runUpdate, err = getAutomationRun(execRun.Id)
+			case RunExecuting:
+				// get new run update
+				runUpdate, err = getAutomationRun(execRun.Id)
+			}
+
+			// exit if error occurs
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
+			// run state changed
+			if len(runUpdate.State) > 0 && runUpdate.State != execRun.State {
+				// update state
+				execRun.State = runUpdate.State
+				// print out for run state
+				fmt.Printf("Automation state %s\n", execRun.State)
+				// exit if run failed
+				if execRun.State == RunFailed {
+					tickChan.Stop()
+					return nil
+				}
+			}
+
+			// add new jobs
+			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(execRun.Jobs) {
+				execRun.Jobs = runUpdate.Jobs
+				fmt.Println("Schedule jobs:")
+				for _, v := range runUpdate.Jobs {
+					runningJobs = append(execRun.Jobs, v)
+					fmt.Printf("Job id %s\n", v)
+				}
+			}
+
+			// update running jobs
+			if len(runningJobs) > 0 {
+				for _, v := range runningJobs {
+					// do update to the map
+					fmt.Println(v)
+				}
+			} else {
+				// check all entries in the job are cmoplete or failed and exit
+			}
+		}
+	}
+	return nil
+}
+
+const (
+	RunPreparing = "preparing"
+	RunExecuting = "executing"
+	RunFailed    = "failed"
+	RunCompleted = "completed"
+)
+
+func getAutomationRun(id string) (*ExecRun, error) {
+	// get run
+	data, err := getRunUpdate(id)
+	if err != nil {
+		return nil, err
+	}
+	// convert data
+	updateRun := ExecRun{}
+	err = helpers.JSONStringToStructure(data, &updateRun)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updateRun, nil
+}
+
+func getRunUpdate(id string) (string, error) {
+	// get new data
+	data, err := runShow(id)
+	if err != nil {
+		return "", err
+	}
+
+	return data, nil
+}
+
+type JobState byte
+
+const (
+	_ JobState = iota
+	JobQueued
+	JobExecuting
+	JobFailed
+	JobComplete
+)
+
+var jobStateStringMap = map[JobState]string{JobQueued: "queued", JobExecuting: "executing", JobFailed: "failed", JobComplete: "complete"}
+
+func jobRunState(id string) {
+
 }

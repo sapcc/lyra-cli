@@ -18,6 +18,7 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/print"
 )
 
@@ -25,14 +26,6 @@ var RunListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all automation runs",
 	Long:  `A longer description for automation run show.`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
 		response, err := runList()
@@ -42,7 +35,7 @@ var RunListCmd = &cobra.Command{
 
 		printer := print.Print{Data: response}
 		tablePrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			tablePrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -63,6 +56,10 @@ var RunListCmd = &cobra.Command{
 
 func init() {
 	RunCmd.AddCommand(RunListCmd)
+	initRunListCmdFlags()
+}
+
+func initRunListCmdFlags() {
 }
 
 func runList() (interface{}, error) {

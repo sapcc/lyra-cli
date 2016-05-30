@@ -27,12 +27,10 @@ import (
 )
 
 var (
-	cfgFile                          string
-	Token                            string
-	AutomationUrl                    string
-	ArcUrl                           string
-	JsonOutput                       bool
-	RestClient                       *restclient.Client
+	cfgFile string
+
+	RestClient *restclient.Client
+
 	ENV_VAR_TOKEN_NAME               = "OS_TOKEN"
 	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
 	ENV_VAR_ARC_ENDPOINT_NAME        = "ARC_SERVICE_ENDPOINT"
@@ -44,9 +42,14 @@ var RootCmd = &cobra.Command{
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// setup rest client
+		err := setupRestClient()
+		if err != nil {
+			return err
+		}
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -60,24 +63,31 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	initRootCmdFlags()
+}
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports Persistent Flags, which, if defined here,
-	// will be global for your application.
-
+func initRootCmdFlags() {
+	// Cobra flags
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lyra-cli.yaml)")
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "g", false, "Help message for toggle")
-
 	// Custom flags
+	// Results as JSON format
+	RootCmd.PersistentFlags().BoolP("json", "j", false, fmt.Sprint("Print out the data in JSON format."))
+	// Authentication flags
 	token_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME)
 	automation_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 	arc_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_ARC_ENDPOINT_NAME)
-	RootCmd.PersistentFlags().StringVarP(&Token, "token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
-	RootCmd.PersistentFlags().StringVarP(&AutomationUrl, "lyra-service-endpoint", "l", "", fmt.Sprint("Automation service endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
-	RootCmd.PersistentFlags().StringVarP(&ArcUrl, "arc-service-endpoint", "a", "", fmt.Sprint("Arc service endpoint. To get the arc endpoint run the authenticate command. (default ", arc_default_env_name, ")"))
-	RootCmd.PersistentFlags().BoolVarP(&JsonOutput, "json", "j", false, fmt.Sprint("Print out the data in JSON format."))
+	RootCmd.PersistentFlags().StringP("token", "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", token_default_env_name, ")"))
+	RootCmd.PersistentFlags().StringP("lyra-service-endpoint", "l", "", fmt.Sprint("Automation service endpoint. To get the automation endpoint run the authenticate command. (default ", automation_default_env_name, ")"))
+	RootCmd.PersistentFlags().StringP("arc-service-endpoint", "a", "", fmt.Sprint("Arc service endpoint. To get the arc endpoint run the authenticate command. (default ", arc_default_env_name, ")"))
+	// Reset viper for testing purpose
+	viper.BindPFlag(ENV_VAR_TOKEN_NAME, RootCmd.PersistentFlags().Lookup("token"))
+	viper.BindEnv(ENV_VAR_TOKEN_NAME)
+	viper.BindPFlag(ENV_VAR_AUTOMATION_ENDPOINT_NAME, RootCmd.PersistentFlags().Lookup("lyra-service-endpoint"))
+	viper.BindEnv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+	viper.BindPFlag(ENV_VAR_ARC_ENDPOINT_NAME, RootCmd.PersistentFlags().Lookup("arc-service-endpoint"))
+	viper.BindEnv(ENV_VAR_ARC_ENDPOINT_NAME)
+	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -88,7 +98,7 @@ func initConfig() {
 
 	viper.SetConfigName(".lyra-cli") // name of config file (without extension)
 	viper.AddConfigPath("$HOME")     // adding home directory as first search path
-	viper.AutomaticEnv()             // read in environment variables that match
+	// viper.AutomaticEnv()             // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -98,40 +108,27 @@ func initConfig() {
 
 // setup the rest client
 func setupRestClient() error {
-	// setup flags with environment variablen
-	if len(Token) == 0 {
-		if len(os.Getenv(ENV_VAR_TOKEN_NAME)) == 0 {
-			return errors.New("Token not given. To create a token you can use the authenticate command.")
-		} else {
-			Token = os.Getenv(ENV_VAR_TOKEN_NAME)
-		}
+	if viper.Get(ENV_VAR_TOKEN_NAME) == nil {
+		return errors.New("Token not given. To create a token you can use the authenticate command.")
 	}
 
-	if len(AutomationUrl) == 0 {
-		if len(os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 {
-			return errors.New("Automation endpoint not given. To get the automation endpoint run the authenticate command.")
-		} else {
-			AutomationUrl = os.Getenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
-		}
+	if viper.Get(ENV_VAR_AUTOMATION_ENDPOINT_NAME) == nil {
+		return errors.New("Automation endpoint not given. To get the automation endpoint run the authenticate command.")
 	}
 
-	if len(ArcUrl) == 0 {
-		if len(os.Getenv(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 {
-			return errors.New("Arc endpoint not given. To get the arc endpoint run the authenticate command.")
-		} else {
-			ArcUrl = os.Getenv(ENV_VAR_ARC_ENDPOINT_NAME)
-		}
+	if viper.Get(ENV_VAR_ARC_ENDPOINT_NAME) == nil {
+		return errors.New("Arc endpoint not given. To get the arc endpoint run the authenticate command.")
 	}
 
 	// add api version to the automation url
-	autoUri, err := url.Parse(AutomationUrl)
+	autoUri, err := url.Parse(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME))
 	if err != nil {
 		return err
 	}
 	autoUri.Path = path.Join(autoUri.Path, "/api/v1/")
 
 	// add api version to the arc url
-	arcUri, err := url.Parse(ArcUrl)
+	arcUri, err := url.Parse(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME))
 	if err != nil {
 		return err
 	}
@@ -143,7 +140,7 @@ func setupRestClient() error {
 	}
 
 	// init rest client
-	RestClient = restclient.NewClient(services, Token)
+	RestClient = restclient.NewClient(services, viper.GetString(ENV_VAR_TOKEN_NAME))
 
 	return nil
 }

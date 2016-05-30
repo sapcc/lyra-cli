@@ -20,6 +20,7 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
@@ -34,11 +35,6 @@ and usage of using your command.`,
 		// check required job id
 		if len(jobId) == 0 {
 			return errors.New(locales.ErrorMessages("job-id-missing"))
-		}
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
 		}
 
 		return nil
@@ -60,7 +56,7 @@ and usage of using your command.`,
 		// print the data out
 		printer := print.Print{Data: dataStruct}
 		bodyPrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -81,6 +77,10 @@ and usage of using your command.`,
 
 func init() {
 	JobCmd.AddCommand(JobShowCmd)
+	initJobShowCmdFlags()
+}
+
+func initJobShowCmdFlags() {
 	JobShowCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
 }
 

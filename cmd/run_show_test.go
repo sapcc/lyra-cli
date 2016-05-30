@@ -11,14 +11,7 @@ import (
 func resetRunShow() {
 	runId = ""
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	RunCmd.ResetCommands()
-	RunShowCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(RunCmd)
-	RunCmd.AddCommand(RunShowCmd)
+	ResetFlags()
 }
 
 func TestRunShowCmdWithWrongEnvEndpointsAndTokenSet(t *testing.T) {
@@ -30,7 +23,7 @@ func TestRunShowCmdWithWrongEnvEndpointsAndTokenSet(t *testing.T) {
 	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra run show")
 }
 
-func TestARunShowCmdWithResultTable(t *testing.T) {
+func TestRunShowCmdWithResultTable(t *testing.T) {
 	// set test server
 	responseBody := `{
   "id": "30",
@@ -72,7 +65,7 @@ func TestARunShowCmdWithResultTable(t *testing.T) {
 	// reset stuff
 	resetRunShow()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --run-id=%s", server.URL, "https://somewhere.com", "token123", "run_id"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --run-id=%s", server.URL, "https://somewhere1.com", "token123", "run_id"))
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -103,7 +96,7 @@ func TestRunShowCmdWithResultJSON(t *testing.T) {
 	// reset stuff
 	resetRunShow()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --run-id=%s --json", server.URL, "https://somewhere.com", "token123", "run_id"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --run-id=%s --json", server.URL, "https://somewhere2.com", "token123", "run_id"))
 
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)

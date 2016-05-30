@@ -37,4 +37,8 @@ var RunCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(RunCmd)
+	initRunCmdFlags()
+}
+
+func initRunCmdFlags() {
 }

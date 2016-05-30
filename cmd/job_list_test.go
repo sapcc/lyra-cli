@@ -12,14 +12,7 @@ import (
 
 func resetJobList() {
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	JobCmd.ResetCommands()
-	JobListCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(JobCmd)
-	JobCmd.AddCommand(JobListCmd)
+	ResetFlags()
 }
 
 func TestJobListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {

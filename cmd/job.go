@@ -31,4 +31,8 @@ var JobCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(JobCmd)
+	initJobCmdFlags()
+}
+
+func initJobCmdFlags() {
 }

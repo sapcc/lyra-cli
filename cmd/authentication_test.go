@@ -12,12 +12,7 @@ import (
 
 func resetAuthenticate() {
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	authenticateCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(authenticateCmd)
+	ResetFlags()
 	// mock interface
 	AuthenticationV3 = newMockAuthenticationV3
 }

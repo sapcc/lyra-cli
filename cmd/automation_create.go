@@ -24,16 +24,12 @@ var AutomationCreateCmd = &cobra.Command{
 	Short: "Create a new automation.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
 }
 
 func init() {
 	AutomationCmd.AddCommand(AutomationCreateCmd)
+	initAutomationCreateCmdFlags()
+}
+
+func initAutomationCreateCmdFlags() {
 }

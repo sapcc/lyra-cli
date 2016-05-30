@@ -26,15 +26,9 @@ var AutomationUpdateCmd = &cobra.Command{
 	Short: "Updates an exsiting automation",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-
+	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup automation update
-		err = setupAutomationUpdate()
+		err := setupAutomationUpdate()
 		if err != nil {
 			return err
 		}
@@ -44,7 +38,10 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCmd.AddCommand(AutomationUpdateCmd)
-	//flags
+	initAutomationUpdateCmdFlags()
+}
+
+func initAutomationUpdateCmdFlags() {
 	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "automation-id", "", "", "Id from the automation that should be updated.")
 }
 

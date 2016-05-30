@@ -19,6 +19,7 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/print"
 )
@@ -54,7 +55,7 @@ and usage of using your command.`,
 		// print the data out
 		printer := print.Print{Data: dataStruct}
 		bodyPrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -75,6 +76,10 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
+	initAutomationCreateChefCmdFlags()
+}
+
+func initAutomationCreateChefCmdFlags() {
 	// flags
 	chef = Chef{}
 	AutomationCreateChefCmd.Flags().StringVarP(&chef.Name, "name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")

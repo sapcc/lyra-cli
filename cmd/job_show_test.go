@@ -10,15 +10,8 @@ import (
 
 func resetJobShow() {
 	jobId = ""
-	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	JobCmd.ResetCommands()
-	JobShowCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(JobCmd)
-	JobCmd.AddCommand(JobShowCmd)
+	// reset flags
+	ResetFlags()
 }
 
 func TestJobShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {

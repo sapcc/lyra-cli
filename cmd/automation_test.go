@@ -7,12 +7,7 @@ import (
 
 func resetAutomation() {
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	AutomationCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(AutomationCmd)
+	ResetFlags()
 }
 
 func TestAutomationShouldDoNothing(t *testing.T) {

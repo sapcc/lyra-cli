@@ -12,14 +12,7 @@ import (
 
 func resetAutomationList() {
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	AutomationCmd.ResetCommands()
-	AutomationListCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(AutomationCmd)
-	AutomationCmd.AddCommand(AutomationListCmd)
+	ResetFlags()
 }
 
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {

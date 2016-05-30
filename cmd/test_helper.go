@@ -15,6 +15,7 @@ import (
 	"github.com/foize/go.sgr"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/restclient"
 )
 
@@ -28,8 +29,6 @@ var cmdTestRootNoRun = &cobra.Command{
 	Use:   "lyra-test",
 	Short: "The root can run its own function",
 	Long:  "The root description for help",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-	},
 }
 
 func FullCmdTester(testCommand *cobra.Command, input string) resulter {
@@ -147,16 +146,70 @@ func StringDiff(text1, text2 string) string {
 	return colorDiff
 }
 
-func resetRootFlagVars() {
-	Token = ""
-	AutomationUrl = ""
-	ArcUrl = ""
-	JsonOutput = false
+func ResetFlags() {
+	// reset other stuff
 	RestClient = restclient.NewClient(restclient.Services{}, "")
+
+	// Remove env variablen
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)
 	os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 	os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
+	// Reset viper
+	viper.Reset()
+	// Reset command flags
+	RootCmd.ResetFlags()
+	AuthenticateCmd.ResetFlags()
+	AutomationCreateChefCmd.ResetFlags()
+	AutomationCreateCmd.ResetFlags()
+	AutomationExecuteCmd.ResetFlags()
+	AutomationListCmd.ResetFlags()
+	AutomationShowCmd.ResetFlags()
+	AutomationUpdateChefAttributesCmd.ResetFlags()
+	AutomationUpdateChefCmd.ResetFlags()
+	AutomationUpdateCmd.ResetFlags()
+	AutomationCmd.ResetFlags()
+	JobListCmd.ResetFlags()
+	JobLogCmd.ResetFlags()
+	JobShowCmd.ResetFlags()
+	JobCmd.ResetFlags()
+	RunListCmd.ResetFlags()
+	RunShowCmd.ResetFlags()
+	RunCmd.ResetFlags()
+	// set flags again
+	initRootCmdFlags()
+	initAuthenticationCmdFlags()
+	initAutomationCreateChefCmdFlags()
+	initAutomationCreateCmdFlags()
+	initAutomationExecuteCmdFlags()
+	initAutomationListCmdFlags()
+	initAutomationShowCmdFlags()
+	initAutomationUpdateChefAttributesCmdFlags()
+	initAutomationUpdateChefCmdFlags()
+	initAutomationUpdateCmdFlags()
+	initAutomationCmdFlags()
+	initJobListCmdFlags()
+	initJobLogCmdFlags()
+	initJobShowCmdFlags()
+	initJobCmdFlags()
+	initRunListCmdFlags()
+	initRunShowCmdFlags()
+	initRunCmdFlags()
 }
+
+// func resetGlobalFlags() {
+//   // unset env variablen
+//   os.Unsetenv(ENV_VAR_TOKEN_NAME)
+//   os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
+//   os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
+//   // reset global flags
+//   JsonOutput = false
+//   RestClient = restclient.NewClient(restclient.Services{}, "")
+//   // reset global flags
+//   viper.Reset()
+//   Flags = CliFlags{}
+//   RootCmd.ResetFlags()
+//   initGlobalFlags()
+// }
 
 //
 // Writing in sdout

@@ -10,15 +10,8 @@ import (
 
 func resetAutomationShow() {
 	automationId = ""
-	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	AutomationCmd.ResetCommands()
-	AutomationShowCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(AutomationCmd)
-	AutomationCmd.AddCommand(AutomationShowCmd)
+	// reset flags
+	ResetFlags()
 }
 
 func TestAutomationShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {

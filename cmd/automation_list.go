@@ -18,6 +18,7 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/print"
 )
 
@@ -27,14 +28,6 @@ var AutomationListCmd = &cobra.Command{
 	Short: "List all available automations",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// list automation
 		response, err := automationList()
@@ -44,7 +37,7 @@ and usage of using your command.`,
 
 		printer := print.Print{Data: response}
 		tablePrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			tablePrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -65,6 +58,10 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCmd.AddCommand(AutomationListCmd)
+	initAutomationListCmdFlags()
+}
+
+func initAutomationListCmdFlags() {
 }
 
 func automationList() (interface{}, error) {

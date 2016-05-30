@@ -20,6 +20,7 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
@@ -33,11 +34,6 @@ var RunShowCmd = &cobra.Command{
 		// check required automation id
 		if len(runId) == 0 {
 			return errors.New(locales.ErrorMessages("run-id-missing"))
-		}
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
 		}
 
 		return nil
@@ -59,7 +55,7 @@ var RunShowCmd = &cobra.Command{
 		// print the data out
 		printer := print.Print{Data: dataStruct}
 		bodyPrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -80,6 +76,10 @@ var RunShowCmd = &cobra.Command{
 
 func init() {
 	RunCmd.AddCommand(RunShowCmd)
+	initRunShowCmdFlags()
+}
+
+func initRunShowCmdFlags() {
 	RunShowCmd.Flags().StringVar(&runId, "run-id", "", locales.AttributeDescription("run-id"))
 }
 

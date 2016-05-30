@@ -38,12 +38,6 @@ and usage of using your command.`,
 		if err != nil {
 			return err
 		}
-
-		// setup rest client
-		err = setupRestClient()
-		if err != nil {
-			return err
-		}
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -81,6 +75,10 @@ and usage of using your command.`,
 
 func init() {
 	AutomationCmd.AddCommand(AutomationExecuteCmd)
+	initAutomationExecuteCmdFlags()
+}
+
+func initAutomationExecuteCmdFlags() {
 	//flags
 	run = Run{}
 	AutomationExecuteCmd.Flags().StringVarP(&run.AutomationId, "automation-id", "", "", locales.AttributeDescription("automation-id"))

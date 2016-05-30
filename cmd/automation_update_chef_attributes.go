@@ -54,7 +54,10 @@ and usage of using your command.`,
 
 func init() {
 	AutomationUpdateChefCmd.AddCommand(AutomationUpdateChefAttributesCmd)
-	//flags
+	initAutomationUpdateChefAttributesCmdFlags()
+}
+
+func initAutomationUpdateChefAttributesCmdFlags() {
 	AutomationUpdateChefAttributesCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON format.")
 	AutomationUpdateChefAttributesCmd.Flags().StringVarP(&attributesFromFile, "attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
 }

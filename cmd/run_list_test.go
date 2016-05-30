@@ -12,14 +12,7 @@ import (
 
 func resetRunList() {
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	RunCmd.ResetCommands()
-	RunListCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(RunCmd)
-	RunCmd.AddCommand(RunListCmd)
+	ResetFlags()
 }
 
 func TestRunListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {

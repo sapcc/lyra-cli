@@ -28,4 +28,8 @@ and usage of using your command.`,
 
 func init() {
 	AutomationUpdateCmd.AddCommand(AutomationUpdateChefCmd)
+	initAutomationUpdateChefCmdFlags()
+}
+
+func initAutomationUpdateChefCmdFlags() {
 }

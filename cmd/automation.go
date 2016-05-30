@@ -49,4 +49,8 @@ var AutomationCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(AutomationCmd)
+	initAutomationCmdFlags()
+}
+
+func initAutomationCmdFlags() {
 }

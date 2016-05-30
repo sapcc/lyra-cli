@@ -6,15 +6,8 @@ import (
 )
 
 func resetAutomationUpdate() {
-	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	AutomationCmd.ResetCommands()
-	AutomationUpdateCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(AutomationCmd)
-	AutomationCmd.AddCommand(AutomationUpdateCmd)
+	// reset flags
+	ResetFlags()
 }
 
 func TestAutomationUpdateShouldDoNothing(t *testing.T) {

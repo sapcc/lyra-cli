@@ -9,12 +9,7 @@ func resetRun() {
 	run = Run{}
 	runId = ""
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	RunCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(RunCmd)
+	ResetFlags()
 }
 
 func TestRunShouldDoNothing(t *testing.T) {

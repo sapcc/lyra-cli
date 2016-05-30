@@ -33,11 +33,6 @@ and usage of using your command.`,
 		if len(jobId) == 0 {
 			return errors.New(locales.ErrorMessages("job-id-missing"))
 		}
-		// setup rest client
-		err := setupRestClient()
-		if err != nil {
-			return err
-		}
 
 		return nil
 	},
@@ -57,6 +52,10 @@ and usage of using your command.`,
 
 func init() {
 	JobCmd.AddCommand(JobLogCmd)
+	initJobLogCmdFlags()
+}
+
+func initJobLogCmdFlags() {
 	JobLogCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
 }
 

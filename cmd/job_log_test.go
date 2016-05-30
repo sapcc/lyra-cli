@@ -9,14 +9,7 @@ import (
 func resetJobLog() {
 	jobId = ""
 	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	JobCmd.ResetCommands()
-	JobLogCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(JobCmd)
-	JobCmd.AddCommand(JobLogCmd)
+	ResetFlags()
 }
 
 func TestJobLogCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {

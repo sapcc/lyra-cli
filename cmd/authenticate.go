@@ -29,6 +29,7 @@ import (
 	"github.com/sapcc/lyra-cli/print"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type LyraAuthOps struct {
@@ -53,11 +54,14 @@ var (
 )
 
 // authenticateCmd represents the authenticate command
-var authenticateCmd = &cobra.Command{
+var AuthenticateCmd = &cobra.Command{
 	Use:   "authenticate",
 	Short: "Get an authentication token project based.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// setup
 		err := setupAuthentication()
@@ -77,7 +81,7 @@ and usage of using your command.`,
 		// print the data out
 		printer := print.Print{Data: response}
 		bodyPrint := ""
-		if JsonOutput {
+		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {
 				return err
@@ -94,25 +98,28 @@ and usage of using your command.`,
 }
 
 func init() {
-	RootCmd.AddCommand(authenticateCmd)
+	RootCmd.AddCommand(AuthenticateCmd)
+	initAuthenticationCmdFlags()
+}
 
+func initAuthenticationCmdFlags() {
 	username_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERNAME)
 	userid_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERID)
 	password_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD)
 
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.IdentityEndpoint, "identity-endpoint", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.Username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "user-id", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.Password, "password", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.IdentityEndpoint, "identity-endpoint", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.Username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "user-id", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.Password, "password", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
 
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectName, "project-name", "", "Name of the project.")
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectId, "project-id", "", "Id of the project.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectName, "project-name", "", "Name of the project.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectId, "project-id", "", "Id of the project.")
 
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainName, "user-domain-name", "", "Name of the domain where the user is created.")
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainId, "user-domain-id", "", "Id of the domain where the user is created.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainName, "user-domain-name", "", "Name of the domain where the user is created.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainId, "user-domain-id", "", "Id of the domain where the user is created.")
 
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
-	authenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
+	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
 }
 
 func setupAuthentication() error {

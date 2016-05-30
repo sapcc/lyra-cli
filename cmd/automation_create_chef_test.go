@@ -19,16 +19,8 @@ func resetAutomationCreateChefFlagVars() {
 	attributes = ""
 	attributesFromFile = ""
 
-	// reset automation flag vars
-	resetRootFlagVars()
-	// reset commands
-	RootCmd.ResetCommands()
-	AutomationCmd.ResetCommands()
-	AutomationCreateCmd.ResetCommands()
-	// build commands
-	RootCmd.AddCommand(AutomationCmd)
-	AutomationCmd.AddCommand(AutomationCreateCmd)
-	AutomationCreateCmd.AddCommand(AutomationCreateChefCmd)
+	// reset flag
+	ResetFlags()
 }
 
 func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {

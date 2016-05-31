@@ -14,6 +14,44 @@ func resetAutomationShow() {
 	ResetFlags()
 }
 
+func newMockAuthenticationV3AutomationShow(authOpts LyraAuthOps) Authentication {
+	// set test server
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	server := TestServer(200, responseBody, map[string]string{})
+
+	return &MockV3{AuthOpts: authOpts, TestServer: server}
+}
+
+func TestAutomationShowCmdWithAuthenticationFlags(t *testing.T) {
+	// mock interface for authenticationt test
+	AuthenticationV3 = newMockAuthenticationV3AutomationShow
+	want := `+---------------------+---------------------------------------------------------+
+|         KEY         |                          VALUE                          |
++---------------------+---------------------------------------------------------+
+| arguments           | {}                                                      |
+| chef_attributes     | map[test:test]                                          |
+| id                  | 1                                                       |
+| log_level           | info                                                    |
+| name                | Chef_test1                                              |
+| repository          | https://github.com/user123/automation-test.git |
+| repository_revision | master                                                  |
+| run_list            | [recipe[nginx]]                                         |
++---------------------+---------------------------------------------------------+`
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation show --auth-url=%s --user-id=%s --project-id=%s --password=%s --automation-id=%s", "some_test_url", "miau", "bup", "123456789", "automation_id"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
 func TestAutomationShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {
 	resetAutomationShow()
 	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra automation show")

@@ -23,6 +23,53 @@ func resetAutomationCreateChefFlagVars() {
 	ResetFlags()
 }
 
+func newMockAuthenticationV3AutomationCreateChef(authOpts LyraAuthOps) Authentication {
+	// set test server
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
+	server := TestServer(200, responseBody, map[string]string{})
+
+	return &MockV3{AuthOpts: authOpts, TestServer: server}
+}
+
+func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
+	// mock interface for authenticationt test
+	AuthenticationV3 = newMockAuthenticationV3AutomationCreateChef
+	want := `+---------------------+---------------------------------------------------------+
+|         KEY         |                          VALUE                          |
++---------------------+---------------------------------------------------------+
+| arguments           | <nil>                                                   |
+| chef_attributes     | <nil>                                                   |
+| chef_version        | <nil>                                                   |
+| created_at          | 2016-05-19T12:48:51.629Z                                |
+| environment         | <nil>                                                   |
+| id                  | 40                                                      |
+| log_level           | <nil>                                                   |
+| name                | test                                                    |
+| path                | <nil>                                                   |
+| project_id          | p-9597d2775                                             |
+| repository          | https://github.com/user123/automation-test.git |
+| repository_revision | master                                                  |
+| run_list            | [recipe[nginx]]                                         |
+| tags                | <nil>                                                   |
+| timeout             | 3600                                                    |
+| type                | Chef                                                    |
+| updated_at          | 2016-05-19T12:48:51.629Z                                |
++---------------------+---------------------------------------------------------+`
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create chef --auth-url=%s --user-id=%s --project-id=%s --password=%s --name=%s --repository=%s --runlist=%s", "some_test_url", "miau", "bup", "123456789", "chef_test", "http://some_repository", "recipe[nginx]"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
 func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 	// set test server
 	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`

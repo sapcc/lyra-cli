@@ -15,6 +15,37 @@ func resetJobList() {
 	ResetFlags()
 }
 
+func newMockAuthenticationV3JobList(authOpts LyraAuthOps) Authentication {
+	// set test server
+	responseBody := `[{"request_id": "f1b18c11-5838-44d2-8651-66aa4083bd19", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"}]`
+	server := TestServer(200, responseBody, map[string]string{})
+
+	return &MockV3{AuthOpts: authOpts, TestServer: server}
+}
+
+func TestJobListCmdWithAuthenticationFlags(t *testing.T) {
+	// mock interface for authenticationt test
+	AuthenticationV3 = newMockAuthenticationV3JobList
+	want := `+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
+|              REQUEST ID              | STATUS | ACTION | AGENT |   USER ID   |         CREATED AT          |
++--------------------------------------+--------+--------+-------+-------------+-----------------------------+
+| f1b18c11-5838-44d2-8651-66aa4083bd19 | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:02.260715Z |
++--------------------------------------+--------+--------+-------+-------------+-----------------------------+`
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job list --auth-url=%s --user-id=%s --project-id=%s --password=%s", "some_test_url", "miau", "bup", "123456789"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
 func TestJobListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
 	resetJobList()
 	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra job list")

@@ -196,25 +196,6 @@ func ResetFlags() {
 	initRunCmdFlags()
 }
 
-// func resetGlobalFlags() {
-//   // unset env variablen
-//   os.Unsetenv(ENV_VAR_TOKEN_NAME)
-//   os.Unsetenv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
-//   os.Unsetenv(ENV_VAR_ARC_ENDPOINT_NAME)
-//   // reset global flags
-//   JsonOutput = false
-//   RestClient = restclient.NewClient(restclient.Services{}, "")
-//   // reset global flags
-//   viper.Reset()
-//   Flags = CliFlags{}
-//   RootCmd.ResetFlags()
-//   initGlobalFlags()
-// }
-
-//
-// Writing in sdout
-//
-
 func pipeToStdin(s string) (int, error) {
 	pipeReader, pipeWriter, err := os.Pipe()
 	if err != nil {

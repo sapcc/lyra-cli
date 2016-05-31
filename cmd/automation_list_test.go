@@ -15,6 +15,14 @@ func resetAutomationList() {
 	ResetFlags()
 }
 
+func newMockAuthenticationV3AutomationList(authOpts LyraAuthOps) Authentication {
+	// set test server
+	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	server := TestServer(200, responseBody, map[string]string{})
+
+	return &MockV3{AuthOpts: authOpts, TestServer: server}
+}
+
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
 	resetAutomationList()
 	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra automation list")
@@ -24,12 +32,11 @@ func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
 	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra automation list")
 }
 
-func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
+func TestAutomationListCmdWithEndpointsTokenFlag(t *testing.T) {
 	// set test server
 	responseBody := `[{"name":"bup"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-
 	// reset stuff
 	resetAutomationList()
 	// run commando
@@ -37,6 +44,29 @@ func TestAutomationListCmdWithEndpointTokenFlag(t *testing.T) {
 
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
+	}
+}
+
+func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
+	// mock interface for authenticationt test
+	AuthenticationV3 = newMockAuthenticationV3AutomationList
+	want := `+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
+| ID |   NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
++----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
+| 6  | Chef_test | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
++----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --auth-url=%s --user-id=%s --project-id=%s --password=%s", "some_test_url", "miau", "bup", "123456789"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
 	}
 }
 

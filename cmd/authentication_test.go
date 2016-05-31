@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/rackspace/gophercloud"
+	"net/http/httptest"
 	"os"
 	"reflect"
 	"strings"
@@ -21,14 +22,14 @@ func TestAuthenticationUserIdOrNameRequired(t *testing.T) {
 	// reset params
 	resetAuthenticate()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --user-id=%s --project-id=%s --password=%s", "http://some_test_url", "", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --project-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}
 	// reset params
 	resetAuthenticate()
 	// run cmd
-	resulter = FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --username=%s --project-id=%s --password=%s", "http://some_test_url", "", "bup", "123456789"))
+	resulter = FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --project-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}
@@ -58,7 +59,7 @@ export OS_TOKEN=test_token_id`
 
 	// reset params
 	resetAuthenticate()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --user-id=%s --project-id=%s", "http://some_test_url", "miau", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s", "http://some_test_url", "miau", "bup", "123456789"))
 
 	// flush, restore close
 	os.Stdout = oldStdout
@@ -78,7 +79,7 @@ export OS_TOKEN=test_token_id`
 
 	// reset params
 	resetAuthenticate()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --user-id=%s --username=%s --password=%s --project-id=%s --project-name=%s --user-domain-name=%s --user-domain-id=%s --project-domain-name=%s --project-domain-id=%s", "http://some_test_url", "userid", "username", "passwrod", "projectid", "projectname", "userdomainname", "userdomainid", "projectdomainid", "projectdomainname"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --username=%s --password=%s --project-id=%s --project-name=%s --user-domain-name=%s --user-domain-id=%s --project-domain-name=%s --project-domain-id=%s", "http://some_test_url", "userid", "username", "passwrod", "projectid", "projectname", "userdomainname", "userdomainid", "projectdomainid", "projectdomainname"))
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -93,7 +94,7 @@ export OS_TOKEN=test_token_id`
 
 	// reset params
 	resetAuthenticate()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --user-id=%s --project-id=%s --password=%s", "http://some_test_url", "miau", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s --password=%s", "http://some_test_url", "miau", "bup", "123456789"))
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -106,7 +107,7 @@ func TestAuthenticationResultJSON(t *testing.T) {
 
 	// reset params
 	resetAuthenticate()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --identity-endpoint=%s --user-id=%s --project-id=%s --password=%s --json", "http://some_test_url", "miau", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s --password=%s --json", "http://some_test_url", "miau", "bup", "123456789"))
 
 	wantSource := map[string]string{}
 	err := json.Unmarshal([]byte(want), &wantSource)
@@ -134,12 +135,17 @@ func TestAuthenticationResultJSON(t *testing.T) {
 //
 
 type MockV3 struct {
-	AuthOpts LyraAuthOps
-	client   *gophercloud.ServiceClient
+	AuthOpts   LyraAuthOps
+	client     *gophercloud.ServiceClient
+	TestServer *httptest.Server
 }
 
 func newMockAuthenticationV3(authOpts LyraAuthOps) Authentication {
 	return &MockV3{AuthOpts: authOpts}
+}
+
+func (a *MockV3) CheckAuthenticationParams() error {
+	return checkAuthenticationParams(&a.AuthOpts)
 }
 
 func (a *MockV3) GetToken() (string, error) {
@@ -147,9 +153,14 @@ func (a *MockV3) GetToken() (string, error) {
 }
 
 func (a *MockV3) GetServicePublicEndpoint(serviceId string) (string, error) {
-	return "test_public_endpoint", nil
+	if a.TestServer != nil {
+		return a.TestServer.URL, nil
+	} else {
+		return "test_public_endpoint", nil
+	}
+	return "", nil
 }
 
 func (a *MockV3) GetServiceId(serviceType string) (string, error) {
-	return "Test_service_id", nil
+	return "test_service_id", nil
 }

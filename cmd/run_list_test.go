@@ -15,6 +15,44 @@ func resetRunList() {
 	ResetFlags()
 }
 
+func newMockAuthenticationV3RunList(authOpts LyraAuthOps) Authentication {
+	// set test server
+	responseBody := `[{
+  "id": "30",
+  "created_at": "2016-04-07T21:42:07.416Z",
+  "state": "executing",
+  "owner": "u-fa35bbc5f",
+  "automation_id": "6",
+  "automation_name": "Chef_test"
+}]`
+	server := TestServer(200, responseBody, map[string]string{})
+
+	return &MockV3{AuthOpts: authOpts, TestServer: server}
+}
+
+func TestRunListCmdWithAuthenticationFlags(t *testing.T) {
+	// mock interface for authenticationt test
+	AuthenticationV3 = newMockAuthenticationV3RunList
+	want := `+----+---------------+-----------------+-----------+-------------+--------------------------+
+| ID | AUTOMATION ID | AUTOMATION NAME |   STATE   |    OWNER    |        CREATED AT        |
++----+---------------+-----------------+-----------+-------------+--------------------------+
+| 30 | 6             | Chef_test       | executing | u-fa35bbc5f | 2016-04-07T21:42:07.416Z |
++----+---------------+-----------------+-----------+-------------+--------------------------+`
+
+	// reset stuff
+	resetAutomationList()
+	// run commando
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run list --auth-url=%s --user-id=%s --project-id=%s --password=%s", "some_test_url", "miau", "bup", "123456789"))
+
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
 func TestRunListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
 	resetRunList()
 	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra run list")

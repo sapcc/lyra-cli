@@ -15,9 +15,7 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"os"
 
 	"github.com/howeyc/gopass"
 	"github.com/rackspace/gophercloud"
@@ -46,10 +44,6 @@ type LyraAuthOps struct {
 }
 
 var (
-	ENV_VAR_USERNAME = "USERNAME"
-	ENV_VAR_USERID   = "USERID"
-	ENV_VAR_PASSWORD = "PASSWORD"
-	lyraAuthOps      = LyraAuthOps{}
 	AuthenticationV3 = newAuthenticationV3
 )
 
@@ -60,13 +54,22 @@ var AuthenticateCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// setup
-		err := setupAuthentication()
-		if err != nil {
-			return err
+		// set authentication params
+		lyraAuthOps := LyraAuthOps{
+			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
+			Username:          viper.GetString(ENV_VAR_USERNAME),
+			UserId:            viper.GetString(ENV_VAR_USER_ID),
+			Password:          viper.GetString(ENV_VAR_PASSWORD),
+			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
+			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
+			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
 		}
 
 		// authentication object
@@ -103,57 +106,16 @@ func init() {
 }
 
 func initAuthenticationCmdFlags() {
-	username_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERNAME)
-	userid_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_USERID)
-	password_default_env_name := fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD)
-
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.IdentityEndpoint, "identity-endpoint", "", "Endpoint entities represent URL endpoints for OpenStack web services.")
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.Username, "username", "", fmt.Sprint("Name of the user that wants to log in. (default ", username_default_env_name, ")"))
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserId, "user-id", "", fmt.Sprint("Id of the user that wants to log in. (default ", userid_default_env_name, ")"))
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.Password, "password", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", password_default_env_name, " will be checkt. If no environment variable found then will promtp from terminal."))
-
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectName, "project-name", "", "Name of the project.")
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectId, "project-id", "", "Id of the project.")
-
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainName, "user-domain-name", "", "Name of the domain where the user is created.")
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.UserDomainId, "user-domain-id", "", "Id of the domain where the user is created.")
-
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainName, "project-domain-name", "", "Name of the domain where the project is created. If no project domain name is given, then the token will be scoped in the user domain.")
-	AuthenticateCmd.Flags().StringVar(&lyraAuthOps.ProjectDomainId, "project-domain-id", "", "Id of the domain where the project is created. If no project domain id is given, then the token will be scoped in the user domain.")
-}
-
-func setupAuthentication() error {
-	// setup flags with environment variablen
-	if len(lyraAuthOps.Username) == 0 {
-		lyraAuthOps.Username = os.Getenv(ENV_VAR_USERNAME)
-	}
-	if len(lyraAuthOps.UserId) == 0 {
-		lyraAuthOps.UserId = os.Getenv(ENV_VAR_USERID)
-	}
-	// check we have user name or id
-	if len(lyraAuthOps.Username) == 0 && len(lyraAuthOps.UserId) == 0 {
-		return errors.New("Username or userid not given.")
-	}
-	// check password
-	if len(lyraAuthOps.Password) == 0 {
-		if len(os.Getenv(ENV_VAR_PASSWORD)) == 0 {
-			// ask the user for the password
-			fmt.Print("Enter password: ")
-			pass, err := gopass.GetPasswd()
-			if err != nil {
-				return err
-			}
-			lyraAuthOps.Password = string(pass)
-
-		} else {
-			lyraAuthOps.Password = os.Getenv(ENV_VAR_PASSWORD)
-		}
-	}
-
-	return nil
+	// authenticate flags are global
 }
 
 func authenticate(authV3 Authentication) (map[string]string, error) {
+	// check for user and password
+	err := authV3.CheckAuthenticationParams()
+	if err != nil {
+		return map[string]string{}, err
+	}
+
 	// get automation service id from the catalog
 	automationServiceId, err := authV3.GetServiceId("automation")
 	if err != nil {
@@ -193,6 +155,7 @@ func authenticate(authV3 Authentication) (map[string]string, error) {
 // Interface Authentication V3
 //
 type Authentication interface {
+	CheckAuthenticationParams() error
 	GetToken() (string, error)
 	GetServicePublicEndpoint(serviceId string) (string, error)
 	GetServiceId(serviceType string) (string, error)
@@ -207,6 +170,34 @@ func newAuthenticationV3(authOpts LyraAuthOps) Authentication {
 	return &V3{AuthOpts: authOpts}
 }
 
+func checkAuthenticationParams(authOpts *LyraAuthOps) error {
+	// check some params
+	if len(authOpts.UserId) == 0 && len(authOpts.Username) == 0 {
+		return fmt.Errorf("Flag %s or '%s not given.", FLAG_USER_ID, FLAG_USERNAME)
+	}
+
+	if len(authOpts.ProjectId) == 0 && len(authOpts.ProjectName) == 0 {
+		return fmt.Errorf("Flag %s or %s not given.", FLAG_PROJECT_ID, FLAG_PROJECT_NAME)
+	}
+
+	if len(authOpts.IdentityEndpoint) == 0 {
+		return fmt.Errorf("Flag %s not given.", FLAG_AUTH_URL)
+	}
+
+	// check password and prompt
+	if len(authOpts.Password) == 0 {
+		// ask the user for the password
+		fmt.Print("Enter password: ")
+		pass, err := gopass.GetPasswd()
+		if err != nil {
+			return err
+		}
+		authOpts.Password = string(pass)
+	}
+
+	return nil
+}
+
 func (a *V3) getAuthOptions() gophercloud.AuthOptions {
 	return gophercloud.AuthOptions{
 		IdentityEndpoint: a.AuthOpts.IdentityEndpoint,
@@ -216,6 +207,10 @@ func (a *V3) getAuthOptions() gophercloud.AuthOptions {
 		DomainName:       a.AuthOpts.UserDomainName,
 		DomainID:         a.AuthOpts.UserDomainId,
 	}
+}
+
+func (a *V3) CheckAuthenticationParams() error {
+	return checkAuthenticationParams(&a.AuthOpts)
 }
 
 func (a *V3) getClient() (*gophercloud.ServiceClient, error) {

@@ -23,11 +23,6 @@ type Run struct {
 	Selector     string `json:"selector"`
 }
 
-var (
-	run   = Run{}
-	runId string
-)
-
 // automationCmd represents the automation command
 var RunCmd = &cobra.Command{
 	Use:   "run",

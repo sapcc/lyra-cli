@@ -7,7 +7,6 @@ import (
 )
 
 func resetJobLog() {
-	jobId = ""
 	// reset automation flag vars
 	ResetFlags()
 }
@@ -26,7 +25,7 @@ func TestJobLogCmdWithAuthenticationFlags(t *testing.T) {
 	want := `This is a job log`
 
 	// reset stuff
-	resetAutomationList()
+	resetJobLog()
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job log --auth-url=%s --user-id=%s --project-id=%s --password=%s --job-id=123456789", "some_test_url", "miau", "bup", "123456789"))
 

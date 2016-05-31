@@ -32,7 +32,7 @@ var RunShowCmd = &cobra.Command{
 	Long:  `A longer description for automation run show.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
-		if len(runId) == 0 {
+		if len(viper.GetString(FLAG_RUN_ID)) == 0 {
 			return errors.New(locales.ErrorMessages("run-id-missing"))
 		}
 
@@ -40,7 +40,7 @@ var RunShowCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
-		response, err := runShow(runId)
+		response, err := runShow(viper.GetString(FLAG_RUN_ID))
 		if err != nil {
 			return err
 		}
@@ -80,7 +80,8 @@ func init() {
 }
 
 func initRunShowCmdFlags() {
-	RunShowCmd.Flags().StringVar(&runId, "run-id", "", locales.AttributeDescription("run-id"))
+	RunShowCmd.Flags().StringP(FLAG_RUN_ID, "", "", locales.AttributeDescription(FLAG_RUN_ID))
+	viper.BindPFlag(FLAG_RUN_ID, RunShowCmd.Flags().Lookup(FLAG_RUN_ID))
 }
 
 func runShow(id string) (string, error) {

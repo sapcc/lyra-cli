@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	jobId string
+// jobId string
 )
 
 // automationCmd represents the automation command

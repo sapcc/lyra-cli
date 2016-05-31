@@ -9,7 +9,6 @@ import (
 )
 
 func resetJobShow() {
-	jobId = ""
 	// reset flags
 	ResetFlags()
 }

@@ -5,12 +5,13 @@ import (
 )
 
 var attrDesc = map[string]string{
-	"automation-id":       `Automation id.`,
-	"automation-selector": `Filter used to select on which nodes should the automation be runed. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
-	"page":                `Set the pagination page.`,
-	"per-page":            `Set the elements per page.`,
-	"run-id":              `Automation run id.`,
-	"job-id":              `Job id.`,
+	"automation-id": `Automation id.`,
+	"selector":      `Filter used to select on which nodes should the automation be runed. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
+	"page":          `Set the pagination page.`,
+	"per-page":      `Set the elements per page.`,
+	"run-id":        `Automation run id.`,
+	"job-id":        `Job id.`,
+	"watch":         `Keep track of the running process.`,
 }
 
 var errMsg = map[string]string{

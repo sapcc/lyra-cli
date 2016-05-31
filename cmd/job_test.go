@@ -5,19 +5,19 @@ import (
 	"testing"
 )
 
-func resetRun() {
+func resetJob() {
 	// reset automation flag vars
 	ResetFlags()
 }
 
-func TestRunShouldDoNothing(t *testing.T) {
-	resetRun()
+func TestJobShouldDoNothing(t *testing.T) {
+	resetJob()
 	// check
-	resulter := FullCmdTester(RootCmd, "lyra run")
+	resulter := FullCmdTester(RootCmd, "lyra job")
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
-	if !strings.Contains(resulter.Output, RunCmd.Long) {
+	if !strings.Contains(resulter.Output, JobCmd.Long) {
 		t.Error(`Command response body doesn't match.'`)
 	}
 }

@@ -22,8 +22,15 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/print"
+)
+
+var (
+	ExecuteAuthOps = LyraAuthOps{}
+	ExecuteAuthV3  = AuthenticationV3(ExecuteAuthOps)
 )
 
 // updateCmd represents the update command
@@ -32,6 +39,10 @@ var AutomationExecuteCmd = &cobra.Command{
 	Short: "Runs an exsiting automation",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
+		return nil
+	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup automation run attributes
 		err := setupAutomationRun()
@@ -41,33 +52,76 @@ and usage of using your command.`,
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		//run automation
-		response, err := automationRun()
+		// keep the auth options for reauthentication
+		ExecuteAuthOps = LyraAuthOps{
+			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
+			Username:          viper.GetString(ENV_VAR_USERNAME),
+			UserId:            viper.GetString(ENV_VAR_USER_ID),
+			Password:          viper.GetString(ENV_VAR_PASSWORD),
+			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
+			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
+			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+		}
+		ExecuteAuthV3 = AuthenticationV3(ExecuteAuthOps)
+		err := setupRestClient(&ExecuteAuthV3, true)
 		if err != nil {
 			return err
 		}
 
-		//     test := `{
-		//   "id": "85",
-		//   "log": null,
-		//   "created_at": "2016-05-25T11:32:51.723Z",
-		//   "updated_at": "2016-05-25T11:32:51.723Z",
-		//   "repository_revision": null,
-		//   "state": "preparing",
-		//   "jobs": null,
-		//   "owner": "u-519166a05",
-		//   "automation_id": "6",
-		//   "automation_name": "Chef_test",
-		//   "selector": "@identity=\"0128e993-c709-4ce1-bccf-e06eb10900a0\""
-		// }`
-
-		// err := automationRunWait(test)
+		//run automation
+		// response, err := automationRun()
 		// if err != nil {
 		//   return err
 		// }
 
-		// Print response
-		cmd.Println(response)
+		response := `{
+      "id": "85",
+      "log": null,
+      "created_at": "2016-05-25T11:32:51.723Z",
+      "updated_at": "2016-05-25T11:32:51.723Z",
+      "repository_revision": null,
+      "state": "preparing",
+      "jobs": null,
+      "owner": "u-519166a05",
+      "automation_id": "6",
+      "automation_name": "Chef_test",
+      "selector": "@identity=\"0128e993-c709-4ce1-bccf-e06eb10900a0\""
+    }`
+
+		if viper.GetBool("watch") {
+			err = automationRunWait(response)
+			if err != nil {
+				return err
+			}
+		} else {
+			// convert data to struct
+			var dataStruct map[string]interface{}
+			err = helpers.JSONStringToStructure(response, &dataStruct)
+			if err != nil {
+				return err
+			}
+
+			// print the data out
+			printer := print.Print{Data: dataStruct}
+			bodyPrint := ""
+			if viper.GetBool("json") {
+				bodyPrint, err = printer.JSON()
+				if err != nil {
+					return err
+				}
+			} else {
+				bodyPrint, err = printer.Table()
+				if err != nil {
+					return err
+				}
+			}
+
+			// Print response
+			cmd.Println(bodyPrint)
+		}
 
 		return nil
 	},
@@ -80,18 +134,21 @@ func init() {
 
 func initAutomationExecuteCmdFlags() {
 	//flags
-	run = Run{}
-	AutomationExecuteCmd.Flags().StringVarP(&run.AutomationId, "automation-id", "", "", locales.AttributeDescription("automation-id"))
-	AutomationExecuteCmd.Flags().StringVarP(&run.Selector, "selector", "", "", locales.AttributeDescription("automation-selector"))
+	AutomationExecuteCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription(FLAG_AUTOMATION_ID))
+	viper.BindPFlag(FLAG_AUTOMATION_ID, AutomationExecuteCmd.Flags().Lookup(FLAG_AUTOMATION_ID))
+	AutomationExecuteCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription(FLAG_SELECTOR))
+	viper.BindPFlag(FLAG_SELECTOR, AutomationExecuteCmd.Flags().Lookup(FLAG_SELECTOR))
+	AutomationExecuteCmd.Flags().BoolP("watch", "", false, locales.AttributeDescription("watch"))
+	viper.BindPFlag("watch", AutomationExecuteCmd.Flags().Lookup("watch"))
 }
 
 func setupAutomationRun() error {
 	// check required automation id
-	if len(run.AutomationId) == 0 {
+	if len(viper.GetString(FLAG_AUTOMATION_ID)) == 0 {
 		return errors.New(locales.ErrorMessages("automation-id-missing"))
 	}
 	// check selector
-	if len(run.Selector) == 0 {
+	if len(viper.GetString(FLAG_AUTOMATION_ID)) == 0 {
 		return errors.New(locales.ErrorMessages("automation-selector-missing"))
 	}
 
@@ -99,6 +156,7 @@ func setupAutomationRun() error {
 }
 
 func automationRun() (string, error) {
+	run := Run{AutomationId: viper.GetString(FLAG_AUTOMATION_ID), Selector: viper.GetString(FLAG_AUTOMATION_ID)}
 	// convert to Json
 	body, err := json.Marshal(run)
 	if err != nil {
@@ -113,7 +171,7 @@ func automationRun() (string, error) {
 	return response, nil
 }
 
-type ExecRun struct {
+type AutomationRun struct {
 	Id    string   `json:"id"`
 	State string   `json:"state"`
 	Jobs  []string `json:"jobs"`
@@ -121,33 +179,47 @@ type ExecRun struct {
 
 func automationRunWait(runData string) error {
 	// convert data to struct
-	execRun := ExecRun{}
-	err := helpers.JSONStringToStructure(runData, &execRun)
+	automationRun := AutomationRun{}
+	err := helpers.JSONStringToStructure(runData, &automationRun)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Run automation is created with id %s\n", execRun.Id)
-	fmt.Printf("Automation state %s\n", execRun.State)
+	fmt.Printf("Run automation is created with id %s\n", automationRun.Id)
+	fmt.Printf("Automation state %s\n", automationRun.State)
 
 	// update data
 	tickChan := time.NewTicker(time.Second * 5)
+	defer tickChan.Stop()
+
 	runningJobs := []string{}
-	// jobState := map[string]string{}
+	jobState := map[string]string{}
 	for {
 		select {
 		case <-tickChan.C:
 
-			var err error
-			var runUpdate *ExecRun
+			// check if the token still valid
+			_, err := tokenExpired()
+			if err != nil {
+				return err
+			}
+			if true { //isExpired
+				fmt.Println("WARNING: token expired.")
+				// reauthenticate
+				err := setupRestClient(&ExecuteAuthV3, true)
+				if err != nil {
+					return err
+				}
+			}
 
-			switch execRun.State {
+			var runUpdate *AutomationRun
+			switch automationRun.State {
 			case RunPreparing:
 				// get new run update
-				runUpdate, err = getAutomationRun(execRun.Id)
+				runUpdate, err = getAutomationRun(automationRun.Id)
 			case RunExecuting:
 				// get new run update
-				runUpdate, err = getAutomationRun(execRun.Id)
+				runUpdate, err = getAutomationRun(automationRun.Id)
 			}
 
 			// exit if error occurs
@@ -157,40 +229,71 @@ func automationRunWait(runData string) error {
 			}
 
 			// run state changed
-			if len(runUpdate.State) > 0 && runUpdate.State != execRun.State {
+			if len(runUpdate.State) > 0 && runUpdate.State != automationRun.State {
 				// update state
-				execRun.State = runUpdate.State
+				automationRun.State = runUpdate.State
 				// print out for run state
-				fmt.Printf("Automation state %s\n", execRun.State)
+				fmt.Printf("Automation state %s\n", automationRun.State)
 				// exit if run failed
-				if execRun.State == RunFailed {
-					tickChan.Stop()
+				if automationRun.State == RunFailed {
 					return nil
 				}
 			}
 
 			// add new jobs
-			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(execRun.Jobs) {
-				execRun.Jobs = runUpdate.Jobs
+			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(automationRun.Jobs) {
+				// update jobs
+				automationRun.Jobs = runUpdate.Jobs
 				fmt.Println("Schedule jobs:")
 				for _, v := range runUpdate.Jobs {
-					runningJobs = append(execRun.Jobs, v)
+					// save them to keep track
+					runningJobs = append(automationRun.Jobs, v)
+					jobState[v] = ""
 					fmt.Printf("Job id %s\n", v)
 				}
 			}
 
 			// update running jobs
 			if len(runningJobs) > 0 {
+				stillrunningJobs := []string{}
 				for _, v := range runningJobs {
-					// do update to the map
-					fmt.Println(v)
+					// get job update
+					stateStr, err := getJobStateUpdate(v)
+					if err != nil {
+						return err
+					}
+					if stateStr != jobState[v] {
+						fmt.Printf("Job id %s has state %s\n", v, stateStr)
+						jobState[v] = stateStr
+					}
+					// if state is failed or complete then remove entry
+					if stateStr != JobFailed && stateStr != JobComplete {
+						stillrunningJobs = append(stillrunningJobs, v)
+					}
 				}
-			} else {
-				// check all entries in the job are cmoplete or failed and exit
+				runningJobs = stillrunningJobs
 			}
 		}
 	}
 	return nil
+}
+
+func tokenExpired() (bool, error) {
+	layout := "2006-01-02 15:04:05.999 -0700 MST"
+	expiresAt, err := time.Parse(layout, viper.GetString(TOKEN_EXPIRES_AT))
+	if err != nil {
+		return false, err
+	}
+
+	now := time.Now().In(expiresAt.Location())
+	delta := now.Sub(expiresAt)
+
+	if delta.Seconds() <= -60 {
+		return false, nil
+	} else {
+		return true, nil
+	}
+	return false, nil
 }
 
 const (
@@ -200,14 +303,14 @@ const (
 	RunCompleted = "completed"
 )
 
-func getAutomationRun(id string) (*ExecRun, error) {
+func getAutomationRun(id string) (*AutomationRun, error) {
 	// get run
 	data, err := getRunUpdate(id)
 	if err != nil {
 		return nil, err
 	}
 	// convert data
-	updateRun := ExecRun{}
+	updateRun := AutomationRun{}
 	err = helpers.JSONStringToStructure(data, &updateRun)
 	if err != nil {
 		return nil, err
@@ -229,15 +332,27 @@ func getRunUpdate(id string) (string, error) {
 type JobState byte
 
 const (
-	_ JobState = iota
-	JobQueued
-	JobExecuting
-	JobFailed
-	JobComplete
+	JobQueued    = "queued"
+	JobExecuting = "executing"
+	JobFailed    = "failed"
+	JobComplete  = "complete"
 )
 
-var jobStateStringMap = map[JobState]string{JobQueued: "queued", JobExecuting: "executing", JobFailed: "failed", JobComplete: "complete"}
+func getJobStateUpdate(id string) (string, error) {
+	// get job update
+	job, err := jobShow(id)
+	// convert data to struct
+	var jobStruct map[string]interface{}
+	err = helpers.JSONStringToStructure(job, &jobStruct)
+	if err != nil {
+		return "", err
+	}
 
-func jobRunState(id string) {
-
+	// update state
+	state := jobStruct["status"]
+	stateStr, ok := state.(string)
+	if !ok {
+		return "", fmt.Errorf("Error converting job state to string")
+	}
+	return stateStr, nil
 }

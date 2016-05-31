@@ -3,12 +3,14 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/rackspace/gophercloud"
 	"net/http/httptest"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/rackspace/gophercloud"
+	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
 )
 
 func resetAuthenticate() {
@@ -148,8 +150,9 @@ func (a *MockV3) CheckAuthenticationParams() error {
 	return checkAuthenticationParams(&a.AuthOpts)
 }
 
-func (a *MockV3) GetToken() (string, error) {
-	return "test_token_id", nil
+func (a *MockV3) GetToken() (*tokens.Token, error) {
+	token := tokens.Token{ID: "test_token_id"}
+	return &token, nil
 }
 
 func (a *MockV3) GetServicePublicEndpoint(serviceId string) (string, error) {

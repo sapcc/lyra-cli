@@ -9,7 +9,6 @@ import (
 )
 
 func resetRunShow() {
-	runId = ""
 	// reset automation flag vars
 	ResetFlags()
 }

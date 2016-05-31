@@ -57,6 +57,13 @@ var (
 	FLAG_USER_DOMAIN_NAME      = "user-domain-name"
 	FLAG_PROJECT_DOMAIN_ID     = "project-domain-id"
 	FLAG_PROEJECT_DOMAIN_NAME  = "project-domain-name"
+
+	FLAG_AUTOMATION_ID = "automation-id"
+	FLAG_RUN_ID        = "run-id"
+	FLAG_JOB_ID        = "job-id"
+	FLAG_SELECTOR      = "selector"
+
+	TOKEN_EXPIRES_AT = "token_expires_at"
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -67,7 +74,7 @@ var RootCmd = &cobra.Command{
 examples and usage of using your application.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
-		err := setupRestClient()
+		err := setupRestClient(nil, false)
 		if err != nil {
 			return err
 		}
@@ -161,29 +168,31 @@ func initConfig() {
 }
 
 // setup the rest client
-func setupRestClient() error {
-	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 {
-		fmt.Printf("WARNING: %s, %s or %s flag not given or not set as environment variable.\n", FLAG_TOKEN, FLAG_LYRA_SERVICE_ENDPOINT, FLAG_ARC_SERVICE_ENDPOINT)
-		fmt.Println("WARNING: Authentication startet...")
-
-		lyraAuthOps := LyraAuthOps{
-			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-			Username:          viper.GetString(ENV_VAR_USERNAME),
-			UserId:            viper.GetString(ENV_VAR_USER_ID),
-			Password:          viper.GetString(ENV_VAR_PASSWORD),
-			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
-		}
+func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
+	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
+		fmt.Println("INFO: Authentication manually startet...")
 
 		// authentication object
-		authV3 := AuthenticationV3(lyraAuthOps)
+		if authV3 == nil {
+			lyraAuthOps := LyraAuthOps{
+				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
+				Username:          viper.GetString(ENV_VAR_USERNAME),
+				UserId:            viper.GetString(ENV_VAR_USER_ID),
+				Password:          viper.GetString(ENV_VAR_PASSWORD),
+				ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
+				ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
+				UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+				UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+				ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+			}
+
+			newAuthV3 := AuthenticationV3(lyraAuthOps)
+			authV3 = &newAuthV3
+		}
 
 		// authenticate
-		authParams, err := authenticate(authV3)
+		authParams, err := authenticate(*authV3)
 		if err != nil {
 			return err
 		}
@@ -192,6 +201,9 @@ func setupRestClient() error {
 		viper.Set(ENV_VAR_AUTOMATION_ENDPOINT_NAME, authParams[ENV_VAR_AUTOMATION_ENDPOINT_NAME])
 		viper.Set(ENV_VAR_ARC_ENDPOINT_NAME, authParams[ENV_VAR_ARC_ENDPOINT_NAME])
 		viper.Set(ENV_VAR_TOKEN_NAME, authParams[ENV_VAR_TOKEN_NAME])
+		viper.Set(TOKEN_EXPIRES_AT, authParams[TOKEN_EXPIRES_AT])
+	} else {
+		fmt.Printf("INFO: Authentication with %s, %s and %s from flags or environment variables.\n", FLAG_TOKEN, FLAG_LYRA_SERVICE_ENDPOINT, FLAG_ARC_SERVICE_ENDPOINT)
 	}
 
 	// add api version to the automation url

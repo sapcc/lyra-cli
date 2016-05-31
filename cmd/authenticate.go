@@ -81,6 +81,9 @@ and usage of using your command.`,
 			return err
 		}
 
+		// remove token expires at
+		delete(response, TOKEN_EXPIRES_AT)
+
 		// print the data out
 		printer := print.Print{Data: response}
 		bodyPrint := ""
@@ -147,7 +150,8 @@ func authenticate(authV3 Authentication) (map[string]string, error) {
 	return map[string]string{
 		ENV_VAR_AUTOMATION_ENDPOINT_NAME: automationPublicEndpoint,
 		ENV_VAR_ARC_ENDPOINT_NAME:        arcPublicEndpoint,
-		ENV_VAR_TOKEN_NAME:               token,
+		ENV_VAR_TOKEN_NAME:               token.ID,
+		TOKEN_EXPIRES_AT:                 token.ExpiresAt.String(),
 	}, nil
 }
 
@@ -156,7 +160,7 @@ func authenticate(authV3 Authentication) (map[string]string, error) {
 //
 type Authentication interface {
 	CheckAuthenticationParams() error
-	GetToken() (string, error)
+	GetToken() (*tokens.Token, error)
 	GetServicePublicEndpoint(serviceId string) (string, error)
 	GetServiceId(serviceType string) (string, error)
 }
@@ -224,7 +228,7 @@ func (a *V3) getClient() (*gophercloud.ServiceClient, error) {
 	return openstack.NewIdentityV3(provider), nil
 }
 
-func (a *V3) GetToken() (string, error) {
+func (a *V3) GetToken() (*tokens.Token, error) {
 	scope := tokens.Scope{
 		ProjectName: a.AuthOpts.ProjectName,
 		ProjectID:   a.AuthOpts.ProjectId,
@@ -237,17 +241,17 @@ func (a *V3) GetToken() (string, error) {
 	if a.client == nil {
 		a.client, err = a.getClient()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
 	// get the token
 	token, err := tokens.Create(a.client, a.getAuthOptions(), &scope).Extract()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token.ID, nil
+	return token, nil
 }
 
 func (a *V3) GetServicePublicEndpoint(serviceId string) (string, error) {

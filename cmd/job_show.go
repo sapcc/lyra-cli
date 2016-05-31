@@ -33,7 +33,7 @@ var JobShowCmd = &cobra.Command{
 and usage of using your command.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required job id
-		if len(jobId) == 0 {
+		if len(viper.GetString("show-job-id")) == 0 {
 			return errors.New(locales.ErrorMessages("job-id-missing"))
 		}
 
@@ -41,7 +41,7 @@ and usage of using your command.`,
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// list automation
-		response, err := jobShow()
+		response, err := jobShow(viper.GetString("show-job-id"))
 		if err != nil {
 			return err
 		}
@@ -81,11 +81,12 @@ func init() {
 }
 
 func initJobShowCmdFlags() {
-	JobShowCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
+	JobShowCmd.Flags().StringP(FLAG_JOB_ID, "", "", locales.AttributeDescription(FLAG_JOB_ID))
+	viper.BindPFlag("show-job-id", JobShowCmd.Flags().Lookup(FLAG_JOB_ID))
 }
 
-func jobShow() (string, error) {
-	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId), url.Values{}, false)
+func jobShow(id string) (string, error) {
+	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", id), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

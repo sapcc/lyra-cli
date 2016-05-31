@@ -20,6 +20,7 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -30,15 +31,14 @@ var JobLogCmd = &cobra.Command{
 and usage of using your command.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required job id
-		if len(jobId) == 0 {
+		if len(viper.GetString("log-job-id")) == 0 {
 			return errors.New(locales.ErrorMessages("job-id-missing"))
 		}
-
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// list automation
-		response, err := jobLog()
+		response, err := jobLog(viper.GetString("log-job-id"))
 		if err != nil {
 			return err
 		}
@@ -56,11 +56,12 @@ func init() {
 }
 
 func initJobLogCmdFlags() {
-	JobLogCmd.Flags().StringVar(&jobId, "job-id", "", locales.AttributeDescription("job-id"))
+	JobLogCmd.Flags().StringP(FLAG_JOB_ID, "", "", locales.AttributeDescription(FLAG_JOB_ID))
+	viper.BindPFlag("log-job-id", JobLogCmd.Flags().Lookup(FLAG_JOB_ID))
 }
 
-func jobLog() (string, error) {
-	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", jobId, "log"), url.Values{}, false)
+func jobLog(id string) (string, error) {
+	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", id, "log"), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

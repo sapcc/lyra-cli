@@ -72,24 +72,10 @@ and usage of using your command.`,
 		}
 
 		//run automation
-		// response, err := automationRun()
-		// if err != nil {
-		//   return err
-		// }
-
-		response := `{
-      "id": "85",
-      "log": null,
-      "created_at": "2016-05-25T11:32:51.723Z",
-      "updated_at": "2016-05-25T11:32:51.723Z",
-      "repository_revision": null,
-      "state": "preparing",
-      "jobs": null,
-      "owner": "u-519166a05",
-      "automation_id": "6",
-      "automation_name": "Chef_test",
-      "selector": "@identity=\"0128e993-c709-4ce1-bccf-e06eb10900a0\""
-    }`
+		response, err := automationRun()
+		if err != nil {
+			return err
+		}
 
 		if viper.GetBool("watch") {
 			err = automationRunWait(response)
@@ -156,7 +142,7 @@ func setupAutomationRun() error {
 }
 
 func automationRun() (string, error) {
-	run := Run{AutomationId: viper.GetString(FLAG_AUTOMATION_ID), Selector: viper.GetString(FLAG_AUTOMATION_ID)}
+	run := Run{AutomationId: viper.GetString(FLAG_AUTOMATION_ID), Selector: viper.GetString(FLAG_SELECTOR)}
 	// convert to Json
 	body, err := json.Marshal(run)
 	if err != nil {
@@ -199,11 +185,11 @@ func automationRunWait(runData string) error {
 		case <-tickChan.C:
 
 			// check if the token still valid
-			_, err := tokenExpired()
+			isExpired, err := tokenExpired()
 			if err != nil {
 				return err
 			}
-			if true { //isExpired
+			if isExpired {
 				fmt.Println("WARNING: token expired.")
 				// reauthenticate
 				err := setupRestClient(&ExecuteAuthV3, true)
@@ -212,7 +198,7 @@ func automationRunWait(runData string) error {
 				}
 			}
 
-			var runUpdate *AutomationRun
+			var runUpdate AutomationRun
 			switch automationRun.State {
 			case RunPreparing:
 				// get new run update
@@ -272,6 +258,10 @@ func automationRunWait(runData string) error {
 					}
 				}
 				runningJobs = stillrunningJobs
+			} else {
+				if automationRun.State == RunCompleted {
+					return nil
+				}
 			}
 		}
 	}
@@ -303,20 +293,20 @@ const (
 	RunCompleted = "completed"
 )
 
-func getAutomationRun(id string) (*AutomationRun, error) {
+func getAutomationRun(id string) (AutomationRun, error) {
 	// get run
 	data, err := getRunUpdate(id)
 	if err != nil {
-		return nil, err
+		return AutomationRun{}, err
 	}
 	// convert data
 	updateRun := AutomationRun{}
 	err = helpers.JSONStringToStructure(data, &updateRun)
 	if err != nil {
-		return nil, err
+		return AutomationRun{}, err
 	}
 
-	return &updateRun, nil
+	return updateRun, nil
 }
 
 func getRunUpdate(id string) (string, error) {

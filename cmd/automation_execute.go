@@ -52,37 +52,44 @@ and usage of using your command.`,
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// keep the auth options for reauthentication
-		ExecuteAuthOps = LyraAuthOps{
-			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-			Username:          viper.GetString(ENV_VAR_USERNAME),
-			UserId:            viper.GetString(ENV_VAR_USER_ID),
-			Password:          viper.GetString(ENV_VAR_PASSWORD),
-			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
-		}
-		ExecuteAuthV3 = AuthenticationV3(ExecuteAuthOps)
-		err := setupRestClient(&ExecuteAuthV3, true)
-		if err != nil {
-			return err
-		}
-
-		//run automation
-		response, err := automationRun()
-		if err != nil {
-			return err
-		}
-
 		if viper.GetBool("watch") {
-			err = automationRunWait(response)
+			// keep the auth options for reauthentication
+			ExecuteAuthOps = LyraAuthOps{
+				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
+				Username:          viper.GetString(ENV_VAR_USERNAME),
+				UserId:            viper.GetString(ENV_VAR_USER_ID),
+				Password:          viper.GetString(ENV_VAR_PASSWORD),
+				ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
+				ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
+				UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+				UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+				ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+			}
+			ExecuteAuthV3 = AuthenticationV3(ExecuteAuthOps)
+			// force reauthenticate with password and keep values
+			err := setupRestClient(&ExecuteAuthV3, true)
+			if err != nil {
+				return err
+			}
+
+			err = automationRunWait()
 			if err != nil {
 				return err
 			}
 		} else {
+			// get std authentication
+			err := setupRestClient(nil, false)
+			if err != nil {
+				return err
+			}
+
+			//run automation
+			response, err := automationRun()
+			if err != nil {
+				return err
+			}
+
 			// convert data to struct
 			var dataStruct map[string]interface{}
 			err = helpers.JSONStringToStructure(response, &dataStruct)
@@ -163,10 +170,16 @@ type AutomationRun struct {
 	Jobs  []string `json:"jobs"`
 }
 
-func automationRunWait(runData string) error {
+func automationRunWait() error {
+	//run automation
+	runData, err := automationRun()
+	if err != nil {
+		return err
+	}
+
 	// convert data to struct
 	automationRun := AutomationRun{}
-	err := helpers.JSONStringToStructure(runData, &automationRun)
+	err = helpers.JSONStringToStructure(runData, &automationRun)
 	if err != nil {
 		return err
 	}
@@ -179,7 +192,7 @@ func automationRunWait(runData string) error {
 	defer tickChan.Stop()
 
 	runningJobs := []string{}
-	jobState := map[string]string{}
+	jobsState := map[string]string{}
 	for {
 		select {
 		case <-tickChan.C:
@@ -218,11 +231,10 @@ func automationRunWait(runData string) error {
 			if len(runUpdate.State) > 0 && runUpdate.State != automationRun.State {
 				// update state
 				automationRun.State = runUpdate.State
-				// print out for run state
-				fmt.Printf("Automation state %s\n", automationRun.State)
-				// exit if run failed
-				if automationRun.State == RunFailed {
-					return nil
+
+				if automationRun.State != RunFailed && automationRun.State != RunCompleted {
+					// print out for run state
+					fmt.Printf("Automation %s\n", automationRun.State)
 				}
 			}
 
@@ -230,12 +242,12 @@ func automationRunWait(runData string) error {
 			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(automationRun.Jobs) {
 				// update jobs
 				automationRun.Jobs = runUpdate.Jobs
-				fmt.Println("Schedule jobs:")
+				fmt.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
 				for _, v := range runUpdate.Jobs {
 					// save them to keep track
 					runningJobs = append(automationRun.Jobs, v)
-					jobState[v] = ""
-					fmt.Printf("Job id %s\n", v)
+					jobsState[v] = ""
+					fmt.Printf("%s\n", v)
 				}
 			}
 
@@ -248,9 +260,9 @@ func automationRunWait(runData string) error {
 					if err != nil {
 						return err
 					}
-					if stateStr != jobState[v] {
-						fmt.Printf("Job id %s has state %s\n", v, stateStr)
-						jobState[v] = stateStr
+					if stateStr != jobsState[v] {
+						fmt.Printf("Job %s is %s\n", v, stateStr)
+						jobsState[v] = stateStr
 					}
 					// if state is failed or complete then remove entry
 					if stateStr != JobFailed && stateStr != JobComplete {
@@ -260,12 +272,29 @@ func automationRunWait(runData string) error {
 				runningJobs = stillrunningJobs
 			} else {
 				if automationRun.State == RunCompleted {
+					fmt.Printf("Automation %s\n.", automationRun.State)
 					return nil
+				}
+				if automationRun.State == RunFailed {
+					// exit with error
+					return fmt.Errorf("Automation %s. %d of %d jobs failed\n", automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func jobsFailed(jobsState map[string]string) int {
+	jobs := 0
+
+	for _, state := range jobsState {
+		if state == JobFailed {
+			jobs++
+		}
+	}
+
+	return jobs
 }
 
 func tokenExpired() (bool, error) {

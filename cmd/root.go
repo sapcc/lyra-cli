@@ -87,7 +87,7 @@ examples and usage of using your application.`,
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		// fmt.Println(err)
-		os.Exit(-1)
+		os.Exit(1)
 	}
 }
 
@@ -170,7 +170,7 @@ func initConfig() {
 // setup the rest client
 func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
 	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
-		fmt.Println("INFO: Authentication manually startet...")
+		fmt.Println("Using password authentication.")
 
 		// authentication object
 		if authV3 == nil {
@@ -203,7 +203,7 @@ func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
 		viper.Set(ENV_VAR_TOKEN_NAME, authParams[ENV_VAR_TOKEN_NAME])
 		viper.Set(TOKEN_EXPIRES_AT, authParams[TOKEN_EXPIRES_AT])
 	} else {
-		fmt.Printf("INFO: Authentication with %s, %s and %s from flags or environment variables.\n", FLAG_TOKEN, FLAG_LYRA_SERVICE_ENDPOINT, FLAG_ARC_SERVICE_ENDPOINT)
+		fmt.Println("Using token authentication.")
 	}
 
 	// add api version to the automation url

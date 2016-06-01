@@ -13,12 +13,6 @@ import (
 )
 
 func resetAutomationCreateChefFlagVars() {
-	chef = Chef{}
-	tags = ""
-	runlist = ""
-	attributes = ""
-	attributesFromFile = ""
-
 	// reset flag
 	ResetFlags()
 }
@@ -115,17 +109,6 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
 		return
 	}
-	if !strings.Contains(chef.Name, "chef_test") {
-		t.Error(`Command create chef expected to have same name'`)
-		return
-	}
-	if !strings.Contains(chef.Repository, "http://some_repository") {
-		t.Error(`Command create chef expected to have same repository'`)
-		return
-	}
-	if len(chef.Runlist) != 1 {
-		t.Error(`Command create chef expected to have runlist.'`)
-	}
 }
 
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
@@ -170,6 +153,10 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 			`{"test":"test"}`,
 			"info"))
 
+	fmt.Println("°°°")
+	fmt.Println(chef)
+	fmt.Println("°°°")
+
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
@@ -191,7 +178,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 		t.Error(`Command create chef expected to have same repository revision'`)
 	}
 	if chef.Timeout != 3600 {
-		t.Error(`Command create chef expected to have same time out'`)
+		t.Error(`Command create chef expected to have same timeout'`)
 	}
 	if len(chef.Tags) != 2 {
 		t.Error(`Command create chef expected to have tags.'`)

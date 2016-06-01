@@ -16,7 +16,9 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
+	"runtime"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,23 +26,31 @@ import (
 	"github.com/sapcc/lyra-cli/print"
 )
 
+const AUTOMATION_CREATE_CHEF = "automation-create-chef"
+
 // createCmd represents the create command
 var AutomationCreateChefCmd = &cobra.Command{
 	Use:   "chef",
 	Short: "Create a new chef automation.",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		chef = Chef{
+			Name:               viper.GetString("automation-create-chef-name"),
+			Repository:         viper.GetString("automation-create-chef-repository"),
+			RepositoryRevision: viper.GetString("automation-create-chef-repository-revision"),
+			Timeout:            viper.GetInt("automation-create-chef-timeout"),
+			LogLevel:           viper.GetString("automation-create-chef-log-level"),
+		}
+
 		// setup automation create chef attributes
-		err := setupAutomationCreateChef()
+		err := setupAutomationAttr(&chef)
 		if err != nil {
 			return err
 		}
-		return nil
-	},
-	RunE: func(cmd *cobra.Command, args []string) error {
+
 		// create automation
-		response, err := automationCreateChef()
+		response, err := automationCreateChef(&chef)
 		if err != nil {
 			return err
 		}
@@ -81,32 +91,50 @@ func init() {
 
 func initAutomationCreateChefCmdFlags() {
 	// flags
-	chef = Chef{}
-	AutomationCreateChefCmd.Flags().StringVarP(&chef.Name, "name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
-	AutomationCreateChefCmd.Flags().StringVarP(&chef.Repository, "repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
-	AutomationCreateChefCmd.Flags().StringVarP(&chef.RepositoryRevision, "repository-revision", "", "master", "Describes the repository branch.")
-	AutomationCreateChefCmd.Flags().IntVarP(&chef.Timeout, "timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
-	AutomationCreateChefCmd.Flags().StringVarP(&tags, "tags", "", "", "Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
-	AutomationCreateChefCmd.Flags().StringVarP(&runlist, "runlist", "", "", "Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.")
-	AutomationCreateChefCmd.Flags().StringVarP(&attributes, "attributes", "", "", "Attributes are JSON based.")
-	AutomationCreateChefCmd.Flags().StringVarP(&attributesFromFile, "attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
-	AutomationCreateChefCmd.Flags().StringVarP(&chef.LogLevel, "log-level", "", "", "Describe the level should be used when logging.")
+	AutomationCreateChefCmd.Flags().StringP("name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
+	AutomationCreateChefCmd.Flags().StringP("repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
+	AutomationCreateChefCmd.Flags().StringP("repository-revision", "", "master", "Describes the repository branch.")
+	AutomationCreateChefCmd.Flags().IntP("timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
+	AutomationCreateChefCmd.Flags().StringP("log-level", "", "", "Describe the level should be used when logging.")
+	AutomationCreateChefCmd.Flags().StringP("tags", "", "", "Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
+	AutomationCreateChefCmd.Flags().StringP("runlist", "", "", "Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.")
+	AutomationCreateChefCmd.Flags().StringP("attributes", "", "", "Attributes are JSON based.")
+	AutomationCreateChefCmd.Flags().StringP("attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
+	viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name"))
+	viper.BindPFlag("automation-create-chef-repository", AutomationCreateChefCmd.Flags().Lookup("repository"))
+	viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision"))
+	viper.BindPFlag("automation-create-chef-timeout", AutomationCreateChefCmd.Flags().Lookup("timeout"))
+	viper.BindPFlag("automation-create-chef-log-level", AutomationCreateChefCmd.Flags().Lookup("log-level"))
+	viper.BindPFlag("automation-create-chef-tags", AutomationCreateChefCmd.Flags().Lookup("tags"))
+	viper.BindPFlag("automation-create-chef-runlist", AutomationCreateChefCmd.Flags().Lookup("runlist"))
+	viper.BindPFlag("automation-create-chef-attributes", AutomationCreateChefCmd.Flags().Lookup("attributes"))
+	viper.BindPFlag("automation-create-chef-attributes-from-file", AutomationCreateChefCmd.Flags().Lookup("attributes-from-file"))
 }
 
 // private
 
-func setupAutomationCreateChef() error {
-	chef.Tags = helpers.StringTokeyValueMap(tags)
-	chef.Runlist = helpers.StringToArray(runlist)
+func createViperKey(flag string) string {
+	_, filename, _, _ := runtime.Caller(1)
+
+	fmt.Println("°°°")
+	fmt.Println(filename)
+	fmt.Println("°°°")
+
+	return fmt.Sprint(filename, "_", flag)
+}
+
+func setupAutomationAttr(chef *Chef) error {
+	chef.Tags = helpers.StringTokeyValueMap(viper.GetString("automation-create-chef-tags"))
+	chef.Runlist = helpers.StringToArray(viper.GetString("automation-create-chef-runlist"))
 
 	// read attributes
-	if len(attributes) > 0 {
-		err := helpers.JSONStringToStructure(attributes, &chef.Attributes)
+	if len(viper.GetString("automation-create-chef-attributes")) > 0 {
+		err := helpers.JSONStringToStructure(viper.GetString("automation-create-chef-attributes"), &chef.Attributes)
 		if err != nil {
 			return err
 		}
 	} else {
-		attr, err := helpers.ReadFromFile(attributesFromFile)
+		attr, err := helpers.ReadFromFile(viper.GetString("automation-create-chef-attributes-from-file"))
 		if err != nil {
 			return err
 		}
@@ -121,7 +149,7 @@ func setupAutomationCreateChef() error {
 	return nil
 }
 
-func automationCreateChef() (string, error) {
+func automationCreateChef(chef *Chef) (string, error) {
 	// add the type
 	chef.AutomationType = "Chef"
 	// convert to Json

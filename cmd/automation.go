@@ -32,12 +32,7 @@ type Chef struct {
 }
 
 var (
-	chef               = Chef{}
-	tags               string // JSON (1 level key value)
-	runlist            string // JSON (1 level array)
-	attributes         string // JSON
-	attributesFromFile string // paht to a file
-	automationId       string
+	chef Chef
 )
 
 // automationCmd represents the automation command

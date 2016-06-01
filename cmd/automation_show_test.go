@@ -9,7 +9,6 @@ import (
 )
 
 func resetAutomationShow() {
-	automationId = ""
 	// reset flags
 	ResetFlags()
 }

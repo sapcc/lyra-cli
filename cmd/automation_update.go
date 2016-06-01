@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"errors"
-
 	"github.com/spf13/cobra"
 )
 
@@ -26,14 +24,6 @@ var AutomationUpdateCmd = &cobra.Command{
 	Short: "Updates an exsiting automation",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.`,
-	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// setup automation update
-		err := setupAutomationUpdate()
-		if err != nil {
-			return err
-		}
-		return nil
-	},
 }
 
 func init() {
@@ -42,13 +32,4 @@ func init() {
 }
 
 func initAutomationUpdateCmdFlags() {
-	AutomationUpdateCmd.PersistentFlags().StringVarP(&automationId, "automation-id", "", "", "Id from the automation that should be updated.")
-}
-
-func setupAutomationUpdate() error {
-	// check required automation id
-	if len(automationId) == 0 {
-		return errors.New("No automation id given.")
-	}
-	return nil
 }

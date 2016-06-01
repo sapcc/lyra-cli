@@ -33,7 +33,7 @@ var AutomationShowCmd = &cobra.Command{
 	Long:  `A longer description for automation show.`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
-		if len(automationId) == 0 {
+		if len(viper.GetString("show-automation-id")) == 0 {
 			return errors.New("No automation id given.")
 		}
 
@@ -81,11 +81,12 @@ func init() {
 
 func initAutomationShowCmdFlags() {
 	AutomationCmd.AddCommand(AutomationShowCmd)
-	AutomationShowCmd.Flags().StringVar(&automationId, "automation-id", "", locales.AttributeDescription("automation-id"))
+	AutomationShowCmd.Flags().StringP("automation-id", "", "", locales.AttributeDescription("automation-id"))
+	viper.BindPFlag("show-automation-id", AutomationShowCmd.Flags().Lookup("automation-id"))
 }
 
 func automationShow() (string, error) {
-	response, _, err := RestClient.Services.Automation.Get(path.Join("automations", automationId), url.Values{}, false)
+	response, _, err := RestClient.Services.Automation.Get(path.Join("automations", viper.GetString("show-automation-id")), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

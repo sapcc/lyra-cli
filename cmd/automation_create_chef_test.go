@@ -51,7 +51,7 @@ func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 +---------------------+---------------------------------------------------------+`
 
 	// reset stuff
-	resetAutomationList()
+	resetAutomationCreateChefFlagVars()
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create chef --auth-url=%s --user-id=%s --project-id=%s --password=%s --name=%s --repository=%s --runlist=%s", "some_test_url", "miau", "bup", "123456789", "chef_test", "http://some_repository", "recipe[nginx]"))
 
@@ -152,10 +152,6 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 			"recipe[nginx],recipe[test]",
 			`{"test":"test"}`,
 			"info"))
-
-	fmt.Println("°°°")
-	fmt.Println(chef)
-	fmt.Println("°°°")
 
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)

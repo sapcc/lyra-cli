@@ -31,8 +31,22 @@ type Chef struct {
 	LogLevel           string            `json:"log_level,omitempty"`
 }
 
+type Script struct {
+	Id                 int               `json:"id"`
+	Name               string            `json:"name"`                // required
+	Repository         string            `json:"repository"`          // required
+	RepositoryRevision string            `json:"repository_revision"` // required
+	Timeout            int               `json:"timeout"`             // required
+	Tags               map[string]string `json:"tags,omitempty"`      // JSON
+	AutomationType     string            `json:"type"`
+	Path               string            `json:"path"`
+	Arguments          []string          `json:"arguments"`   // array of strings
+	Environment        map[string]string `json:"environment"` // JSON
+}
+
 var (
-	chef Chef
+	chef   Chef
+	script Script
 )
 
 // automationCmd represents the automation command

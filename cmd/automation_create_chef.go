@@ -26,8 +26,6 @@ import (
 	"github.com/sapcc/lyra-cli/print"
 )
 
-const AUTOMATION_CREATE_CHEF = "automation-create-chef"
-
 // createCmd represents the create command
 var AutomationCreateChefCmd = &cobra.Command{
 	Use:   "chef",
@@ -44,7 +42,7 @@ and usage of using your command.`,
 		}
 
 		// setup automation create chef attributes
-		err := setupAutomationAttr(&chef)
+		err := setupAutomationChefAttr(&chef)
 		if err != nil {
 			return err
 		}
@@ -123,7 +121,7 @@ func createViperKey(flag string) string {
 	return fmt.Sprint(filename, "_", flag)
 }
 
-func setupAutomationAttr(chef *Chef) error {
+func setupAutomationChefAttr(chef *Chef) error {
 	chef.Tags = helpers.StringTokeyValueMap(viper.GetString("automation-create-chef-tags"))
 	chef.Runlist = helpers.StringToArray(viper.GetString("automation-create-chef-runlist"))
 

@@ -53,7 +53,6 @@ var (
 var AutomationCmd = &cobra.Command{
 	Use:   "automation",
 	Short: "Automation service.",
-	Long:  `A longer description for automation.`,
 }
 
 func init() {

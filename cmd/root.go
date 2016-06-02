@@ -69,9 +69,8 @@ var (
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "lyra",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application.`,
+	Short: "Automation service CLI",
+	Long:  `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
 		err := setupRestClient(nil, false)

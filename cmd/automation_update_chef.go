@@ -22,8 +22,6 @@ import (
 var AutomationUpdateChefCmd = &cobra.Command{
 	Use:   "chef",
 	Short: "Updates a chef automation",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
 }
 
 func init() {

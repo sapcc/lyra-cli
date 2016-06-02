@@ -27,7 +27,6 @@ type Run struct {
 var RunCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Automation run service.",
-	Long:  `A longer description for run.`,
 }
 
 func init() {

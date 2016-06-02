@@ -22,8 +22,6 @@ import (
 var AutomationUpdateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Updates an exsiting automation",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
 }
 
 func init() {

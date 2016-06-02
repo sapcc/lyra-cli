@@ -50,9 +50,7 @@ var (
 // authenticateCmd represents the authenticate command
 var AuthenticateCmd = &cobra.Command{
 	Use:   "authenticate",
-	Short: "Get an authentication token project based.",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
+	Short: "Get an authentication token and endpoints for the automation and arc service.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil

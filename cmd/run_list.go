@@ -25,7 +25,6 @@ import (
 var RunListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all automation runs",
-	Long:  `A longer description for automation run show.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
 		response, err := runList()

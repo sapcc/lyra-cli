@@ -22,8 +22,6 @@ import (
 var AutomationCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new automation.",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
 }
 
 func init() {

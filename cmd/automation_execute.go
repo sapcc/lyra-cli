@@ -37,8 +37,6 @@ var (
 var AutomationExecuteCmd = &cobra.Command{
 	Use:   "execute",
 	Short: "Runs an exsiting automation",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil

@@ -14,8 +14,6 @@ import (
 var AutomationCreateScriptCmd = &cobra.Command{
 	Use:   "script",
 	Short: "Create a new script automation.",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		script = Script{
 			Name:               viper.GetString("automation-create-script-name"),

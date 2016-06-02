@@ -41,7 +41,7 @@ var AutomationListCmd = &cobra.Command{
 				return err
 			}
 		} else {
-			tablePrint, err = printer.TableList([]string{"id", "name", "repository", "repository_revision", "run_list", "chef_attributes", "log_level", "arguments"})
+			tablePrint, err = printer.TableList([]string{"id", "name", "type", "repository", "repository_revision", "tags", "timeout"})
 			if err != nil {
 				return err
 			}

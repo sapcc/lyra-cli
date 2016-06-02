@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/print"
 )
 
 // updateCmd represents the update command
@@ -52,8 +53,31 @@ var AutomationUpdateChefAttributesCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		// Print response
-		cmd.Println(response)
+
+		// convert data to struct
+		var dataStruct map[string]interface{}
+		err = helpers.JSONStringToStructure(response, &dataStruct)
+		if err != nil {
+			return err
+		}
+
+		// print the data out
+		printer := print.Print{Data: dataStruct}
+		bodyPrint := ""
+		if viper.GetBool("json") {
+			bodyPrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			bodyPrint, err = printer.Table()
+			if err != nil {
+				return err
+			}
+		}
+
+		// print response
+		cmd.Println(bodyPrint)
 
 		return nil
 	},
@@ -75,13 +99,13 @@ func initAutomationUpdateChefAttributesCmdFlags() {
 
 func setupAutomationUpdateChefAttributes(chefObj *Chef) error {
 	// read attributes
-	if len(viper.GetString("automation-create-chef-attributes")) > 0 {
-		err := helpers.JSONStringToStructure(viper.GetString("automation-create-chef-attributes"), &chefObj.Attributes)
+	if len(viper.GetString("automation-update-chef-attributes")) > 0 {
+		err := helpers.JSONStringToStructure(viper.GetString("automation-update-chef-attributes"), &chefObj.Attributes)
 		if err != nil {
 			return err
 		}
 	} else {
-		attr, err := helpers.ReadFromFile(viper.GetString("automation-create-chef-attributes-from-file"))
+		attr, err := helpers.ReadFromFile(viper.GetString("automation-update-chef-attributes-from-file"))
 		if err != nil {
 			return err
 		}

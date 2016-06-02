@@ -17,7 +17,7 @@ func resetAutomationList() {
 
 func newMockAuthenticationV3AutomationList(authOpts LyraAuthOps) Authentication {
 	// set test server
-	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 
 	return &MockV3{AuthOpts: authOpts, TestServer: server}
@@ -50,11 +50,11 @@ func TestAutomationListCmdWithEndpointsTokenFlag(t *testing.T) {
 func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
 	AuthenticationV3 = newMockAuthenticationV3AutomationList
-	want := `+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| ID |   NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
-+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| 6  | Chef_test | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
+	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
+| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
++----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
+| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
++----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+`
 
 	// reset stuff
 	resetAutomationList()
@@ -72,14 +72,14 @@ func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 
 func TestAutomationListCmdResultTable(t *testing.T) {
 	// set test server
-	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"6","name":"Chef_test", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-	want := `+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| ID |   NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
-+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| 6  | Chef_test | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-+----+-----------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
+	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
+| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
++----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
+| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
++----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+`
 
 	// reset stuff
 	resetAutomationList()
@@ -130,13 +130,13 @@ func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 	server := automationPaginationServer()
 	defer server.Close()
 
-	want := `+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| ID |    NAME    |                       REPOSITORY                        | REPOSITORY REVISION |    RUN LIST     | CHEF ATTRIBUTES | LOG LEVEL | ARGUMENTS |
-+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+
-| 1  | Chef_test1 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-| 2  | Chef_test2 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-| 3  | Chef_test3 | https://github.com/user123/automation-test.git | master              | [recipe[nginx]] | map[test:test]  | info      | {}        |
-+----+------------+---------------------------------------------------------+---------------------+-----------------+-----------------+-----------+-----------+`
+	want := `+----+------------+------+---------------------------------------------------------+---------------------+-------+---------+
+| ID |    NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
++----+------------+------+---------------------------------------------------------+---------------------+-------+---------+
+| 1  | Chef_test1 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
+| 2  | Chef_test2 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
+| 3  | Chef_test3 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
++----+------------+------+---------------------------------------------------------+---------------------+-------+---------+`
 
 	resetAutomationList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "http://somewhere.com", "token123"))
@@ -155,9 +155,9 @@ func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
 	resetAutomationList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
 
-	responseBody := `[{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
-{"id":"2","name":"Chef_test2","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
-{"id":"3","name":"Chef_test3","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 
 	source := []map[string]interface{}{}
 	err := json.Unmarshal([]byte(responseBody), &source)
@@ -188,19 +188,19 @@ func automationPaginationServer() *httptest.Server {
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		} else if page == "2" {
 			w.Header().Set("Pagination-Page", "2")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"2","name":"Chef_test2","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		} else if page == "3" {
 			w.Header().Set("Pagination-Page", "3")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"3","name":"Chef_test3","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		}
 	}))
 	return server

@@ -79,7 +79,7 @@ func init() {
 }
 
 func initRunShowCmdFlags() {
-	RunShowCmd.Flags().StringP(FLAG_RUN_ID, "", "", locales.AttributeDescription(FLAG_RUN_ID))
+	RunShowCmd.Flags().StringP(FLAG_RUN_ID, "", "", locales.AttributeDescription("run-id"))
 	viper.BindPFlag(FLAG_RUN_ID, RunShowCmd.Flags().Lookup(FLAG_RUN_ID))
 }
 

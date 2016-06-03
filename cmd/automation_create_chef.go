@@ -23,6 +23,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
 
@@ -87,15 +88,15 @@ func init() {
 
 func initAutomationCreateChefCmdFlags() {
 	// flags
-	AutomationCreateChefCmd.Flags().StringP("name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
-	AutomationCreateChefCmd.Flags().StringP("repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
-	AutomationCreateChefCmd.Flags().StringP("repository-revision", "", "master", "Describes the repository branch.")
-	AutomationCreateChefCmd.Flags().IntP("timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
-	AutomationCreateChefCmd.Flags().StringP("log-level", "", "", "Describe the level should be used when logging.")
-	AutomationCreateChefCmd.Flags().StringP("tags", "", "", "Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
-	AutomationCreateChefCmd.Flags().StringP("runlist", "", "", "Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.")
-	AutomationCreateChefCmd.Flags().StringP("attributes", "", "", "Attributes are JSON based.")
-	AutomationCreateChefCmd.Flags().StringP("attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
+	AutomationCreateChefCmd.Flags().StringP("name", "", "", locales.AttributeDescription("automation-name"))
+	AutomationCreateChefCmd.Flags().StringP("repository", "", "", locales.AttributeDescription("automation-repository"))
+	AutomationCreateChefCmd.Flags().StringP("repository-revision", "", "master", locales.AttributeDescription("automation-repository-revision"))
+	AutomationCreateChefCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
+	AutomationCreateChefCmd.Flags().StringP("log-level", "", "", locales.AttributeDescription("automation-log-level"))
+	AutomationCreateChefCmd.Flags().StringP("tags", "", "", locales.AttributeDescription("automation-tags"))
+	AutomationCreateChefCmd.Flags().StringP("runlist", "", "", locales.AttributeDescription("automation-runlist"))
+	AutomationCreateChefCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
+	AutomationCreateChefCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
 	viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name"))
 	viper.BindPFlag("automation-create-chef-repository", AutomationCreateChefCmd.Flags().Lookup("repository"))
 	viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision"))

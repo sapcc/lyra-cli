@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
 
@@ -71,14 +72,14 @@ func init() {
 
 func initAutomationCreateScriptCmdFlags() {
 	// flags
-	AutomationCreateScriptCmd.Flags().StringP("name", "", "", "Describes the template. Should be short and alphanumeric without white spaces.")
-	AutomationCreateScriptCmd.Flags().StringP("repository", "", "", "Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.")
-	AutomationCreateScriptCmd.Flags().StringP("repository-revision", "", "master", "Describes the repository branch.")
-	AutomationCreateScriptCmd.Flags().IntP("timeout", "", 3600, "Describes the time elapsed before a timeout is being triggered.")
-	AutomationCreateScriptCmd.Flags().StringP("tags", "", "", "Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
-	AutomationCreateScriptCmd.Flags().StringP("path", "", "", "Path to the script")
-	AutomationCreateScriptCmd.Flags().StringP("arguments", "", "", "Arguments is an array of strings. Array of strings are separated by ','.")
-	AutomationCreateScriptCmd.Flags().StringP("environment", "", "", "Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.")
+	AutomationCreateScriptCmd.Flags().StringP("name", "", "", locales.AttributeDescription("automation-name"))
+	AutomationCreateScriptCmd.Flags().StringP("repository", "", "", locales.AttributeDescription("automation-repository"))
+	AutomationCreateScriptCmd.Flags().StringP("repository-revision", "", "master", locales.AttributeDescription("automation-repository-revision"))
+	AutomationCreateScriptCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
+	AutomationCreateScriptCmd.Flags().StringP("tags", "", "", locales.AttributeDescription("automation-tags"))
+	AutomationCreateScriptCmd.Flags().StringP("path", "", "", locales.AttributeDescription("automation-path"))
+	AutomationCreateScriptCmd.Flags().StringP("arguments", "", "", locales.AttributeDescription("automation-arguments"))
+	AutomationCreateScriptCmd.Flags().StringP("environment", "", "", locales.AttributeDescription("automation-environment"))
 	viper.BindPFlag("automation-create-script-name", AutomationCreateScriptCmd.Flags().Lookup("name"))
 	viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository"))
 	viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision"))

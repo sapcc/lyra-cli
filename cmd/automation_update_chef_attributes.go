@@ -89,9 +89,9 @@ func init() {
 }
 
 func initAutomationUpdateChefAttributesCmdFlags() {
-	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes", "", "", "Attributes are JSON format.")
-	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes-from-file", "", "", "Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.")
-	AutomationUpdateChefAttributesCmd.Flags().StringP("automation-id", "", "", locales.AttributeDescription(FLAG_AUTOMATION_ID))
+	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
+	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
+	AutomationUpdateChefAttributesCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription("automation-id"))
 	viper.BindPFlag("automation-update-chef-attributes", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes"))
 	viper.BindPFlag("automation-update-chef-attributes-from-file", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes-from-file"))
 	viper.BindPFlag("automation-update-chef-automation-id", AutomationUpdateChefAttributesCmd.Flags().Lookup("automation-id"))

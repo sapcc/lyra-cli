@@ -54,7 +54,7 @@ func init() {
 }
 
 func initJobLogCmdFlags() {
-	JobLogCmd.Flags().StringP(FLAG_JOB_ID, "", "", locales.AttributeDescription(FLAG_JOB_ID))
+	JobLogCmd.Flags().StringP(FLAG_JOB_ID, "", "", locales.AttributeDescription("job-id"))
 	viper.BindPFlag("log-job-id", JobLogCmd.Flags().Lookup(FLAG_JOB_ID))
 }
 

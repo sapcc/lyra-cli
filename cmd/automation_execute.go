@@ -125,9 +125,9 @@ func init() {
 
 func initAutomationExecuteCmdFlags() {
 	//flags
-	AutomationExecuteCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription(FLAG_AUTOMATION_ID))
+	AutomationExecuteCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription("automation-id"))
 	viper.BindPFlag(FLAG_AUTOMATION_ID, AutomationExecuteCmd.Flags().Lookup(FLAG_AUTOMATION_ID))
-	AutomationExecuteCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription(FLAG_SELECTOR))
+	AutomationExecuteCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription("selector"))
 	viper.BindPFlag(FLAG_SELECTOR, AutomationExecuteCmd.Flags().Lookup(FLAG_SELECTOR))
 	AutomationExecuteCmd.Flags().BoolP("watch", "", false, locales.AttributeDescription("watch"))
 	viper.BindPFlag("watch", AutomationExecuteCmd.Flags().Lookup("watch"))

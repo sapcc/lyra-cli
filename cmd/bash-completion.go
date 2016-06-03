@@ -25,6 +25,10 @@ var bashCompletionCmd = &cobra.Command{
 	Use:   "bash-completion",
 	Short: "Generate completions for bash",
 	Long:  `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		RootCmd.GenBashCompletion(os.Stdout)

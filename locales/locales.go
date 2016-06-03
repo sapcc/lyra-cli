@@ -20,8 +20,8 @@ var attrDesc = map[string]string{
 	"automation-runlist":              `Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.`,
 	"automation-attributes":           `Attributes are JSON based.`,
 	"automation-attributes-from-file": `Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.`,
-	"automation-path":                 `"Path to the script"`,
-	"automation-arguments":            `"Arguments is an array of strings. Array of strings are separated by ','."`,
+	"automation-path":                 `Path to the script`,
+	"automation-arguments":            `Arguments is an array of strings. Array of strings are separated by ','.`,
 	"automation-environment":          `Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.`,
 }
 

@@ -14,4 +14,4 @@ outputs:
 - name: release
 
 run:
-  path: cli.git/ci/build-release 
+  path: cli.git/ci/prepare-release 

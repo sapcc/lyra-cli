@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e -x
+
+export GOPATH=$PWD/gopath
+
+#inject SAP Global Root CA into nocgo darwin trust store
+sed '/roots.AppendCertsFromPEM(data)/r '<(echo "roots.AppendCertsFromPEM([]byte(\`$(cat /etc/ssl/certs/SAP_Global_Root.pem)\`))") -i /usr/local/go/src/crypto/x509/root_darwin.go
+
+export GOARCH=amd64
+
+GOOS=linux   go build -o build/lyra_linux       -ldflags "-s -w" github.com/sapcc/lyra-cli
+GOOS=darwin  go build -o build/lyra_darwin      -ldflags "-s -w" github.com/sapcc/lyra-cli
+GOOS=windows go build -o build/lyra_windows.exe -ldflags "-s -w" github.com/sapcc/lyra-cli

@@ -1,4 +1,3 @@
-
 ---
 platform: linux
 
@@ -14,4 +13,4 @@ outputs:
 - name: build 
 
 run:
-  path: gopath/src/github.com/sapcc/lyra-cli/ci/build-linux
+  path: gopath/src/github.com/sapcc/lyra-cli/ci/build-cli

@@ -33,12 +33,49 @@ var errMsg = map[string]string{
 	"job-missing":                 fmt.Sprint(jobMissingDesc),
 }
 
+var cmdShortDescription = map[string]string{
+	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
+	"automation-create-chef":            "Create a new chef automation.",
+	"automation-create-script":          "Create a new script automation.",
+	"automation-create":                 "Create a new automation.",
+	"automation-execute":                "Runs an exsiting automation",
+	"automation-list":                   "List all available automations",
+	"automation-show":                   "Show a specific automation",
+	"automation-update-chef-attributes": "Updates chef attributes",
+	"automation-update-chef":            "Updates a chef automation",
+	"automation-update":                 "Updates an exsiting automation",
+	"automation":                        "Automation service.",
+	"bash-completion":                   "Generate completions for bash",
+	"job-list":                          "List all jobs",
+	"job-log":                           "Shows job log",
+	"job-show":                          "Shows an especific job",
+	"job":                               "Automation job service.",
+	"root":                              "Automation service CLI",
+	"run-list":                          "List all automation runs",
+	"run-show":                          "Show a specific automation run",
+	"run":                               "Automation run service.",
+	"version":                           "Show program's version number and exit.",
+}
+
+var cmdLongDescription = map[string]string{
+	"bash-completion": `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
+	"root":            `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+}
+
 func AttributeDescription(id string) string {
 	return attrDesc[id]
 }
 
 func ErrorMessages(id string) string {
 	return errMsg[id]
+}
+
+func CmdShortDescription(id string) string {
+	return cmdShortDescription[id]
+}
+
+func CmdLongDescription(id string) string {
+	return cmdLongDescription[id]
 }
 
 var jobMissingDesc = `Job not found.

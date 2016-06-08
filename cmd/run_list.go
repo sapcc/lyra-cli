@@ -19,12 +19,13 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
 
 var RunListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all automation runs",
+	Short: locales.CmdShortDescription("run-list"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// show automation
 		response, err := runList()

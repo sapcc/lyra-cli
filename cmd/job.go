@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 var (
@@ -25,7 +26,7 @@ var (
 // automationCmd represents the automation command
 var JobCmd = &cobra.Command{
 	Use:   "job",
-	Short: "Automation job service.",
+	Short: locales.CmdShortDescription("job"),
 }
 
 func init() {

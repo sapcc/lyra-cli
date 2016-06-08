@@ -28,7 +28,7 @@ import (
 
 var RunShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "Show a specific automation run",
+	Short: locales.CmdShortDescription("run-show"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
 		if len(viper.GetString(FLAG_RUN_ID)) == 0 {

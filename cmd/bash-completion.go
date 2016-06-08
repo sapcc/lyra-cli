@@ -18,34 +18,22 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
-// bash-completionCmd represents the bash-completion command
 var bashCompletionCmd = &cobra.Command{
 	Use:   "bash-completion",
-	Short: "Generate completions for bash",
-	Long:  `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
+	Short: locales.CmdShortDescription("bash-completion"),
+	Long:  locales.CmdLongDescription("bash-completion"),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
 		RootCmd.GenBashCompletion(os.Stdout)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(bashCompletionCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// bash-completionCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// bash-completionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

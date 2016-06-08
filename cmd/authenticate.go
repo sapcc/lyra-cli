@@ -28,6 +28,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 type LyraAuthOps struct {
@@ -50,7 +51,7 @@ var (
 // authenticateCmd represents the authenticate command
 var AuthenticateCmd = &cobra.Command{
 	Use:   "authenticate",
-	Short: "Get an authentication token and endpoints for the automation and arc service.",
+	Short: locales.CmdShortDescription("authenticate"),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil

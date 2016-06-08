@@ -16,12 +16,13 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 // updateCmd represents the update command
 var AutomationUpdateChefCmd = &cobra.Command{
 	Use:   "chef",
-	Short: "Updates a chef automation",
+	Short: locales.CmdShortDescription("automation-update-chef"),
 }
 
 func init() {

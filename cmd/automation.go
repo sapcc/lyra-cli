@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 type Chef struct {
@@ -52,7 +53,7 @@ var (
 // automationCmd represents the automation command
 var AutomationCmd = &cobra.Command{
 	Use:   "automation",
-	Short: "Automation service.",
+	Short: locales.CmdShortDescription("automation"),
 }
 
 func init() {

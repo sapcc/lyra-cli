@@ -26,7 +26,7 @@ import (
 
 var JobLogCmd = &cobra.Command{
 	Use:   "log",
-	Short: "Shows job log",
+	Short: locales.CmdShortDescription("job-log"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required job id
 		if len(viper.GetString("log-job-id")) == 0 {

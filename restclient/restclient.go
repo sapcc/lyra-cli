@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/sapcc/lyra-cli/helpers"
+	"github.com/sapcc/lyra-cli/version"
 )
 
 var AUTOMATION_URI = "https://automation-staging.***REMOVED***/api/v1/"
@@ -190,6 +191,7 @@ func restCall(endpoint string, token string, pathAction string, method string, p
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("User-Agent", fmt.Sprint("lyra-cli/", version.String()))
 	req.Header.Add("X-Auth-Token", token)
 	req.Header.Add("Content-Type", "application/json")
 

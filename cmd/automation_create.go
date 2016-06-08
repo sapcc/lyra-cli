@@ -16,12 +16,13 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 // createCmd represents the create command
 var AutomationCreateCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a new automation.",
+	Short: locales.CmdShortDescription("automation-create"),
 }
 
 func init() {

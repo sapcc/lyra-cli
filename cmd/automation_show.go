@@ -29,7 +29,7 @@ import (
 // showCmd represents the show command
 var AutomationShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "Show a specific automation",
+	Short: locales.CmdShortDescription("automation-show"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
 		if len(viper.GetString("show-automation-id")) == 0 {

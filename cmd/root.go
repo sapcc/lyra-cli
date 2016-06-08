@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/restclient"
 )
 
@@ -69,8 +70,8 @@ var (
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "lyra",
-	Short: "Automation service CLI",
-	Long:  `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+	Short: locales.CmdShortDescription("root"),
+	Long:  locales.CmdLongDescription("root"),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
 		err := setupRestClient(nil, false)

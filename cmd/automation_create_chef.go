@@ -30,7 +30,7 @@ import (
 // createCmd represents the create command
 var AutomationCreateChefCmd = &cobra.Command{
 	Use:   "chef",
-	Short: "Create a new chef automation.",
+	Short: locales.CmdShortDescription("automation-create-chef"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		chef = Chef{
 			Name:               viper.GetString("automation-create-chef-name"),

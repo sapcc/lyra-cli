@@ -28,7 +28,7 @@ import (
 
 var JobShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "Shows an especific job",
+	Short: locales.CmdShortDescription("job-show"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required job id
 		if len(viper.GetString("show-job-id")) == 0 {

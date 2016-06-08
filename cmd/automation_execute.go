@@ -36,7 +36,7 @@ var (
 // updateCmd represents the update command
 var AutomationExecuteCmd = &cobra.Command{
 	Use:   "execute",
-	Short: "Runs an exsiting automation",
+	Short: locales.CmdShortDescription("automation-execute"),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
 		return nil

@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 type Run struct {
@@ -26,7 +27,7 @@ type Run struct {
 // automationCmd represents the automation command
 var RunCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Automation run service.",
+	Short: locales.CmdShortDescription("run"),
 }
 
 func init() {

@@ -1,4 +1,4 @@
-// Copyright © 2016 Arturo Reuschenbach <a.reuschenbach.puncernau@sap.com>
+// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +17,26 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/version"
 )
 
-// updateCmd represents the update command
-var AutomationUpdateCmd = &cobra.Command{
-	Use:   "update",
-	Short: locales.CmdShortDescription("automation-update"),
+var VersionCmd = &cobra.Command{
+	Use:   "version",
+	Short: locales.CmdShortDescription("version"),
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.Println(version.String())
+		return nil
+	},
 }
 
 func init() {
-	AutomationCmd.AddCommand(AutomationUpdateCmd)
-	initAutomationUpdateCmdFlags()
+	RootCmd.AddCommand(VersionCmd)
+	initVersionCmdFlags()
 }
 
-func initAutomationUpdateCmdFlags() {
+func initVersionCmdFlags() {
 }

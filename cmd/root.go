@@ -120,7 +120,7 @@ func initRootCmdFlags() {
 	RootCmd.PersistentFlags().StringP(FLAG_AUTH_URL, "", "", fmt.Sprint("Endpoint entities represent URL endpoints for OpenStack web services. (default ", fmt.Sprintf("[$%s]", ENV_VAR_AUTH_URL), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_USER_ID, "", "", fmt.Sprint("Id of the user that wants to log in. (default ", fmt.Sprintf("[$%s]", ENV_VAR_USER_ID), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_USERNAME, "", "", fmt.Sprint("Name of the user that wants to log in. (default ", fmt.Sprintf("[$%s]", ENV_VAR_USERNAME), ")"))
-	RootCmd.PersistentFlags().StringP(FLAG_PASSWORD, "", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD), " will be checkt. If no environment variable found then will promtp from terminal."))
+	RootCmd.PersistentFlags().StringP(FLAG_PASSWORD, "", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD), " will be checked. If no environment variable found then will prompt from terminal."))
 	RootCmd.PersistentFlags().StringP(FLAG_PROJECT_ID, "", "", fmt.Sprint("Id of the project. (default ", fmt.Sprintf("[$%s]", ENV_VAR_PROJECT_ID), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_PROJECT_NAME, "", "", fmt.Sprint("Name of the project. (default ", fmt.Sprintf("[$%s]", ENV_VAR_PROJECT_NAME), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_USER_DOMAIN_ID, "", "", fmt.Sprint("Id of the domain where the user is created. (default ", fmt.Sprintf("[$%s]", ENV_VAR_USER_DOMAIN_ID), ")"))

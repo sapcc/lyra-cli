@@ -2,7 +2,7 @@
 
 set -e -x
 
-version=$(date +%Y%m%d%H%M%S)
+version=$(cat build/version)
 echo "v$version" > release/name
 echo "v$version" > release/tag
 git -C cli.git rev-parse HEAD > release/commitish

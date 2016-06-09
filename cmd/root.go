@@ -37,6 +37,7 @@ var (
 	ENV_VAR_USERNAME                 = "OS_USERNAME"
 	ENV_VAR_USER_ID                  = "OS_USER_ID"
 	ENV_VAR_PASSWORD                 = "OS_PASSWORD"
+	ENV_VAR_REGION                   = "OS_REGION"
 	ENV_VAR_AUTH_URL                 = "OS_AUTH_URL"
 	ENV_VAR_USER_DOMAIN_ID           = "OS_USER_DOMAIN_ID"
 	ENV_VAR_USER_DOMAIN_NAME         = "OS_USER_DOMAIN_NAME"
@@ -46,6 +47,7 @@ var (
 	ENV_VAR_PROJECT_DOMAIN_NAME      = "OS_PROJECT_DOMAIN_NAME"
 
 	FLAG_TOKEN                 = "token"
+	FLAG_REGION                = "region"
 	FLAG_LYRA_SERVICE_ENDPOINT = "lyra-service-endpoint"
 	FLAG_ARC_SERVICE_ENDPOINT  = "arc-service-endpoint"
 	FLAG_AUTH_URL              = "auth-url"
@@ -119,6 +121,7 @@ func initRootCmdFlags() {
 	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
 	// Authentication user flags
 	RootCmd.PersistentFlags().StringP(FLAG_AUTH_URL, "", "", fmt.Sprint("Endpoint entities represent URL endpoints for OpenStack web services. (default ", fmt.Sprintf("[$%s]", ENV_VAR_AUTH_URL), ")"))
+	RootCmd.PersistentFlags().StringP(FLAG_REGION, "", "", fmt.Sprint("A region is a general division of an OpenStack deployment. (default ", fmt.Sprintf("[$%s]", ENV_VAR_REGION), " or the first entry found in catalog)"))
 	RootCmd.PersistentFlags().StringP(FLAG_USER_ID, "", "", fmt.Sprint("Id of the user that wants to log in. (default ", fmt.Sprintf("[$%s]", ENV_VAR_USER_ID), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_USERNAME, "", "", fmt.Sprint("Name of the user that wants to log in. (default ", fmt.Sprintf("[$%s]", ENV_VAR_USERNAME), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_PASSWORD, "", "", fmt.Sprint("Password of the user that wants to log in. If not given the environment variable ", fmt.Sprintf("[$%s]", ENV_VAR_PASSWORD), " will be checked. If no environment variable found then will prompt from terminal."))
@@ -131,6 +134,8 @@ func initRootCmdFlags() {
 	// bind to env variablen
 	viper.BindPFlag(ENV_VAR_AUTH_URL, RootCmd.PersistentFlags().Lookup(FLAG_AUTH_URL))
 	viper.BindEnv(ENV_VAR_AUTH_URL)
+	viper.BindPFlag(ENV_VAR_REGION, RootCmd.PersistentFlags().Lookup(FLAG_REGION))
+	viper.BindEnv(ENV_VAR_REGION)
 	viper.BindPFlag(ENV_VAR_USER_ID, RootCmd.PersistentFlags().Lookup(FLAG_USER_ID))
 	viper.BindEnv(ENV_VAR_USER_ID)
 	viper.BindPFlag(ENV_VAR_USERNAME, RootCmd.PersistentFlags().Lookup(FLAG_USERNAME))

@@ -20,10 +20,7 @@ import (
 	"github.com/howeyc/gopass"
 	"github.com/rackspace/gophercloud"
 	"github.com/rackspace/gophercloud/openstack"
-	"github.com/rackspace/gophercloud/openstack/identity/v3/endpoints"
-	"github.com/rackspace/gophercloud/openstack/identity/v3/services"
 	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
-	"github.com/rackspace/gophercloud/pagination"
 	"github.com/sapcc/lyra-cli/print"
 
 	"github.com/spf13/cobra"
@@ -33,6 +30,7 @@ import (
 
 type LyraAuthOps struct {
 	IdentityEndpoint  string
+	Region            string
 	Username          string
 	UserId            string
 	Password          string
@@ -60,6 +58,7 @@ var AuthenticateCmd = &cobra.Command{
 		// set authentication params
 		lyraAuthOps := LyraAuthOps{
 			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
+			Region:            viper.GetString(ENV_VAR_REGION),
 			Username:          viper.GetString(ENV_VAR_USERNAME),
 			UserId:            viper.GetString(ENV_VAR_USER_ID),
 			Password:          viper.GetString(ENV_VAR_PASSWORD),
@@ -118,37 +117,27 @@ func authenticate(authV3 Authentication) (map[string]string, error) {
 		return map[string]string{}, err
 	}
 
-	// get automation service id from the catalog
-	automationServiceId, err := authV3.GetServiceId("automation")
-	if err != nil {
-		return map[string]string{}, err
-	}
-	// get automation service endpoints from catalog
-	automationPublicEndpoint, err := authV3.GetServicePublicEndpoint(automationServiceId)
-	if err != nil {
-		return map[string]string{}, err
-	}
-
-	// get automation service id from the catalog
-	arcServiceId, err := authV3.GetServiceId("arc")
-	if err != nil {
-		return map[string]string{}, err
-	}
-	// get automation service endpoints from catalog
-	arcPublicEndpoint, err := authV3.GetServicePublicEndpoint(arcServiceId)
-	if err != nil {
-		return map[string]string{}, err
-	}
-
-	// get the token
+	// get the token result
 	token, err := authV3.GetToken()
 	if err != nil {
 		return map[string]string{}, err
 	}
 
+	// arc endpoint
+	arcEndpoint, err := authV3.GetServicePublicEndpoint("arc")
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	// automation endpoint
+	automationEndpoint, err := authV3.GetServicePublicEndpoint("automation")
+	if err != nil {
+		return map[string]string{}, err
+	}
+
 	return map[string]string{
-		ENV_VAR_AUTOMATION_ENDPOINT_NAME: automationPublicEndpoint,
-		ENV_VAR_ARC_ENDPOINT_NAME:        arcPublicEndpoint,
+		ENV_VAR_AUTOMATION_ENDPOINT_NAME: automationEndpoint,
+		ENV_VAR_ARC_ENDPOINT_NAME:        arcEndpoint,
 		ENV_VAR_TOKEN_NAME:               token.ID,
 		TOKEN_EXPIRES_AT:                 token.ExpiresAt.String(),
 	}, nil
@@ -160,13 +149,13 @@ func authenticate(authV3 Authentication) (map[string]string, error) {
 type Authentication interface {
 	CheckAuthenticationParams() error
 	GetToken() (*tokens.Token, error)
-	GetServicePublicEndpoint(serviceId string) (string, error)
-	GetServiceId(serviceType string) (string, error)
+	GetServicePublicEndpoint(serviceType string) (string, error)
 }
 
 type V3 struct {
-	AuthOpts LyraAuthOps
-	client   *gophercloud.ServiceClient
+	AuthOpts     LyraAuthOps
+	client       *gophercloud.ServiceClient
+	commonResult *tokens.CreateResult
 }
 
 func newAuthenticationV3(authOpts LyraAuthOps) Authentication {
@@ -222,12 +211,27 @@ func (a *V3) getClient() (*gophercloud.ServiceClient, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Creates a ServiceClient that may be used to access the v3 identity service
 	return openstack.NewIdentityV3(provider), nil
 }
 
 func (a *V3) GetToken() (*tokens.Token, error) {
+	var err error
+	if a.commonResult == nil {
+		err = a.createTokenCommonResult()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	token, err := a.commonResult.Extract()
+	if err != nil {
+		return nil, err
+	}
+
+	return token, nil
+}
+
+func (a *V3) createTokenCommonResult() error {
 	scope := tokens.Scope{
 		ProjectName: a.AuthOpts.ProjectName,
 		ProjectID:   a.AuthOpts.ProjectId,
@@ -240,93 +244,90 @@ func (a *V3) GetToken() (*tokens.Token, error) {
 	if a.client == nil {
 		a.client, err = a.getClient()
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	// get the token
-	token, err := tokens.Create(a.client, a.getAuthOptions(), &scope).Extract()
-	if err != nil {
-		return nil, err
-	}
+	// get common result
+	result := tokens.Create(a.client, a.getAuthOptions(), &scope)
+	// save common result
+	a.commonResult = &result
 
-	return token, nil
+	return nil
 }
 
-func (a *V3) GetServicePublicEndpoint(serviceId string) (string, error) {
-	// init the v3 client
+func (a *V3) GetServicePublicEndpoint(serviceType string) (string, error) {
+	// get common result
 	var err error
-	if a.client == nil {
-		a.client, err = a.getClient()
+	if a.commonResult == nil {
+		err = a.createTokenCommonResult()
 		if err != nil {
 			return "", err
 		}
 	}
 
-	// get the endpoints
-	publicEndpoint := ""
-	endpointsOpts := endpoints.ListOpts{ServiceID: serviceId, Page: 1, PerPage: 1}
-	endpointsPager := endpoints.List(a.client, endpointsOpts)
-
-	err = endpointsPager.EachPage(func(page pagination.Page) (bool, error) {
-		endpointList, err := endpoints.ExtractEndpoints(page)
+	// get catalog
+	var catalog *tokens.ServiceCatalog
+	if a.commonResult != nil {
+		catalog, err = a.commonResult.ExtractServiceCatalog()
 		if err != nil {
-			return false, err
+			return "", err
 		}
-		if len(endpointList) == 0 {
-			return false, fmt.Errorf("No endpoints for service automation found in catalog.")
+	} else {
+		return "", fmt.Errorf("Authenticate: GetServicePublicEndpoint: Could not get token common result.")
+	}
+
+	// get entry from catalog
+	serviceEntry, err := getServiceEntry(serviceType, catalog)
+	if err != nil {
+		return "", err
+	}
+
+	// get endpoint
+	endpoint, err := getServicePublicEndpoint(a.AuthOpts.Region, serviceEntry)
+	if err != nil {
+		return "", err
+	}
+
+	return endpoint, nil
+}
+
+func getServicePublicEndpoint(region string, entry *tokens.CatalogEntry) (string, error) {
+	if entry != nil && len(entry.Endpoints) > 0 {
+		var endpoint string
+		for _, ep := range entry.Endpoints {
+			if region != "" {
+				if ep.Interface == "public" && ep.Region == region {
+					endpoint = ep.URL
+					break
+				}
+			} else {
+				if ep.Interface == "public" {
+					endpoint = ep.URL
+					break
+				}
+			}
 		}
-		for _, e := range endpointList {
-			if e.Availability == "public" {
-				publicEndpoint = e.URL
+		return endpoint, nil
+	} else {
+		return "", fmt.Errorf("Authenticate: getServicePublicEndpoint: entry nil or no endpoints found for %+v.", entry)
+	}
+	return "", nil
+}
+
+func getServiceEntry(serviceType string, catalog *tokens.ServiceCatalog) (*tokens.CatalogEntry, error) {
+	if catalog != nil && len(catalog.Entries) > 0 {
+		serviceEntry := tokens.CatalogEntry{}
+		for _, service := range catalog.Entries {
+			if service.Type == serviceType {
+				serviceEntry = service
 				break
 			}
 		}
-		if len(publicEndpoint) == 0 {
-			return false, fmt.Errorf("No service automation public url found in catalog.")
-		}
-		return true, nil
-	})
-	if err != nil {
-		return "", err
+		return &serviceEntry, nil
+	} else {
+		return nil, fmt.Errorf("Authenticate: GetServicePublicEndpoint: catalog nil or emtpy.")
 	}
 
-	return publicEndpoint, nil
-}
-
-func (a *V3) GetServiceId(serviceType string) (string, error) {
-	// init the v3 client
-	var err error
-	if a.client == nil {
-		a.client, err = a.getClient()
-		if err != nil {
-			return "", err
-		}
-	}
-
-	// get the service
-	serviceId := ""
-	opts := services.ListOpts{ServiceType: serviceType, Page: 1, PerPage: 1}
-	servicesPager := services.List(a.client, opts)
-
-	err = servicesPager.EachPage(func(page pagination.Page) (bool, error) {
-		servicesList, err := services.ExtractServices(page)
-		if err != nil {
-			return false, err
-		}
-		if len(servicesList) != 1 {
-			return false, fmt.Errorf("No service automation found in catalog.")
-		}
-		if len(servicesList[0].ID) == 0 {
-			return false, fmt.Errorf("No service automation id found in catalog.")
-		}
-		// save the automation id
-		serviceId = servicesList[0].ID
-		return true, nil
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return serviceId, nil
+	return nil, nil
 }

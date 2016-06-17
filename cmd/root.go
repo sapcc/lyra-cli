@@ -71,9 +71,10 @@ var (
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "lyra",
-	Short: locales.CmdShortDescription("root"),
-	Long:  locales.CmdLongDescription("root"),
+	Use:          "lyra",
+	Short:        locales.CmdShortDescription("root"),
+	Long:         locales.CmdLongDescription("root"),
+	SilenceUsage: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
 		err := setupRestClient(nil, false)

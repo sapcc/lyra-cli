@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e -x
+
+export GOPATH=$PWD/gopath
+export GOARCH=amd64
+
+pkg=github.com/sapcc/lyra-cli
+version=$(cat cli.version/current)
+gitcommit=$(git -C gopath/src/$pkg rev-parse --short HEAD)
+ldflags="-s -w"
+ldflags="$ldflags -X $pkg/version.Version=$version"
+ldflags="$ldflags -X $pkg/version.GITCOMMIT=$gitcommit"
+ext=$( [ "$GOOS" = "windows" ] && echo .exe )
+
+go build -o binary/lyra_$GOOS$ext -ldflags "$ldflags" $pkg 

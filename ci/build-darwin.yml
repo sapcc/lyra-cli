@@ -1,0 +1,16 @@
+---
+platform: darwin 
+
+inputs:
+- name: cli.version
+- name: cli.git 
+  path: gopath/src/github.com/sapcc/lyra-cli
+
+outputs:
+- name: binary
+
+run:
+  path: gopath/src/github.com/sapcc/lyra-cli/ci/build
+
+params:
+  GOOS: darwin

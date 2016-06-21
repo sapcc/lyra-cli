@@ -2,7 +2,7 @@
 
 set -e -x
 
-version=$(cat build/version)
+version=$(cat cli.version/current)
 echo "v$version" > release/name
 echo "v$version" > release/tag
 git -C cli.git rev-parse HEAD > release/commitish
@@ -12,4 +12,5 @@ A release candidate of the lyra cli.
 EOF
 
 mkdir release/artifacts
-cp build/* release/artifacts/
+cp binary-*/* release/artifacts/
+upx release/artifacts/*

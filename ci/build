@@ -11,6 +11,6 @@ gitcommit=$(git -C gopath/src/$pkg rev-parse --short HEAD)
 ldflags="-s -w"
 ldflags="$ldflags -X $pkg/version.Version=$version"
 ldflags="$ldflags -X $pkg/version.GITCOMMIT=$gitcommit"
-ext=$( [ "$GOOS" = "windows" ] && echo .exe )
 
+[ "$GOOS" = "windows" ] && ext=.exe 
 go build -o binary/lyra_$GOOS$ext -ldflags "$ldflags" $pkg 

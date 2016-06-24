@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG = "instance-identifier"
+	ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG = "node-identifier"
 	ARC_INSTALL_INSTANCE_OS_FLAG         = "instance-os"
 	ARC_INSTALL_PKI_URL_FLAG             = "pki-service-url"
 	ARC_INSTALL_UPDATE_URL_FLAG          = "update-service-url"

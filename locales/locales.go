@@ -23,6 +23,11 @@ var attrDesc = map[string]string{
 	"automation-path":                 `Path to the script`,
 	"automation-arguments":            `Arguments is an array of strings. Array of strings are separated by ','.`,
 	"automation-environment":          `Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.`,
+	"arc-install-identifier":          "Compute instance id or external instance identifier.",
+	"arc-install-os":                  "Instance's operating system. Available OS are linux or windows.",
+	"update-service-url":              "Url to the arc update server.",
+	"pki-service-url":                 "Url to the arc pki server.",
+	"arc-broker-url":                  "Url to the arc broker.",
 }
 
 var errMsg = map[string]string{
@@ -35,7 +40,7 @@ var errMsg = map[string]string{
 
 var cmdShortDescription = map[string]string{
 	"arc":                               "Remote job execution framework.",
-	"arc-install":                       "Install script for an arc node.",
+	"arc-install":                       "Retrieves the script used to install arc nodes on instances.",
 	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
 	"automation-create-chef":            "Create a new chef automation.",
 	"automation-create-script":          "Create a new script automation.",
@@ -57,8 +62,6 @@ var cmdShortDescription = map[string]string{
 	"run-show":                          "Show a specific automation run",
 	"run":                               "Automation run service.",
 	"version":                           "Show program's version number and exit.",
-	"arc-install-identifier":            "Compute instance id or external instance identifier.",
-	"arc-install-os":                    "Instance's operating system. Available OS are linux or windows",
 }
 
 var cmdLongDescription = map[string]string{

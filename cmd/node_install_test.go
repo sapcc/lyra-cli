@@ -40,7 +40,7 @@ func TestNodeInstallOSRequired(t *testing.T) {
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --instance-identifier=%s", "http://some_test_url", "user", "project", "123456789", "identifier"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s", "http://some_test_url", "user", "project", "123456789", "identifier"))
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}
@@ -68,7 +68,7 @@ chmod +x /opt/arc/arc
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --instance-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", server.URL))
 	if resulter.Error != nil {
 		t.Error(`Command expected to get an error`)
 	}
@@ -91,7 +91,7 @@ C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --upd
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --instance-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "windows", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "windows", server.URL))
 	if resulter.Error != nil {
 		t.Error(`Command expected to get an error`)
 	}
@@ -114,7 +114,7 @@ chmod +x /opt/arc/arc
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --instance-identifier=%s --instance-os=%s --update-service-url=%s --arc-broker-url=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", "http://test_update_url", "http://test_broker_url", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --update-service-url=%s --arc-broker-url=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", "http://test_update_url", "http://test_broker_url", server.URL))
 	if resulter.Error != nil {
 		t.Error(`Command expected to get an error`)
 	}

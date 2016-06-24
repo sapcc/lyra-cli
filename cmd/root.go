@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/restclient"
 )
@@ -174,13 +175,13 @@ func initConfig() {
 }
 
 // setup the rest client
-func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
+func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) error {
 	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
 		fmt.Println("Using password authentication.")
 
 		// authentication object
 		if authV3 == nil {
-			lyraAuthOps := LyraAuthOps{
+			lyraAuthOps := auth.AuthOptions{
 				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
 				Username:          viper.GetString(ENV_VAR_USERNAME),
 				UserId:            viper.GetString(ENV_VAR_USER_ID),
@@ -193,7 +194,7 @@ func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
 				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
 			}
 
-			newAuthV3 := AuthenticationV3(lyraAuthOps)
+			newAuthV3 := auth.AuthenticationV3(lyraAuthOps)
 			authV3 = &newAuthV3
 		}
 

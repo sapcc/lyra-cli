@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetAutomationShow() {
@@ -13,17 +15,17 @@ func resetAutomationShow() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationShow(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3AutomationShow(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestAutomationShowCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3AutomationShow
+	auth.AuthenticationV3 = newMockAuthenticationV3AutomationShow
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+

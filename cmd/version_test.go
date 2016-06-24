@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -15,9 +16,11 @@ func TestVersionAuthenticationNotRequired(t *testing.T) {
 	// check
 	resulter := FullCmdTester(RootCmd, "lyra version")
 	if resulter.Error != nil {
-		t.Error(`Command expected to not get an error`)
+		t.Error(fmt.Sprint(`Command expected to not get an error. `, resulter.Error))
 	}
+
 	if !strings.Contains(resulter.Output, AutomationUpdateCmd.Long) {
-		t.Error(`Command response body doesn't match.'`)
+		diffString := StringDiff(resulter.Output, AutomationUpdateCmd.Long)
+		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
 	}
 }

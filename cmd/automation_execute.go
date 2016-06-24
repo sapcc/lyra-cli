@@ -23,14 +23,15 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
 
 var (
-	ExecuteAuthOps = LyraAuthOps{}
-	ExecuteAuthV3  = AuthenticationV3(ExecuteAuthOps)
+	ExecuteAuthOps = auth.AuthOptions{}
+	ExecuteAuthV3  = auth.AuthenticationV3(ExecuteAuthOps)
 )
 
 // updateCmd represents the update command
@@ -52,7 +53,7 @@ var AutomationExecuteCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if viper.GetBool("watch") {
 			// keep the auth options for reauthentication
-			ExecuteAuthOps = LyraAuthOps{
+			ExecuteAuthOps = auth.AuthOptions{
 				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
 				Username:          viper.GetString(ENV_VAR_USERNAME),
 				UserId:            viper.GetString(ENV_VAR_USER_ID),
@@ -64,7 +65,7 @@ var AutomationExecuteCmd = &cobra.Command{
 				ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
 				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
 			}
-			ExecuteAuthV3 = AuthenticationV3(ExecuteAuthOps)
+			ExecuteAuthV3 = auth.AuthenticationV3(ExecuteAuthOps)
 			// force reauthenticate with password and keep values
 			err := setupRestClient(&ExecuteAuthV3, true)
 			if err != nil {

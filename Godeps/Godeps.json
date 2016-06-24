@@ -176,7 +176,7 @@
 		},
 		{
 			"ImportPath": "github.com/sapcc/go-openstack-auth",
-			"Rev": "7f4f288d27e609d94ea849af0381091daea1df97"
+			"Rev": "e980d6cd9d9e3b81405a06c13d36b40abeed4141"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/ssh/terminal",

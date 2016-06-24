@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetJobList() {
@@ -15,17 +17,17 @@ func resetJobList() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3JobList(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3JobList(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `[{"request_id": "f1b18c11-5838-44d2-8651-66aa4083bd19", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestJobListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3JobList
+	auth.AuthenticationV3 = newMockAuthenticationV3JobList
 	want := `+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
 |              REQUEST ID              | STATUS | ACTION | AGENT |   USER ID   |         CREATED AT          |
 +--------------------------------------+--------+--------+-------+-------------+-----------------------------+

@@ -1,6 +1,8 @@
 package goOpenstackAuth
 
 import (
+	"net/http/httptest"
+
 	"github.com/rackspace/gophercloud/openstack/identity/v3/tokens"
 )
 
@@ -9,12 +11,17 @@ import (
 //
 
 type MockV3 struct {
-	Options     AuthV3Options
+	Options     AuthOptions
 	tokenResult *tokens.CreateResult
+	TestServer  *httptest.Server
 }
 
-func NewMockAuthenticationV3(authOpts AuthV3Options) Authentication {
+func NewMockAuthenticationV3(authOpts AuthOptions) Authentication {
 	return &MockV3{Options: authOpts}
+}
+
+func (a *MockV3) GetOptions() *AuthOptions {
+	return &a.Options
 }
 
 func (a *MockV3) GetToken() (*tokens.Token, error) {
@@ -23,19 +30,24 @@ func (a *MockV3) GetToken() (*tokens.Token, error) {
 }
 
 func (a *MockV3) GetServiceEndpoint(serviceType, region, serviceInterface string) (string, error) {
-	// get entry from catalog
-	serviceEntry, err := getServiceEntry(serviceType, &Catalog1)
-	if err != nil {
-		return "", err
-	}
+	if a.TestServer != nil {
+		return a.TestServer.URL, nil
+	} else {
+		// get entry from catalog
+		serviceEntry, err := getServiceEntry(serviceType, &Catalog1)
+		if err != nil {
+			return "", err
+		}
 
-	// get endpoint
-	endpoint, err := getServiceEndpoint(region, serviceInterface, serviceEntry)
-	if err != nil {
-		return "", err
-	}
+		// get endpoint
+		endpoint, err := getServiceEndpoint(region, serviceInterface, serviceEntry)
+		if err != nil {
+			return "", err
+		}
 
-	return endpoint, nil
+		return endpoint, nil
+	}
+	return "", nil
 }
 
 func (a *MockV3) GetProject() (*Project, error) {

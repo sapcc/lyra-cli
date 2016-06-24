@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/helpers"
 )
 
@@ -17,17 +18,17 @@ func resetAutomationCreateChefFlagVars() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationCreateChef(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3AutomationCreateChef(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3AutomationCreateChef
+	auth.AuthenticationV3 = newMockAuthenticationV3AutomationCreateChef
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+

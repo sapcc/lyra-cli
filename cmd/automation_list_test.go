@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetAutomationList() {
@@ -15,12 +17,12 @@ func resetAutomationList() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationList(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3AutomationList(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
@@ -49,7 +51,7 @@ func TestAutomationListCmdWithEndpointsTokenFlag(t *testing.T) {
 
 func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3AutomationList
+	auth.AuthenticationV3 = newMockAuthenticationV3AutomationList
 	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
 | ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
 +----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+

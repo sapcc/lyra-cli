@@ -46,9 +46,8 @@ var NodeInstallCmd = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// set authentication params
-		options := auth.AuthV3Options{
+		options := auth.AuthOptions{
 			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-			Region:            viper.GetString(ENV_VAR_REGION),
 			Username:          viper.GetString(ENV_VAR_USERNAME),
 			UserId:            viper.GetString(ENV_VAR_USER_ID),
 			Password:          viper.GetString(ENV_VAR_PASSWORD),
@@ -100,7 +99,7 @@ func init() {
 	initNodeInstallCmdFlags()
 }
 
-func checkArcInstallAuthParams(opts *auth.AuthV3Options) error {
+func checkArcInstallAuthParams(opts *auth.AuthOptions) error {
 	// check some params
 	if len(opts.UserId) == 0 && len(opts.Username) == 0 {
 		return fmt.Errorf("Flag %s or '%s not given.", FLAG_USER_ID, FLAG_USERNAME)

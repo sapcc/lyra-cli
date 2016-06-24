@@ -1,14 +1,11 @@
 package cmd
 
 import (
-	// "bytes"
-	// "encoding/json"
 	"fmt"
-	// "io/ioutil"
-	// "os"
-	// "github.com/sapcc/lyra-cli/helpers"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetAutomationCreateScriptFlagVars() {
@@ -16,7 +13,7 @@ func resetAutomationCreateScriptFlagVars() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationCreateScript(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3AutomationCreateScript(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `{
   "arguments": null,
@@ -41,12 +38,12 @@ func newMockAuthenticationV3AutomationCreateScript(authOpts LyraAuthOps) Authent
 }`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3AutomationCreateScript
+	auth.AuthenticationV3 = newMockAuthenticationV3AutomationCreateScript
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+

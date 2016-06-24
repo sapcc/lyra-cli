@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetJobLog() {
@@ -11,17 +13,17 @@ func resetJobLog() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3JobLog(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3JobLog(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `This is a job log`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestJobLogCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3JobLog
+	auth.AuthenticationV3 = newMockAuthenticationV3JobLog
 	want := `This is a job log`
 
 	// reset stuff

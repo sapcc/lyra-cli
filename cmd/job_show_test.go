@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetJobShow() {
@@ -13,7 +15,7 @@ func resetJobShow() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3JobShow(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3JobShow(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `{
   "version": 1,
@@ -32,12 +34,12 @@ func newMockAuthenticationV3JobShow(authOpts LyraAuthOps) Authentication {
 }`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestJobShowCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3JobShow
+	auth.AuthenticationV3 = newMockAuthenticationV3JobShow
 	want := `+------------+---------------------------------------------------------------------------------------------------------------------------------------------------------+
 |    KEY     |                                                                          VALUE                                                                          |
 +------------+---------------------------------------------------------------------------------------------------------------------------------------------------------+

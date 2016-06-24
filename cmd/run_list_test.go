@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetRunList() {
@@ -15,7 +17,7 @@ func resetRunList() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3RunList(authOpts LyraAuthOps) Authentication {
+func newMockAuthenticationV3RunList(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
 	responseBody := `[{
   "id": "30",
@@ -27,12 +29,12 @@ func newMockAuthenticationV3RunList(authOpts LyraAuthOps) Authentication {
 }]`
 	server := TestServer(200, responseBody, map[string]string{})
 
-	return &MockV3{AuthOpts: authOpts, TestServer: server}
+	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestRunListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
-	AuthenticationV3 = newMockAuthenticationV3RunList
+	auth.AuthenticationV3 = newMockAuthenticationV3RunList
 	want := `+----+---------------+-----------------+-----------+-------------+--------------------------+
 | ID | AUTOMATION ID | AUTOMATION NAME |   STATE   |    OWNER    |        CREATED AT        |
 +----+---------------+-----------------+-----------+-------------+--------------------------+

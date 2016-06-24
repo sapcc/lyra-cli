@@ -84,7 +84,8 @@ func initRunShowCmdFlags() {
 }
 
 func runShow(id string) (string, error) {
-	response, _, err := RestClient.Services.Automation.Get(path.Join("runs", id), url.Values{}, false)
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.Get(path.Join("runs", id), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

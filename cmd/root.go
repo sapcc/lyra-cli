@@ -226,13 +226,13 @@ func setupRestClient(authV3 *Authentication, forceReauthenticate bool) error {
 	}
 	arcUri.Path = path.Join(arcUri.Path, "/api/v1/")
 
-	services := restclient.Services{
-		Automation: restclient.Endpoint{Url: autoUri.String()},
-		Arc:        restclient.Endpoint{Url: arcUri.String()},
+	endpoints := []restclient.Endpoint{
+		restclient.Endpoint{ID: "automation", Url: autoUri.String()},
+		restclient.Endpoint{ID: "arc", Url: arcUri.String()},
 	}
 
 	// init rest client
-	RestClient = restclient.NewClient(services, viper.GetString(ENV_VAR_TOKEN_NAME))
+	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME))
 
 	return nil
 }

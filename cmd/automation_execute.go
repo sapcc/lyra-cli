@@ -154,7 +154,8 @@ func automationRun() (string, error) {
 		return "", err
 	}
 	// send request
-	response, _, err := RestClient.Services.Automation.Post("runs", url.Values{}, string(body))
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.Post("runs", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

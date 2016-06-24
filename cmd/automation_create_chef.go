@@ -16,9 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
-	"runtime"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -110,16 +108,6 @@ func initAutomationCreateChefCmdFlags() {
 
 // private
 
-func createViperKey(flag string) string {
-	_, filename, _, _ := runtime.Caller(1)
-
-	fmt.Println("°°°")
-	fmt.Println(filename)
-	fmt.Println("°°°")
-
-	return fmt.Sprint(filename, "_", flag)
-}
-
 func setupAutomationChefAttr(chef *Chef) error {
 	chef.Tags = helpers.StringTokeyValueMap(viper.GetString("automation-create-chef-tags"))
 	chef.Runlist = helpers.StringToArray(viper.GetString("automation-create-chef-runlist"))
@@ -155,7 +143,8 @@ func automationCreateChef(chef *Chef) (string, error) {
 		return "", err
 	}
 
-	response, _, err := RestClient.Services.Automation.Post("automations", url.Values{}, string(body))
+	automationClient := RestClient.Services["automation"]
+	response, _, err := automationClient.Post("automations", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

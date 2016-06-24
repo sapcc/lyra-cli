@@ -108,7 +108,8 @@ func automationCreateScript(scriptObj *Script) (string, error) {
 		return "", err
 	}
 
-	response, _, err := RestClient.Services.Automation.Post("automations", url.Values{}, string(body))
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.Post("automations", url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

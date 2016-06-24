@@ -135,7 +135,7 @@ func TestAuthenticationResultJSON(t *testing.T) {
 // Test region
 //
 
-func TestAuthenticationNotGivenAWrongRegion(t *testing.T) {
+func TestAuthenticationNotGivenARegion(t *testing.T) {
 	// should return first entry from endpoints
 	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
 export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***

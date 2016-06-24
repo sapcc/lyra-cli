@@ -19,19 +19,21 @@ import (
 var AUTOMATION_URI = "https://automation-staging.***REMOVED***/api/v1/"
 
 type Client struct {
-	Services Services
+	Services map[string]Endpoint
 	Token    string
 }
 
 type Endpoint struct {
+	ID    string
 	Url   string
 	token string
 }
 
-type Services struct {
-	Automation Endpoint
-	Arc        Endpoint
-}
+// type Services struct {
+//   Automation Endpoint
+//   Arc        Endpoint
+//   Services   map[string]Endpoint
+// }
 
 type Pagination struct {
 	Page    int `json:"page"`
@@ -44,9 +46,16 @@ type PagResp struct {
 	Data       []interface{} `json:"data"`
 }
 
-func NewClient(services Services, token string) *Client {
-	services.Automation.token = token
-	services.Arc.token = token
+func NewClient(endpoints []Endpoint, token string) *Client {
+	// services.Automation.token = token
+	// services.Arc.token = token
+
+	services := map[string]Endpoint{}
+	for _, e := range endpoints {
+		e.token = token
+		services[e.ID] = e
+	}
+
 	return &Client{
 		Services: services,
 		Token:    token,

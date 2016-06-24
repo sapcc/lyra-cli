@@ -121,7 +121,8 @@ func setupAutomationUpdateChefAttributes(chefObj *Chef) error {
 }
 
 func automationUpdateChefAttributes(chefObj *Chef) (string, error) {
-	response, code, err := RestClient.Services.Automation.Get(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, false)
+	automationService := RestClient.Services["automation"]
+	response, code, err := automationService.Get(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}
@@ -147,7 +148,7 @@ func automationUpdateChefAttributes(chefObj *Chef) (string, error) {
 	}
 
 	// send data back
-	newResp, _, err := RestClient.Services.Automation.Put(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, string(body))
+	newResp, _, err := automationService.Put(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

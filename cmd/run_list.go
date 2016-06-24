@@ -63,7 +63,8 @@ func initRunListCmdFlags() {
 }
 
 func runList() (interface{}, error) {
-	response, _, err := RestClient.Services.Automation.GetList("runs", url.Values{})
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.GetList("runs", url.Values{})
 	if err != nil {
 		return "", err
 	}

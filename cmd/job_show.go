@@ -84,7 +84,8 @@ func initJobShowCmdFlags() {
 }
 
 func jobShow(id string) (string, error) {
-	response, _, err := RestClient.Services.Arc.Get(path.Join("jobs", id), url.Values{}, false)
+	arcService := RestClient.Services["arc"]
+	response, _, err := arcService.Get(path.Join("jobs", id), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

@@ -34,6 +34,8 @@ var errMsg = map[string]string{
 }
 
 var cmdShortDescription = map[string]string{
+	"arc":                               "Remote job execution framework.",
+	"arc-install":                       "Install script for an arc node.",
 	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
 	"automation-create-chef":            "Create a new chef automation.",
 	"automation-create-script":          "Create a new script automation.",
@@ -55,6 +57,8 @@ var cmdShortDescription = map[string]string{
 	"run-show":                          "Show a specific automation run",
 	"run":                               "Automation run service.",
 	"version":                           "Show program's version number and exit.",
+	"arc-install-identifier":            "Compute instance id or external instance identifier.",
+	"arc-install-os":                    "Instance's operating system. Available OS are linux or windows",
 }
 
 var cmdLongDescription = map[string]string{

@@ -63,7 +63,8 @@ func initJobListCmdFlags() {
 }
 
 func jobList() (interface{}, error) {
-	response, _, err := RestClient.Services.Arc.GetList("jobs", url.Values{})
+	arcService := RestClient.Services["arc"]
+	response, _, err := arcService.GetList("jobs", url.Values{})
 	if err != nil {
 		return "", err
 	}

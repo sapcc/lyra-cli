@@ -65,7 +65,8 @@ func initAutomationListCmdFlags() {
 
 func automationList() (interface{}, error) {
 	// collect all automations do the pagination
-	response, _, err := RestClient.Services.Automation.GetList("automations", url.Values{})
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.GetList("automations", url.Values{})
 	if err != nil {
 		return "", err
 	}

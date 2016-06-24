@@ -85,7 +85,8 @@ func initAutomationShowCmdFlags() {
 }
 
 func automationShow() (string, error) {
-	response, _, err := RestClient.Services.Automation.Get(path.Join("automations", viper.GetString("show-automation-id")), url.Values{}, false)
+	automationService := RestClient.Services["automation"]
+	response, _, err := automationService.Get(path.Join("automations", viper.GetString("show-automation-id")), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}

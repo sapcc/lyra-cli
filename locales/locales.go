@@ -40,7 +40,7 @@ var errMsg = map[string]string{
 
 var cmdShortDescription = map[string]string{
 	"arc":                               "Remote job execution framework.",
-	"arc-install":                       "Retrieves the script used to install arc nodes on instances.",
+	"arc-install":                       "Retrieves the script used to install arc nodes on instances. User authentication flags are mandatory.",
 	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
 	"automation-create-chef":            "Create a new chef automation.",
 	"automation-create-script":          "Create a new script automation.",

@@ -21,15 +21,15 @@ import (
 
 var ()
 
-var ArcCmd = &cobra.Command{
+var NodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: locales.CmdShortDescription("arc"),
 }
 
 func init() {
-	RootCmd.AddCommand(ArcCmd)
-	initArcCmdFlags()
+	RootCmd.AddCommand(NodeCmd)
+	initNodeCmdFlags()
 }
 
-func initArcCmdFlags() {
+func initNodeCmdFlags() {
 }

@@ -29,8 +29,6 @@ import (
 	"github.com/sapcc/lyra-cli/restclient"
 )
 
-var ()
-
 const (
 	ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG = "instance-identifier"
 	ARC_INSTALL_INSTANCE_OS_FLAG         = "instance-os"
@@ -39,7 +37,7 @@ const (
 	ARC_INSTALL_ARC_BROKER_URL_FLAG      = "arc-broker-url"
 )
 
-var ArcInstallCmd = &cobra.Command{
+var NodeInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: locales.CmdShortDescription("arc-install"),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -90,17 +88,16 @@ var ArcInstallCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("°°°")
-		fmt.Printf("%+v\n", script)
-		fmt.Println("°°°")
+		// print response
+		cmd.Println(script)
 
 		return nil
 	},
 }
 
 func init() {
-	ArcCmd.AddCommand(ArcInstallCmd)
-	initArcInstallCmdFlags()
+	NodeCmd.AddCommand(NodeInstallCmd)
+	initNodeInstallCmdFlags()
 }
 
 func checkArcInstallAuthParams(opts *auth.AuthV3Options) error {
@@ -146,17 +143,17 @@ func checkArcInstallParams() error {
 	return nil
 }
 
-func initArcInstallCmdFlags() {
-	ArcInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, "", "", locales.AttributeDescription("arc-install-identifier"))
-	viper.BindPFlag(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, ArcInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG))
-	ArcInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_OS_FLAG, "", "", locales.AttributeDescription("arc-install-os"))
-	viper.BindPFlag(ARC_INSTALL_INSTANCE_OS_FLAG, ArcInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_OS_FLAG))
-	ArcInstallCmd.Flags().StringP(ARC_INSTALL_UPDATE_URL_FLAG, "", "https://arc-updates.***REMOVED***", locales.AttributeDescription("update-service-url"))
-	viper.BindPFlag(ARC_INSTALL_UPDATE_URL_FLAG, ArcInstallCmd.Flags().Lookup(ARC_INSTALL_UPDATE_URL_FLAG))
-	ArcInstallCmd.Flags().StringP(ARC_INSTALL_PKI_URL_FLAG, "", "https://arc-pki.***REMOVED***", locales.AttributeDescription("pki-service-url"))
-	viper.BindPFlag(ARC_INSTALL_PKI_URL_FLAG, ArcInstallCmd.Flags().Lookup(ARC_INSTALL_PKI_URL_FLAG))
-	ArcInstallCmd.Flags().StringP(ARC_INSTALL_ARC_BROKER_URL_FLAG, "", "tls://arc-broker.***REMOVED***:8883", locales.AttributeDescription("arc-broker-url"))
-	viper.BindPFlag(ARC_INSTALL_ARC_BROKER_URL_FLAG, ArcInstallCmd.Flags().Lookup(ARC_INSTALL_ARC_BROKER_URL_FLAG))
+func initNodeInstallCmdFlags() {
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, "", "", locales.AttributeDescription("arc-install-identifier"))
+	viper.BindPFlag(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_OS_FLAG, "", "", locales.AttributeDescription("arc-install-os"))
+	viper.BindPFlag(ARC_INSTALL_INSTANCE_OS_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_OS_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_UPDATE_URL_FLAG, "", "https://arc-updates.***REMOVED***", locales.AttributeDescription("update-service-url"))
+	viper.BindPFlag(ARC_INSTALL_UPDATE_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_UPDATE_URL_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_PKI_URL_FLAG, "", "https://arc-pki.***REMOVED***", locales.AttributeDescription("pki-service-url"))
+	viper.BindPFlag(ARC_INSTALL_PKI_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_PKI_URL_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_ARC_BROKER_URL_FLAG, "", "tls://arc-broker.***REMOVED***:8883", locales.AttributeDescription("arc-broker-url"))
+	viper.BindPFlag(ARC_INSTALL_ARC_BROKER_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_ARC_BROKER_URL_FLAG))
 }
 
 func generateScript(token, projectId, domainId string) (string, error) {

@@ -28,10 +28,13 @@ func TestAuthenticationUserIdOrNameRequired(t *testing.T) {
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}
+}
+
+func TestAuthenticationProjectIdOrNameRequired(t *testing.T) {
 	// reset params
 	resetAuthenticate()
 	// run cmd
-	resulter = FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --project-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}

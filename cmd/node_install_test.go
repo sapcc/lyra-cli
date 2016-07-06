@@ -57,9 +57,9 @@ func TestNodeInstallIdentifierRequired(t *testing.T) {
 }
 
 func TestNodeInstallLinuxSuccessDefaultUrls(t *testing.T) {
-	want := `curl --create-dirs -o /opt/arc/arc https://arc-updates.***REMOVED***/builds/latest/arc/linux/amd64
+	want := `curl --create-dirs -o /opt/arc/arc https://beta.arc.***REMOVED***/arc/linux/amd64/latest
 chmod +x /opt/arc/arc
-/opt/arc/arc init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://arc-updates.***REMOVED***/updates --registration-url this_is_mock_registration_url`
+/opt/arc/arc init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://beta.arc.***REMOVED*** --registration-url this_is_mock_registration_url`
 
 	// set test server
 	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`
@@ -81,8 +81,8 @@ chmod +x /opt/arc/arc
 
 func TestNodeInstallWindowsSuccessDefaultUrls(t *testing.T) {
 	want := `mkdir C:\monsoon\arc
-powershell (new-object System.Net.WebClient).DownloadFile('https://arc-updates.***REMOVED***/builds/latest/arc/windows/amd64','C:\monsoon\arc\arc.exe')
-C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://arc-updates.***REMOVED***/updates --registration-url this_is_mock_registration_url`
+powershell (new-object System.Net.WebClient).DownloadFile('https://beta.arc.***REMOVED***/arc/windows/amd64/latest','C:\monsoon\arc\arc.exe')
+C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://beta.arc.***REMOVED*** --registration-url this_is_mock_registration_url`
 
 	// set test server
 	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`
@@ -103,9 +103,9 @@ C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --upd
 }
 
 func TestNodeInstallLinuxSuccessNotDefaultUrls(t *testing.T) {
-	want := `curl --create-dirs -o /opt/arc/arc http://test_update_url/builds/latest/arc/linux/amd64
+	want := `curl --create-dirs -o /opt/arc/arc http://test_update_url/arc/linux/amd64/latest
 chmod +x /opt/arc/arc
-/opt/arc/arc init --endpoint http://test_broker_url --update-uri http://test_update_url/updates --registration-url this_is_mock_registration_url`
+/opt/arc/arc init --endpoint http://test_broker_url --update-uri http://test_update_url --registration-url this_is_mock_registration_url`
 
 	// set test server
 	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`

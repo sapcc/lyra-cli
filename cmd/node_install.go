@@ -147,7 +147,7 @@ func initNodeInstallCmdFlags() {
 	viper.BindPFlag(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG))
 	NodeInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_OS_FLAG, "", "", locales.AttributeDescription("arc-install-os"))
 	viper.BindPFlag(ARC_INSTALL_INSTANCE_OS_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_OS_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_UPDATE_URL_FLAG, "", "https://arc-updates.***REMOVED***", locales.AttributeDescription("update-service-url"))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_UPDATE_URL_FLAG, "", "https://beta.arc.***REMOVED***", locales.AttributeDescription("update-service-url"))
 	viper.BindPFlag(ARC_INSTALL_UPDATE_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_UPDATE_URL_FLAG))
 	NodeInstallCmd.Flags().StringP(ARC_INSTALL_PKI_URL_FLAG, "", "https://arc-pki.***REMOVED***", locales.AttributeDescription("pki-service-url"))
 	viper.BindPFlag(ARC_INSTALL_PKI_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_PKI_URL_FLAG))
@@ -177,14 +177,13 @@ func processRequest(registrationUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	latestBuildUrl.Path = path.Join(latestBuildUrl.Path, "builds/latest/arc", viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG), "amd64")
+	latestBuildUrl.Path = path.Join(latestBuildUrl.Path, "arc", viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG), "amd64", "latest")
 
 	// update url
 	updateUrl, err := url.Parse(viper.GetString(ARC_INSTALL_UPDATE_URL_FLAG))
 	if err != nil {
 		return "", err
 	}
-	updateUrl.Path = path.Join(updateUrl.Path, "updates")
 
 	// build script
 	var buffer bytes.Buffer

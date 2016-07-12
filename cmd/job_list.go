@@ -41,7 +41,7 @@ var JobListCmd = &cobra.Command{
 				return err
 			}
 		} else {
-			tablePrint, err = printer.TableList([]string{"request_id", "status", "action", "agent", "user_id", "created_at"})
+			tablePrint, err = printer.TableList([]string{"request_id", "status", "action", "agent", "user", "created_at"})
 			if err != nil {
 				return err
 			}

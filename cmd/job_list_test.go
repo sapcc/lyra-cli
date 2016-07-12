@@ -19,7 +19,7 @@ func resetJobList() {
 
 func newMockAuthenticationV3JobList(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
-	responseBody := `[{"request_id": "f1b18c11-5838-44d2-8651-66aa4083bd19", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"}]`
+	responseBody := `[{"request_id": "10ed3681-0f48-4564-a3fd-c7dfcb0c87c1", "agent": "execute", "action": "tarball", "status": "complete", "created_at": "2016-06-24T11:52:06.834057Z", "user": {"name": "user123"}}]`
 	server := TestServer(200, responseBody, map[string]string{})
 
 	return &auth.MockV3{Options: authOpts, TestServer: server}
@@ -28,11 +28,11 @@ func newMockAuthenticationV3JobList(authOpts auth.AuthOptions) auth.Authenticati
 func TestJobListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test
 	auth.AuthenticationV3 = newMockAuthenticationV3JobList
-	want := `+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
-|              REQUEST ID              | STATUS | ACTION | AGENT |   USER ID   |         CREATED AT          |
-+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
-| f1b18c11-5838-44d2-8651-66aa4083bd19 | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:02.260715Z |
-+--------------------------------------+--------+--------+-------+-------------+-----------------------------+`
+	want := `+--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
+|              REQUEST ID              |  STATUS  | ACTION  |  AGENT  |       USER        |         CREATED AT          |
++--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
+| 10ed3681-0f48-4564-a3fd-c7dfcb0c87c1 | complete | tarball | execute | map[name:user123] | 2016-06-24T11:52:06.834057Z |
++--------------------------------------+----------+---------+---------+-------------------+-----------------------------+`
 
 	// reset stuff
 	resetAutomationList()
@@ -59,14 +59,14 @@ func TestJobListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
 
 func TestJobListCmdResultTable(t *testing.T) {
 	// set test server
-	responseBody := `[{"request_id": "f1b18c11-5838-44d2-8651-66aa4083bd19", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"}]`
+	responseBody := `[{"request_id": "10ed3681-0f48-4564-a3fd-c7dfcb0c87c1", "agent": "execute", "action": "tarball", "status": "complete", "created_at": "2016-06-24T11:52:06.834057Z", "user": {"name": "user123"}}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-	want := `+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
-|              REQUEST ID              | STATUS | ACTION | AGENT |   USER ID   |         CREATED AT          |
-+--------------------------------------+--------+--------+-------+-------------+-----------------------------+
-| f1b18c11-5838-44d2-8651-66aa4083bd19 | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:02.260715Z |
-+--------------------------------------+--------+--------+-------+-------------+-----------------------------+`
+	want := `+--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
+|              REQUEST ID              |  STATUS  | ACTION  |  AGENT  |       USER        |         CREATED AT          |
++--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
+| 10ed3681-0f48-4564-a3fd-c7dfcb0c87c1 | complete | tarball | execute | map[name:user123] | 2016-06-24T11:52:06.834057Z |
++--------------------------------------+----------+---------+---------+-------------------+-----------------------------+`
 
 	// reset stuff
 	resetJobList()
@@ -121,14 +121,13 @@ func TestJobListCmdWithPaginationResultTable(t *testing.T) {
 	// set test server
 	server := jobPaginationServer()
 	defer server.Close()
-
-	want := `+------------+--------+--------+-------+-------------+-----------------------------+
-| REQUEST ID | STATUS | ACTION | AGENT |   USER ID   |         CREATED AT          |
-+------------+--------+--------+-------+-------------+-----------------------------+
-| 1          | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:02.260715Z |
-| 2          | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:12.260715Z |
-| 3          | failed | zero   | chef  | u-fa35bbc5f | 2016-04-07T15:47:22.260715Z |
-+------------+--------+--------+-------+-------------+-----------------------------+`
+	want := `+------------+--------+--------+-------+-------------------+-----------------------------+
+| REQUEST ID | STATUS | ACTION | AGENT |       USER        |         CREATED AT          |
++------------+--------+--------+-------+-------------------+-----------------------------+
+| 1          | failed | zero   | chef  | map[name:user123] | 2016-04-07T15:47:02.260715Z |
+| 2          | failed | zero   | chef  | map[name:user123] | 2016-04-07T15:47:12.260715Z |
+| 3          | failed | zero   | chef  | map[name:user123] | 2016-04-07T15:47:22.260715Z |
++------------+--------+--------+-------+-------------------+-----------------------------+`
 
 	resetJobList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", "http://somewhere.com", server.URL, "token123"))
@@ -147,9 +146,9 @@ func TestJobListCmdWithPaginationResultJSON(t *testing.T) {
 	resetJobList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", "http://somewhere.com", server.URL, "token123"))
 
-	responseBody := `[{"request_id": "1", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"},
-{"request_id": "2", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:12.260715Z", "user_id": "u-fa35bbc5f"},
-{"request_id": "3", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:22.260715Z", "user_id": "u-fa35bbc5f"}]`
+	responseBody := `[{"request_id": "1", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user": {"name": "user123"}},
+{"request_id": "2", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:12.260715Z", "user": {"name": "user123"}},
+{"request_id": "3", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:22.260715Z", "user": {"name": "user123"}}]`
 
 	source := []map[string]interface{}{}
 	err := json.Unmarshal([]byte(responseBody), &source)
@@ -180,19 +179,19 @@ func jobPaginationServer() *httptest.Server {
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"request_id": "1", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user_id": "u-fa35bbc5f"}]`)
+			fmt.Fprintln(w, `[{"request_id": "1", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:02.260715Z", "user": {"name": "user123"}}]`)
 		} else if page == "2" {
 			w.Header().Set("Pagination-Page", "2")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"request_id": "2", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:12.260715Z", "user_id": "u-fa35bbc5f"}]`)
+			fmt.Fprintln(w, `[{"request_id": "2", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:12.260715Z", "user": {"name": "user123"}}]`)
 		} else if page == "3" {
 			w.Header().Set("Pagination-Page", "3")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"request_id": "3", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:22.260715Z", "user_id": "u-fa35bbc5f"}]`)
+			fmt.Fprintln(w, `[{"request_id": "3", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:22.260715Z", "user": {"name": "user123"}}]`)
 		}
 	}))
 	return server

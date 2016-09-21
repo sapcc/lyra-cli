@@ -13,4 +13,3 @@ EOF
 
 mkdir release/artifacts
 cp binary-*/* release/artifacts/
-upx release/artifacts/*

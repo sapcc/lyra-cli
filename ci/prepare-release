@@ -13,3 +13,5 @@ EOF
 
 mkdir release/artifacts
 cp binary-*/* release/artifacts/
+upx release/artifacts/lyra_windows
+upx release/artifacts/lyra_linux

@@ -14,4 +14,3 @@ ldflags="$ldflags -X $pkg/version.GITCOMMIT=$gitcommit"
 
 [ "$GOOS" = "windows" ] && ext=.exe 
 go build -o binary/lyra_$GOOS$ext -ldflags "$ldflags" $pkg 
-upx binary/lyra_$GOOS$ext

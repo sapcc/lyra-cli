@@ -12,10 +12,10 @@ var attrDesc = map[string]string{
 	"watch":                           `Keep track of the running process.`,
 	"automation-id":                   `Automation id.`,
 	"automation-name":                 `Describes the template. Should be short and alphanumeric without white spaces.`,
-	"automation-repository":           `Describes the place where the automation is being described. Git ist the only suported repository type. Ex: https://github.com/user123/automation-test.git.`,
+	"automation-repository":           `Describes the place where the automation is being described. Git is the only supported repository type. Ex: https://github.com/user123/automation-test.git.`,
 	"automation-repository-revision":  `Describes the repository branch.`,
 	"automation-timeout":              `Describes the time elapsed before a timeout is being triggered.`,
-	"automation-log-level":            `Describe the level should be used when logging.`,
+	"automation-log-level":            `Describes the level should be used when logging.`,
 	"automation-tags":                 `"Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'."`,
 	"automation-runlist":              `Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.`,
 	"automation-attributes":           `Attributes are JSON based.`,
@@ -89,6 +89,6 @@ var jobMissingDesc = `Job not found.
 
 Note:
 - Check if the job id matches.
-- Jobs older than 30 days will be removed from the system. Check when the automation run is created running following command:
+- Jobs older than 30 days will be removed from the system. Check when the automation run is created by running following command:
 lyra-cli run show --run-id={run_id}
 `

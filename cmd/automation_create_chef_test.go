@@ -20,7 +20,7 @@ func resetAutomationCreateChefFlagVars() {
 
 func newMockAuthenticationV3AutomationCreateChef(authOpts auth.AuthOptions) auth.Authentication {
 	// set test server
-	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[App:Nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
 	server := TestServer(200, responseBody, map[string]string{})
 
 	return &auth.MockV3{Options: authOpts, TestServer: server}
@@ -44,7 +44,7 @@ func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 | project_id          | p-9597d2775                                             |
 | repository          | https://github.com/user123/automation-test.git |
 | repository_revision | master                                                  |
-| run_list            | [recipe[nginx]]                                         |
+| run_list            | [recipe[App:Nginx]]                                     |
 | tags                | <nil>                                                   |
 | timeout             | 3600                                                    |
 | type                | Chef                                                    |

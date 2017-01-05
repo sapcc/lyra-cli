@@ -12,5 +12,7 @@ ldflags="-s -w"
 ldflags="$ldflags -X $pkg/version.Version=$version"
 ldflags="$ldflags -X $pkg/version.GITCOMMIT=$gitcommit"
 
-[ "$GOOS" = "windows" ] && ext=.exe 
-go build -o binary/lyra_$GOOS$ext -ldflags "$ldflags" $pkg 
+[ "$GOOS" = "windows" ] && ext=.exe
+#We link statically on linux to have the binary run on alpine/musl as well
+[ "$GOOS" = "linux" ] && export CGO_ENABLED=0
+go build -o binary/lyra_$GOOS$ext -ldflags "$ldflags" $pkg

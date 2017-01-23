@@ -35,7 +35,6 @@ var NodeInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: locales.CmdShortDescription("arc-install"),
 	RunE: func(cmd *cobra.Command, args []string) error {
-
 		err := checkArcInstallParams()
 		if err != nil {
 			return err
@@ -59,7 +58,6 @@ func init() {
 }
 
 func checkArcInstallParams() error {
-
 	switch viper.GetString(ARC_INSTALL_FORMAT_FLAG) {
 	case "linux":
 	case "windows":
@@ -80,7 +78,6 @@ func initNodeInstallCmdFlags() {
 }
 
 func generateScript() (string, error) {
-
 	requestBody, err := json.Marshal(&map[string]string{"CN": viper.GetString(ARC_INSTALL_NODE_IDENTITY_FLAG)})
 	if err != nil {
 		return "", errors.New("Failed to marshel request body")

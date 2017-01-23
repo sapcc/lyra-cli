@@ -63,7 +63,7 @@ func NewClient(endpoints []Endpoint, token string) *Client {
 }
 
 func (e *Endpoint) Put(pathAction string, params url.Values, body string) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "PUT", params, bytes.NewBufferString(body))
+	resp, err := restCall(e.Url, e.token, pathAction, "PUT", params, http.Header{}, bytes.NewBufferString(body))
 	if err != nil {
 		return "", 0, err
 	}
@@ -82,8 +82,8 @@ func (e *Endpoint) Put(pathAction string, params url.Values, body string) (strin
 	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
 }
 
-func (e *Endpoint) Post(pathAction string, params url.Values, body string) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "POST", params, bytes.NewBufferString(body))
+func (e *Endpoint) Post(pathAction string, params url.Values, header http.Header, body string) (string, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "POST", params, header, bytes.NewBufferString(body))
 	if err != nil {
 		return "", 0, err
 	}
@@ -129,7 +129,7 @@ func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{},
 }
 
 func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, nil)
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil)
 	if err != nil {
 		return "", 0, err
 	}
@@ -151,7 +151,7 @@ func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool
 // private
 
 func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, nil)
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -179,7 +179,7 @@ func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp,
 	return &pagData, resp.StatusCode, nil
 }
 
-func restCall(endpoint string, token string, pathAction string, method string, params url.Values, body *bytes.Buffer) (*http.Response, error) {
+func restCall(endpoint string, token string, pathAction string, method string, params url.Values, headers http.Header, body *bytes.Buffer) (*http.Response, error) {
 	// set up the rest url
 	u, err := url.Parse(endpoint)
 	if err != nil {
@@ -199,6 +199,12 @@ func restCall(endpoint string, token string, pathAction string, method string, p
 	req, err := http.NewRequest(method, u.String(), reqBody)
 	if err != nil {
 		return nil, err
+	}
+	for k, entries := range headers {
+		for _, v := range entries {
+			req.Header.Add(k, v)
+
+		}
 	}
 	req.Header.Add("User-Agent", fmt.Sprint("lyra-cli/", version.String()))
 	req.Header.Add("X-Auth-Token", token)

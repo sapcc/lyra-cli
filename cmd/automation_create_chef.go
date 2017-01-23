@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 
 	"github.com/spf13/cobra"
@@ -144,7 +145,7 @@ func automationCreateChef(chef *Chef) (string, error) {
 	}
 
 	automationClient := RestClient.Services["automation"]
-	response, _, err := automationClient.Post("automations", url.Values{}, string(body))
+	response, _, err := automationClient.Post("automations", url.Values{}, http.Header{}, string(body))
 	if err != nil {
 		return "", err
 	}

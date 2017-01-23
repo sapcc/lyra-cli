@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -156,7 +157,7 @@ func automationRun() (string, error) {
 	}
 	// send request
 	automationService := RestClient.Services["automation"]
-	response, _, err := automationService.Post("runs", url.Values{}, string(body))
+	response, _, err := automationService.Post("runs", url.Values{}, http.Header{}, string(body))
 	if err != nil {
 		return "", err
 	}

@@ -15,74 +15,33 @@
 package cmd
 
 import (
-	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
-	"path"
 
-	"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	auth "github.com/sapcc/go-openstack-auth"
-	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
-	"github.com/sapcc/lyra-cli/restclient"
 )
 
 const (
-	ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG = "node-identifier"
-	ARC_INSTALL_INSTANCE_OS_FLAG         = "instance-os"
-	ARC_INSTALL_PKI_URL_FLAG             = "pki-service-url"
-	ARC_INSTALL_UPDATE_URL_FLAG          = "update-service-url"
-	ARC_INSTALL_ARC_BROKER_URL_FLAG      = "arc-broker-url"
+	ARC_INSTALL_NODE_IDENTITY_FLAG = "node-identity"
+	ARC_INSTALL_FORMAT_FLAG        = "install-format"
 )
 
 var NodeInstallCmd = &cobra.Command{
 	Use:   "install",
 	Short: locales.CmdShortDescription("arc-install"),
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// DO NOT REMOVE. SHOULD OVERRIDE THE ROOT PersistentPreRunE
-		return nil
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// set authentication params
-		options := auth.AuthOptions{
-			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-			Username:          viper.GetString(ENV_VAR_USERNAME),
-			UserId:            viper.GetString(ENV_VAR_USER_ID),
-			Password:          viper.GetString(ENV_VAR_PASSWORD),
-			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
-		}
 
-		// check auth params
-		err := checkArcInstallAuthParams(&options)
+		err := checkArcInstallParams()
 		if err != nil {
 			return err
 		}
 
-		// check install params
-		err = checkArcInstallParams()
-		if err != nil {
-			return err
-		}
-
-		authV3 := auth.AuthenticationV3(options)
-		token, err := authV3.GetToken()
-		if err != nil {
-			return err
-		}
-
-		project, err := authV3.GetProject()
-		if err != nil {
-			return err
-		}
-
-		script, err := generateScript(token.ID, project.ID, project.DomainID)
+		script, err := generateScript()
 		if err != nil {
 			return err
 		}
@@ -99,128 +58,56 @@ func init() {
 	initNodeInstallCmdFlags()
 }
 
-func checkArcInstallAuthParams(opts *auth.AuthOptions) error {
-	// check some params
-	if len(opts.UserId) == 0 && len(opts.Username) == 0 {
-		return fmt.Errorf("Flag %s or '%s not given.", FLAG_USER_ID, FLAG_USERNAME)
-	}
-
-	if len(opts.ProjectId) == 0 && len(opts.ProjectName) == 0 {
-		return fmt.Errorf("Flag %s or %s not given.", FLAG_PROJECT_ID, FLAG_PROJECT_NAME)
-	}
-
-	if len(opts.IdentityEndpoint) == 0 {
-		return fmt.Errorf("Flag %s not given.", FLAG_AUTH_URL)
-	}
-
-	// check password and prompt
-	if len(opts.Password) == 0 {
-		// ask the user for the password
-		fmt.Print("Enter password: ")
-		pass, err := gopass.GetPasswd()
-		if err != nil {
-			return err
-		}
-		opts.Password = string(pass)
-	}
-
-	return nil
-}
-
 func checkArcInstallParams() error {
-	if len(viper.GetString(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG)) == 0 {
-		return fmt.Errorf("Flag %s not given.", ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG)
-	}
-	if len(viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG)) == 0 {
-		return fmt.Errorf("Flag %s not given.", ARC_INSTALL_INSTANCE_OS_FLAG)
-	}
 
-	if viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG) != "linux" && viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG) != "windows" {
-		return fmt.Errorf("Flag %s value not known. Available OS are linux or windows.", ARC_INSTALL_INSTANCE_OS_FLAG)
+	switch viper.GetString(ARC_INSTALL_FORMAT_FLAG) {
+	case "linux":
+	case "windows":
+	case "cloud-config":
+	case "json":
+	default:
+		return fmt.Errorf("Invalid %#v given. Valid: windows,linux,cloud-config,json", ARC_INSTALL_FORMAT_FLAG)
 	}
 
 	return nil
 }
 
 func initNodeInstallCmdFlags() {
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, "", "", locales.AttributeDescription("arc-install-identifier"))
-	viper.BindPFlag(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_INSTANCE_OS_FLAG, "", "", locales.AttributeDescription("arc-install-os"))
-	viper.BindPFlag(ARC_INSTALL_INSTANCE_OS_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_INSTANCE_OS_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_UPDATE_URL_FLAG, "", "https://beta.arc.***REMOVED***", locales.AttributeDescription("update-service-url"))
-	viper.BindPFlag(ARC_INSTALL_UPDATE_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_UPDATE_URL_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_PKI_URL_FLAG, "", "https://arc-pki.***REMOVED***", locales.AttributeDescription("pki-service-url"))
-	viper.BindPFlag(ARC_INSTALL_PKI_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_PKI_URL_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_ARC_BROKER_URL_FLAG, "", "tls://arc-broker.***REMOVED***:8883", locales.AttributeDescription("arc-broker-url"))
-	viper.BindPFlag(ARC_INSTALL_ARC_BROKER_URL_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_ARC_BROKER_URL_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_NODE_IDENTITY_FLAG, "", "", locales.AttributeDescription(ARC_INSTALL_NODE_IDENTITY_FLAG))
+	viper.BindPFlag(ARC_INSTALL_NODE_IDENTITY_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_NODE_IDENTITY_FLAG))
+	NodeInstallCmd.Flags().StringP(ARC_INSTALL_FORMAT_FLAG, "", "json", locales.AttributeDescription(ARC_INSTALL_FORMAT_FLAG))
+	viper.BindPFlag(ARC_INSTALL_FORMAT_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_FORMAT_FLAG))
 }
 
-func generateScript(token, projectId, domainId string) (string, error) {
-	registrationUrl, err := registrationUrl(token, projectId, domainId)
+func generateScript() (string, error) {
+
+	requestBody, err := json.Marshal(&map[string]string{"CN": viper.GetString(ARC_INSTALL_NODE_IDENTITY_FLAG)})
+	if err != nil {
+		return "", errors.New("Failed to marshel request body")
+	}
+	arcService := RestClient.Services["arc"]
+
+	acceptHeader := "application/json"
+	switch viper.GetString(ARC_INSTALL_FORMAT_FLAG) {
+	case "linux", "shell":
+		acceptHeader = "text/x-shellscript"
+	case "windows", "powershell":
+		acceptHeader = "text/x-powershellscript"
+	case "cloud-config":
+		acceptHeader = "text/cloud-config"
+	}
+	response, status, err := arcService.Post("pki/token", url.Values{}, http.Header{"Accept": []string{acceptHeader}}, string(requestBody))
 	if err != nil {
 		return "", err
 	}
-	return processRequest(registrationUrl)
-}
-
-// LINUX example
-// curl --create-dirs -o /opt/arc/arc https://arc-updates.***REMOVED***/builds/latest/arc/linux/amd64
-// chmod +x /opt/arc/arc
-// /opt/arc/arc init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://arc-updates.***REMOVED***/updates --registration-url https://arc-pki.***REMOVED***/api/v1/sign/9f164fdb-a791-42a6-af6b-bb246aec9e00
-// WINDOWS example
-// mkdir C:\monsoon\arc
-// powershell (new-object System.Net.WebClient).DownloadFile('https://arc-updates.***REMOVED***/builds/latest/arc/windows/amd64','C:\monsoon\arc\arc.exe')
-// C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://arc-updates.***REMOVED***/updates --registration-url https://arc-pki.***REMOVED***/api/v1/sign/32151d55-7b58-41a5-9687-77a6ef3b05a2
-func processRequest(registrationUrl string) (string, error) {
-	// latest build url
-	latestBuildUrl, err := url.Parse(viper.GetString(ARC_INSTALL_UPDATE_URL_FLAG))
-	if err != nil {
-		return "", err
-	}
-	latestBuildUrl.Path = path.Join(latestBuildUrl.Path, "arc", viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG), "amd64", "latest")
-
-	// update url
-	updateUrl, err := url.Parse(viper.GetString(ARC_INSTALL_UPDATE_URL_FLAG))
-	if err != nil {
-		return "", err
+	if status >= 400 {
+		return "", fmt.Errorf("Received %d reponse", status)
 	}
 
-	// build script
-	var buffer bytes.Buffer
-
-	if viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG) == "linux" {
-		buffer.WriteString(fmt.Sprint(`curl --create-dirs -o /opt/arc/arc `, latestBuildUrl.String(), "\n"))
-		buffer.WriteString(fmt.Sprint(`chmod +x /opt/arc/arc`, "\n"))
-		buffer.WriteString(fmt.Sprint(`/opt/arc/arc init --endpoint `, viper.GetString(ARC_INSTALL_ARC_BROKER_URL_FLAG), " --update-uri ", updateUrl, " --registration-url ", registrationUrl))
-	} else if viper.GetString(ARC_INSTALL_INSTANCE_OS_FLAG) == "windows" {
-		buffer.WriteString(fmt.Sprint(`mkdir C:\monsoon\arc`, "\n"))
-		buffer.WriteString(fmt.Sprint(`powershell (new-object System.Net.WebClient).DownloadFile('`, latestBuildUrl, `','C:\monsoon\arc\arc.exe')`, "\n"))
-		buffer.WriteString(fmt.Sprint(`C:\monsoon\arc\arc.exe init --endpoint `, viper.GetString(ARC_INSTALL_ARC_BROKER_URL_FLAG), " --update-uri ", updateUrl, " --registration-url ", registrationUrl))
-	}
-
-	return buffer.String(), nil
+	return response, nil
 }
 
 type PkiResult struct {
 	Token string `json:"token"`
 	Url   string `json:"url"`
-}
-
-func registrationUrl(token, projectId, domainId string) (string, error) {
-	// init rest client
-	body := fmt.Sprintf(`{"CN": "%s", "names": [{"OU": "%s", "O": "%s"}] }`, viper.GetString(ARC_INSTALL_INSTANCE_IDENTIFIER_FLAG), projectId, domainId)
-	pkiClient := restclient.NewClient([]restclient.Endpoint{restclient.Endpoint{ID: "pki", Url: viper.GetString(ARC_INSTALL_PKI_URL_FLAG)}}, token)
-	pkiService := pkiClient.Services["pki"]
-	response, _, err := pkiService.Post("api/v1/token", url.Values{}, body)
-	if err != nil {
-		return "", fmt.Errorf("Error using pki service. %s", err.Error())
-	}
-
-	res := PkiResult{}
-	err = helpers.JSONStringToStructure(response, &res)
-	if err != nil {
-		return "", fmt.Errorf("Error unmarshaling pki response. %s", err.Error())
-	}
-
-	return res.Url, nil
 }

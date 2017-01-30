@@ -93,7 +93,7 @@ func generateScript() (string, error) {
 	case "cloud-config":
 		acceptHeader = "text/cloud-config"
 	}
-	response, status, err := arcService.Post("pki/token", url.Values{}, http.Header{"Accept": []string{acceptHeader}}, string(requestBody))
+	response, status, err := arcService.Post("agents/init", url.Values{}, http.Header{"Accept": []string{acceptHeader}}, string(requestBody))
 	if err != nil {
 		return "", err
 	}

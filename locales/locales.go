@@ -23,11 +23,8 @@ var attrDesc = map[string]string{
 	"automation-path":                 `Path to the script`,
 	"automation-arguments":            `Arguments is an array of strings. Array of strings are separated by ','.`,
 	"automation-environment":          `Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.`,
-	"arc-install-identifier":          "Compute instance id or external instance identifier.",
-	"arc-install-os":                  "Instance's operating system. Available OS are linux or windows.",
-	"update-service-url":              "Url to the arc update server.",
-	"pki-service-url":                 "Url to the arc pki server.",
-	"arc-broker-url":                  "Url to the arc broker.",
+	"node-identity":                   `Request installation script for specific node identity.`,
+	"install-format":                  `Installation script format. Supported: linux,windows,cloud-config,json`,
 }
 
 var errMsg = map[string]string{

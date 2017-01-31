@@ -91,7 +91,7 @@ func initAuthenticationCmdFlags() {
 
 func authenticate(authV3 auth.Authentication) (map[string]string, error) {
 	// do the check params inside do that authenticate is being called from other places
-	err := checkArcInstallAuthParams(authV3.GetOptions())
+	err := checkAuthenticateAuthParams(authV3.GetOptions())
 	if err != nil {
 		return map[string]string{}, err
 	}

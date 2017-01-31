@@ -35,7 +35,7 @@ func TestJobListCmdWithAuthenticationFlags(t *testing.T) {
 +--------------------------------------+----------+---------+---------+-------------------+-----------------------------+`
 
 	// reset stuff
-	resetAutomationList()
+	resetJobList()
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job list --auth-url=%s --user-id=%s --project-id=%s --password=%s", "some_test_url", "miau", "bup", "123456789"))
 

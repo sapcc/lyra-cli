@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 
 	"github.com/spf13/cobra"
@@ -109,7 +110,7 @@ func automationCreateScript(scriptObj *Script) (string, error) {
 	}
 
 	automationService := RestClient.Services["automation"]
-	response, _, err := automationService.Post("automations", url.Values{}, string(body))
+	response, _, err := automationService.Post("automations", url.Values{}, http.Header{}, string(body))
 	if err != nil {
 		return "", err
 	}

@@ -2,75 +2,91 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
-
-	auth "github.com/sapcc/go-openstack-auth"
 )
 
 func resetNodeInstall() {
 	// reset automation flag vars
 	ResetFlags()
-
-	auth.AuthenticationV3 = auth.NewMockAuthenticationV3
-	auth.CommonResult1 = map[string]interface{}{"token": map[string]interface{}{"project": map[string]string{"id": "test_project_id", "domain_id": "monsooniii", "name": "Arc_Test"}}}
 }
 
-func TestNodeInstallUserIdOrNameRequired(t *testing.T) {
+func nodeInstallServer() *httptest.Server {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		format := r.Header.Get("Accept")
+
+		if format == "text/x-shellscript" {
+			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
+			fmt.Fprintln(w, `shell script`)
+		} else if format == "text/x-powershellscript" {
+			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
+			fmt.Fprintln(w, `powershell script`)
+		} else if format == "text/cloud-config" {
+			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
+			fmt.Fprintln(w, `cloud config script`)
+		} else {
+			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
+			fmt.Fprintln(w, `json script`)
+		}
+	}))
+	return server
+}
+
+func TestNodeInstallFormatDefault(t *testing.T) {
+	want := `json script`
+	server := nodeInstallServer()
+	defer server.Close()
+
 	// reset params
 	resetNodeInstall()
+
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --project-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
-	if resulter.Error == nil {
-		t.Error(`Command expected to get an error`)
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", "http://somewhere.com", server.URL, "token123"))
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
 	}
 }
 
-func TestNodeInstallProjectIdOrNameRequired(t *testing.T) {
-	// reset params
-	resetNodeInstall()
-	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
-	if resulter.Error == nil {
-		t.Error(`Command expected to get an error`)
-	}
-}
+func TestNodeInstallJsonSuccessDefaultUrls(t *testing.T) {
+	want := `json script`
+	server := nodeInstallServer()
+	defer server.Close()
 
-func TestNodeInstallOSRequired(t *testing.T) {
 	// reset params
 	resetNodeInstall()
-	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s", "http://some_test_url", "user", "project", "123456789", "identifier"))
-	if resulter.Error == nil {
-		t.Error(`Command expected to get an error`)
-	}
-}
 
-func TestNodeInstallIdentifierRequired(t *testing.T) {
-	// reset params
-	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --instance-os=%s", "http://some_test_url", "user", "project", "123456789", "linux"))
-	if resulter.Error == nil {
-		t.Error(`Command expected to get an error`)
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --install-format=%s", "http://somewhere.com", server.URL, "token123", "json"))
+	if resulter.Error != nil {
+		t.Error(`Command expected to not get an error`)
+	}
+
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
 	}
 }
 
 func TestNodeInstallLinuxSuccessDefaultUrls(t *testing.T) {
-	want := `curl --create-dirs -o /opt/arc/arc https://beta.arc.***REMOVED***/arc/linux/amd64/latest
-chmod +x /opt/arc/arc
-/opt/arc/arc init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://beta.arc.***REMOVED*** --registration-url this_is_mock_registration_url`
-
-	// set test server
-	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`
-	server := TestServer(200, responseBody, map[string]string{})
+	want := `shell script`
+	server := nodeInstallServer()
+	defer server.Close()
 
 	// reset params
 	resetNodeInstall()
+
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --install-format=%s", "http://somewhere.com", server.URL, "token123", "linux"))
 	if resulter.Error != nil {
-		t.Error(`Command expected to get an error`)
+		t.Error(`Command expected to not get an error`)
 	}
 
 	if !strings.Contains(resulter.Output, want) {
@@ -80,20 +96,16 @@ chmod +x /opt/arc/arc
 }
 
 func TestNodeInstallWindowsSuccessDefaultUrls(t *testing.T) {
-	want := `mkdir C:\monsoon\arc
-powershell (new-object System.Net.WebClient).DownloadFile('https://beta.arc.***REMOVED***/arc/windows/amd64/latest','C:\monsoon\arc\arc.exe')
-C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --update-uri https://beta.arc.***REMOVED*** --registration-url this_is_mock_registration_url`
-
-	// set test server
-	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`
-	server := TestServer(200, responseBody, map[string]string{})
+	want := `powershell script`
+	server := nodeInstallServer()
+	defer server.Close()
 
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "windows", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --install-format=%s", "http://somewhere.com", server.URL, "token123", "windows"))
 	if resulter.Error != nil {
-		t.Error(`Command expected to get an error`)
+		t.Error(`Command expected to not get an error`)
 	}
 
 	if !strings.Contains(resulter.Output, want) {
@@ -102,21 +114,17 @@ C:\monsoon\arc\arc.exe init --endpoint tls://arc-broker.***REMOVED***:8883 --upd
 	}
 }
 
-func TestNodeInstallLinuxSuccessNotDefaultUrls(t *testing.T) {
-	want := `curl --create-dirs -o /opt/arc/arc http://test_update_url/arc/linux/amd64/latest
-chmod +x /opt/arc/arc
-/opt/arc/arc init --endpoint http://test_broker_url --update-uri http://test_update_url --registration-url this_is_mock_registration_url`
-
-	// set test server
-	responseBody := `{"token":"some_nice_token", "url":"this_is_mock_registration_url"}`
-	server := TestServer(200, responseBody, map[string]string{})
+func TestNodeInstallCloudCinfigSuccessDefaultUrls(t *testing.T) {
+	want := `cloud config script`
+	server := nodeInstallServer()
+	defer server.Close()
 
 	// reset params
 	resetNodeInstall()
 	// run cmd
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --auth-url=%s --user-id=%s --project-id=%s --password=%s --node-identifier=%s --instance-os=%s --update-service-url=%s --arc-broker-url=%s --pki-service-url=%s", "http://some_test_url", "user", "project", "123456789", "identifer_test", "linux", "http://test_update_url", "http://test_broker_url", server.URL))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node install --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --install-format=%s", "http://somewhere.com", server.URL, "token123", "cloud-config"))
 	if resulter.Error != nil {
-		t.Error(`Command expected to get an error`)
+		t.Error(`Command expected to not get an error`)
 	}
 
 	if !strings.Contains(resulter.Output, want) {

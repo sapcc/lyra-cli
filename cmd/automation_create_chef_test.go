@@ -141,7 +141,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --runlist=%s --attributes=%s --log-level=%s",
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --runlist=%s --attributes=%s --log-level=%s",
 			server.URL,
 			server.URL,
 			"token123",
@@ -149,7 +149,6 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 			"http://some_repository",
 			"master",
 			3600,
-			"name:test,tag1=test",
 			"recipe[nginx],recipe[test]",
 			`{"test":"test"}`,
 			"info"))
@@ -176,9 +175,6 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	}
 	if chef.Timeout != 3600 {
 		t.Error(`Command create chef expected to have same timeout'`)
-	}
-	if len(chef.Tags) != 2 {
-		t.Error(`Command create chef expected to have tags.'`)
 	}
 	if len(chef.Runlist) != 2 {
 		t.Error(`Command create chef expected to have runlist.'`)

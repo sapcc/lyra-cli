@@ -18,11 +18,13 @@ var AutomationCreateScriptCmd = &cobra.Command{
 	Short: locales.CmdShortDescription("automation-create-script"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		script = Script{
-			Name:               viper.GetString("automation-create-script-name"),
-			Repository:         viper.GetString("automation-create-script-repository"),
-			RepositoryRevision: viper.GetString("automation-create-script-repository-revision"),
-			Timeout:            viper.GetInt("automation-create-script-timeout"),
-			Path:               viper.GetString("automation-create-script-path"),
+			Automation: Automation{
+				Name:               viper.GetString("automation-create-script-name"),
+				Repository:         viper.GetString("automation-create-script-repository"),
+				RepositoryRevision: viper.GetString("automation-create-script-repository-revision"),
+				Timeout:            viper.GetInt("automation-create-script-timeout"),
+			},
+			Path: viper.GetString("automation-create-script-path"),
 		}
 
 		// setup automation create script attributes
@@ -77,7 +79,6 @@ func initAutomationCreateScriptCmdFlags() {
 	AutomationCreateScriptCmd.Flags().StringP("repository", "", "", locales.AttributeDescription("automation-repository"))
 	AutomationCreateScriptCmd.Flags().StringP("repository-revision", "", "master", locales.AttributeDescription("automation-repository-revision"))
 	AutomationCreateScriptCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
-	AutomationCreateScriptCmd.Flags().StringP("tags", "", "", locales.AttributeDescription("automation-tags"))
 	AutomationCreateScriptCmd.Flags().StringP("path", "", "", locales.AttributeDescription("automation-path"))
 	AutomationCreateScriptCmd.Flags().StringP("arguments", "", "", locales.AttributeDescription("automation-arguments"))
 	AutomationCreateScriptCmd.Flags().StringP("environment", "", "", locales.AttributeDescription("automation-environment"))
@@ -85,7 +86,6 @@ func initAutomationCreateScriptCmdFlags() {
 	viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository"))
 	viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision"))
 	viper.BindPFlag("automation-create-script-timeout", AutomationCreateScriptCmd.Flags().Lookup("timeout"))
-	viper.BindPFlag("automation-create-script-tags", AutomationCreateScriptCmd.Flags().Lookup("tags"))
 	viper.BindPFlag("automation-create-script-path", AutomationCreateScriptCmd.Flags().Lookup("path"))
 	viper.BindPFlag("automation-create-script-arguments", AutomationCreateScriptCmd.Flags().Lookup("arguments"))
 	viper.BindPFlag("automation-create-script-environment", AutomationCreateScriptCmd.Flags().Lookup("environment"))
@@ -94,7 +94,6 @@ func initAutomationCreateScriptCmdFlags() {
 // private
 
 func setupAutomationScriptAttr(scriptObj *Script) error {
-	scriptObj.Tags = helpers.StringTokeyValueMap(viper.GetString("automation-create-script-tags"))
 	scriptObj.Arguments = helpers.StringToArray(viper.GetString("automation-create-script-arguments"))
 	scriptObj.Environment = helpers.StringTokeyValueMap(viper.GetString("automation-create-script-environment"))
 	return nil

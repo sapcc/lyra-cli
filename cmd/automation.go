@@ -19,30 +19,30 @@ import (
 	"github.com/sapcc/lyra-cli/locales"
 )
 
+// removed tags since no use case yet
+// Tags               map[string]string `json:"tags,omitempty"`      // JSON
+type Automation struct {
+	Id                 int    `json:"id"`
+	Name               string `json:"name"`                // required
+	Repository         string `json:"repository"`          // required
+	RepositoryRevision string `json:"repository_revision"` // required
+	Timeout            int    `json:"timeout"`             // required
+}
+
 type Chef struct {
-	Id                 int               `json:"id"`
-	Name               string            `json:"name"`                // required
-	Repository         string            `json:"repository"`          // required
-	RepositoryRevision string            `json:"repository_revision"` // required
-	Timeout            int               `json:"timeout"`             // required
-	Tags               map[string]string `json:"tags,omitempty"`      // JSON
-	AutomationType     string            `json:"type"`
-	Runlist            []string          `json:"run_list,omitempty"`        // required, JSON
-	Attributes         interface{}       `json:"chef_attributes,omitempty"` // JSON
-	LogLevel           string            `json:"log_level,omitempty"`
+	Automation
+	AutomationType string      `json:"type"`
+	Runlist        []string    `json:"run_list,omitempty"`        // required, JSON
+	Attributes     interface{} `json:"chef_attributes,omitempty"` // JSON
+	LogLevel       string      `json:"log_level,omitempty"`
 }
 
 type Script struct {
-	Id                 int               `json:"id"`
-	Name               string            `json:"name"`                // required
-	Repository         string            `json:"repository"`          // required
-	RepositoryRevision string            `json:"repository_revision"` // required
-	Timeout            int               `json:"timeout"`             // required
-	Tags               map[string]string `json:"tags,omitempty"`      // JSON
-	AutomationType     string            `json:"type"`
-	Path               string            `json:"path"`
-	Arguments          []string          `json:"arguments"`   // array of strings
-	Environment        map[string]string `json:"environment"` // JSON
+	Automation
+	AutomationType string            `json:"type"`
+	Path           string            `json:"path"`
+	Arguments      []string          `json:"arguments"`   // array of strings
+	Environment    map[string]string `json:"environment"` // JSON
 }
 
 var (

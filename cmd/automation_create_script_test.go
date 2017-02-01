@@ -69,7 +69,7 @@ func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 	// reset stuff
 	resetAutomationCreateScriptFlagVars()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create script --name=test_script_cli --tags=name:arturo --repository=http://some_repository --path=path_to_the_file --auth-url=http://some_auth_url --user-id=u-519166a05  --project-id=p-9597d2775 --password=123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create script --name=test_script_cli --repository=http://some_repository --path=path_to_the_file --auth-url=http://some_auth_url --user-id=u-519166a05  --project-id=p-9597d2775 --password=123456789"))
 
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
@@ -192,7 +192,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --tags=%s --path=%s --arguments=%s --environment=%s",
+		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --path=%s --arguments=%s --environment=%s",
 			server.URL,
 			server.URL,
 			"token123",
@@ -200,7 +200,6 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 			"http://some_repository",
 			"master",
 			3600,
-			"name:test,tag1=test",
 			"some_nice_path",
 			`argument1,argument2`,
 			`PROXY:test1,NO_PROXY:test2`))
@@ -227,12 +226,6 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 	}
 	if script.Timeout != 3600 {
 		t.Error(`Command create script expected to have same timeout'`)
-	}
-	if !strings.Contains(script.Tags["name"], "test") {
-		t.Error(`Command create script expected to have same environment'`)
-	}
-	if !strings.Contains(script.Tags["tag1"], "test") {
-		t.Error(`Command create script expected to have same environment'`)
 	}
 	if !strings.Contains(script.Path, "some_nice_path") {
 		t.Error(`Command create script expected to have same path'`)

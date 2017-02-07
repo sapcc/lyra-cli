@@ -46,7 +46,6 @@ var (
 	ENV_VAR_PROJECT_NAME             = "OS_PROJECT_NAME"
 	ENV_VAR_PROJECT_DOMAIN_ID        = "OS_PROJECT_DOMAIN_ID"
 	ENV_VAR_PROJECT_DOMAIN_NAME      = "OS_PROJECT_DOMAIN_NAME"
-	ENV_VAR_FLAG_DEBUG               = "LYRA_DEBUG"
 
 	FLAG_TOKEN                 = "token"
 	FLAG_REGION                = "region"
@@ -110,6 +109,7 @@ func initRootCmdFlags() {
 	// Custom flags
 	// Results as JSON format
 	RootCmd.PersistentFlags().BoolP("json", "j", false, fmt.Sprint("Print out the data in JSON format."))
+	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
 
 	// Authentication with token und services flags
 	RootCmd.PersistentFlags().StringP(FLAG_TOKEN, "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME), ")"))
@@ -122,7 +122,7 @@ func initRootCmdFlags() {
 	viper.BindEnv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 	viper.BindPFlag(ENV_VAR_ARC_ENDPOINT_NAME, RootCmd.PersistentFlags().Lookup("arc-service-endpoint"))
 	viper.BindEnv(ENV_VAR_ARC_ENDPOINT_NAME)
-	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
+
 	// Authentication user flags
 	RootCmd.PersistentFlags().StringP(FLAG_AUTH_URL, "", "", fmt.Sprint("Endpoint entities represent URL endpoints for OpenStack web services. (default ", fmt.Sprintf("[$%s]", ENV_VAR_AUTH_URL), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_REGION, "", "", fmt.Sprint("A region is a general division of an OpenStack deployment. (default ", fmt.Sprintf("[$%s]", ENV_VAR_REGION), " or the first entry found in catalog)"))
@@ -160,9 +160,7 @@ func initRootCmdFlags() {
 	viper.BindEnv(ENV_VAR_PROJECT_DOMAIN_NAME)
 	// debug flag
 	RootCmd.PersistentFlags().BoolP(FLAG_DEBUG, "", false, "Print out request and response objects.")
-	// bind to env variablen
-	viper.BindPFlag(ENV_VAR_FLAG_DEBUG, RootCmd.PersistentFlags().Lookup(FLAG_DEBUG))
-	viper.BindEnv(ENV_VAR_FLAG_DEBUG)
+	viper.BindPFlag(FLAG_DEBUG, RootCmd.PersistentFlags().Lookup(FLAG_DEBUG))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -240,7 +238,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 	}
 
 	// init rest client
-	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME), viper.GetBool(ENV_VAR_FLAG_DEBUG))
+	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME), viper.GetBool(FLAG_DEBUG))
 
 	return nil
 }

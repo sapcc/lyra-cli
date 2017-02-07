@@ -46,6 +46,7 @@ var (
 	ENV_VAR_PROJECT_NAME             = "OS_PROJECT_NAME"
 	ENV_VAR_PROJECT_DOMAIN_ID        = "OS_PROJECT_DOMAIN_ID"
 	ENV_VAR_PROJECT_DOMAIN_NAME      = "OS_PROJECT_DOMAIN_NAME"
+	ENV_VAR_FLAG_DEBUG               = "LYRA_DEBUG"
 
 	FLAG_TOKEN                 = "token"
 	FLAG_REGION                = "region"
@@ -66,6 +67,7 @@ var (
 	FLAG_RUN_ID        = "run-id"
 	FLAG_JOB_ID        = "job-id"
 	FLAG_SELECTOR      = "selector"
+	FLAG_DEBUG         = "debug"
 
 	TOKEN_EXPIRES_AT = "token_expires_at"
 )
@@ -156,6 +158,11 @@ func initRootCmdFlags() {
 	viper.BindEnv(ENV_VAR_PROJECT_DOMAIN_ID)
 	viper.BindPFlag(ENV_VAR_PROJECT_DOMAIN_NAME, RootCmd.PersistentFlags().Lookup(FLAG_PROEJECT_DOMAIN_NAME))
 	viper.BindEnv(ENV_VAR_PROJECT_DOMAIN_NAME)
+	// debug flag
+	RootCmd.PersistentFlags().BoolP(FLAG_DEBUG, "", false, "Print out request and response objects.")
+	// bind to env variablen
+	viper.BindPFlag(ENV_VAR_FLAG_DEBUG, RootCmd.PersistentFlags().Lookup(FLAG_DEBUG))
+	viper.BindEnv(ENV_VAR_FLAG_DEBUG)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -233,7 +240,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 	}
 
 	// init rest client
-	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME))
+	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME), viper.GetBool(ENV_VAR_FLAG_DEBUG))
 
 	return nil
 }

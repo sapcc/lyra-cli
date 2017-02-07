@@ -148,7 +148,7 @@ func StringDiff(text1, text2 string) string {
 
 func ResetFlags() {
 	// reset other stuff
-	RestClient = restclient.NewClient([]restclient.Endpoint{}, "")
+	RestClient = restclient.NewClient([]restclient.Endpoint{}, "", false)
 
 	// Remove env variablen
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)

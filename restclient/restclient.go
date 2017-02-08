@@ -101,11 +101,12 @@ func (e *Endpoint) Post(pathAction string, params url.Values, header http.Header
 func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{}, int, error) {
 	page := 1
 	pages := 1
+	per_page := 100
 	result := []interface{}{}
 
 	for i := 0; i < pages; i++ {
 		// merge orig url values with the pagination
-		helpers.MapMerge(params, url.Values{"page": []string{fmt.Sprintf("%d", page)}, "per_page": []string{fmt.Sprintf("%d", 1)}})
+		helpers.MapMerge(params, url.Values{"page": []string{fmt.Sprintf("%d", page)}, "per_page": []string{fmt.Sprintf("%d", per_page)}})
 
 		// get list entry
 		pagData, _, err := e.getListEntry(pathAction, params)
@@ -114,7 +115,12 @@ func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{},
 		}
 
 		// update pagination data
-		pages = pagData.Pagination.Pages
+		if pagData.Pagination.Pages > 0 {
+			pages = pagData.Pagination.Pages
+		}
+		if pagData.Pagination.PerPage > 0 {
+			per_page = pagData.Pagination.PerPage
+		}
 		page++
 
 		// add to the resutls

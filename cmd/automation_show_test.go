@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -15,17 +13,12 @@ func resetAutomationShow() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationShow(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
+func TestAutomationShowCmdWithUserAuthenticationFlags(t *testing.T) {
 	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
-func TestAutomationShowCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3AutomationShow
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+
@@ -107,20 +100,11 @@ func TestAutomationShowCmdWithResultJSON(t *testing.T) {
 		return
 	}
 
-	source := map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-	response := map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}

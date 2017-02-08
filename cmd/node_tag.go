@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2016 Arturo Reuschenbach Puncernau <a.reuschenbach.puncernau@sap.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,16 +19,11 @@ import (
 	"github.com/sapcc/lyra-cli/locales"
 )
 
-// automationCmd represents the automation command
-var JobCmd = &cobra.Command{
-	Use:   "job",
-	Short: locales.CmdShortDescription("job"),
+var NodeTagCmd = &cobra.Command{
+	Use:   "tag",
+	Short: locales.CmdShortDescription("arc-node-tag"),
 }
 
 func init() {
-	RootCmd.AddCommand(JobCmd)
-	initJobCmdFlags()
-}
-
-func initJobCmdFlags() {
+	NodeCmd.AddCommand(NodeTagCmd)
 }

@@ -19,8 +19,6 @@ import (
 	"github.com/sapcc/lyra-cli/locales"
 )
 
-var ()
-
 var NodeCmd = &cobra.Command{
 	Use:   "node",
 	Short: locales.CmdShortDescription("arc"),
@@ -28,8 +26,4 @@ var NodeCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(NodeCmd)
-	initNodeCmdFlags()
-}
-
-func initNodeCmdFlags() {
 }

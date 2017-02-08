@@ -13,37 +13,32 @@ func resetAutomationCreateScriptFlagVars() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationCreateScript(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `{
-  "arguments": null,
-  "chef_attributes": null,
-  "chef_version": null,
-  "created_at": "2016-06-01T08:34:11.761Z",
-  "environment": null,
-  "id": 45,
-  "log_level": null,
-  "name": "test_script_cli",
-  "path": "path_to_the_file",
-  "project_id": "p-9597d2775",
-  "repository": "https://github.com/user123/automation-test.git",
-  "repository_revision": "master",
-  "run_list": null,
-  "tags": {
-    "name": "arturo"
-  },
-  "timeout": 3600,
-  "type": "Script",
-  "updated_at": "2016-06-01T08:34:11.761Z"
-}`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
 func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3AutomationCreateScript
+	responseBody := `{"arguments": null,
+	"chef_attributes": null,
+	"chef_version": null,
+	"created_at": "2016-06-01T08:34:11.761Z",
+	"environment": null,
+	"id": 45,
+	"log_level": null,
+	"name": "test_script_cli",
+	"path": "path_to_the_file",
+	"project_id": "p-9597d2775",
+	"repository": "https://github.com/user123/automation-test.git",
+	"repository_revision": "master",
+	"run_list": null,
+	"tags": {
+		"name": "arturo"
+	},
+	"timeout": 3600,
+	"type": "Script",
+	"updated_at": "2016-06-01T08:34:11.761Z"
+}`
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
+
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+

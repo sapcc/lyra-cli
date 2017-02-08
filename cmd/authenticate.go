@@ -124,15 +124,15 @@ func authenticate(authV3 auth.Authentication) (map[string]string, error) {
 func checkAuthenticateAuthParams(opts *auth.AuthOptions) error {
 	// check some params
 	if len(opts.UserId) == 0 && len(opts.Username) == 0 {
-		return fmt.Errorf("Flag %s or '%s not given.", FLAG_USER_ID, FLAG_USERNAME)
+		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
 	}
 
 	if len(opts.ProjectId) == 0 && len(opts.ProjectName) == 0 {
-		return fmt.Errorf("Flag %s or %s not given.", FLAG_PROJECT_ID, FLAG_PROJECT_NAME)
+		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_PROJECT_ID, ", ", FLAG_PROJECT_NAME))
 	}
 
 	if len(opts.IdentityEndpoint) == 0 {
-		return fmt.Errorf("Flag %s not given.", FLAG_AUTH_URL)
+		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_AUTH_URL))
 	}
 
 	// check password and prompt

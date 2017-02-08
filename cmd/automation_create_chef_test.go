@@ -18,17 +18,12 @@ func resetAutomationCreateChefFlagVars() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3AutomationCreateChef(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[App:Nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
 func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3AutomationCreateChef
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[App:Nginx]"],"chef_attributes": null,"log_level": null,"chef_version": null,"path": null,"arguments": null,"environment": null}`
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+

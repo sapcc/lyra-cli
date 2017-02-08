@@ -31,43 +31,6 @@ var (
 	cfgFile string
 
 	RestClient *restclient.Client
-
-	ENV_VAR_AUTOMATION_ENDPOINT_NAME = "LYRA_SERVICE_ENDPOINT"
-	ENV_VAR_ARC_ENDPOINT_NAME        = "ARC_SERVICE_ENDPOINT"
-	ENV_VAR_TOKEN_NAME               = "OS_TOKEN"
-	ENV_VAR_USERNAME                 = "OS_USERNAME"
-	ENV_VAR_USER_ID                  = "OS_USER_ID"
-	ENV_VAR_PASSWORD                 = "OS_PASSWORD"
-	ENV_VAR_REGION                   = "OS_REGION"
-	ENV_VAR_AUTH_URL                 = "OS_AUTH_URL"
-	ENV_VAR_USER_DOMAIN_ID           = "OS_USER_DOMAIN_ID"
-	ENV_VAR_USER_DOMAIN_NAME         = "OS_USER_DOMAIN_NAME"
-	ENV_VAR_PROJECT_ID               = "OS_PROJECT_ID"
-	ENV_VAR_PROJECT_NAME             = "OS_PROJECT_NAME"
-	ENV_VAR_PROJECT_DOMAIN_ID        = "OS_PROJECT_DOMAIN_ID"
-	ENV_VAR_PROJECT_DOMAIN_NAME      = "OS_PROJECT_DOMAIN_NAME"
-
-	FLAG_TOKEN                 = "token"
-	FLAG_REGION                = "region"
-	FLAG_LYRA_SERVICE_ENDPOINT = "lyra-service-endpoint"
-	FLAG_ARC_SERVICE_ENDPOINT  = "arc-service-endpoint"
-	FLAG_AUTH_URL              = "auth-url"
-	FLAG_USER_ID               = "user-id"
-	FLAG_USERNAME              = "username"
-	FLAG_PASSWORD              = "password"
-	FLAG_PROJECT_ID            = "project-id"
-	FLAG_PROJECT_NAME          = "project-name"
-	FLAG_USER_DOMAIN_ID        = "user-domain-id"
-	FLAG_USER_DOMAIN_NAME      = "user-domain-name"
-	FLAG_PROJECT_DOMAIN_ID     = "project-domain-id"
-	FLAG_PROEJECT_DOMAIN_NAME  = "project-domain-name"
-
-	FLAG_AUTOMATION_ID = "automation-id"
-	FLAG_RUN_ID        = "run-id"
-	FLAG_JOB_ID        = "job-id"
-	FLAG_SELECTOR      = "selector"
-
-	TOKEN_EXPIRES_AT = "token_expires_at"
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -108,6 +71,7 @@ func initRootCmdFlags() {
 	// Custom flags
 	// Results as JSON format
 	RootCmd.PersistentFlags().BoolP("json", "j", false, fmt.Sprint("Print out the data in JSON format."))
+	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
 
 	// Authentication with token und services flags
 	RootCmd.PersistentFlags().StringP(FLAG_TOKEN, "t", "", fmt.Sprint("Authentication token. To create a token run the authenticate command. (default ", fmt.Sprintf("[$%s]", ENV_VAR_TOKEN_NAME), ")"))
@@ -120,7 +84,7 @@ func initRootCmdFlags() {
 	viper.BindEnv(ENV_VAR_AUTOMATION_ENDPOINT_NAME)
 	viper.BindPFlag(ENV_VAR_ARC_ENDPOINT_NAME, RootCmd.PersistentFlags().Lookup("arc-service-endpoint"))
 	viper.BindEnv(ENV_VAR_ARC_ENDPOINT_NAME)
-	viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json"))
+
 	// Authentication user flags
 	RootCmd.PersistentFlags().StringP(FLAG_AUTH_URL, "", "", fmt.Sprint("Endpoint entities represent URL endpoints for OpenStack web services. (default ", fmt.Sprintf("[$%s]", ENV_VAR_AUTH_URL), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_REGION, "", "", fmt.Sprint("A region is a general division of an OpenStack deployment. (default ", fmt.Sprintf("[$%s]", ENV_VAR_REGION), " or the first entry found in catalog)"))
@@ -156,6 +120,9 @@ func initRootCmdFlags() {
 	viper.BindEnv(ENV_VAR_PROJECT_DOMAIN_ID)
 	viper.BindPFlag(ENV_VAR_PROJECT_DOMAIN_NAME, RootCmd.PersistentFlags().Lookup(FLAG_PROEJECT_DOMAIN_NAME))
 	viper.BindEnv(ENV_VAR_PROJECT_DOMAIN_NAME)
+	// debug flag
+	RootCmd.PersistentFlags().BoolP(FLAG_DEBUG, "", false, "Print out request and response objects.")
+	viper.BindPFlag(FLAG_DEBUG, RootCmd.PersistentFlags().Lookup(FLAG_DEBUG))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -233,7 +200,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 	}
 
 	// init rest client
-	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME))
+	RestClient = restclient.NewClient(endpoints, viper.GetString(ENV_VAR_TOKEN_NAME), viper.GetBool(FLAG_DEBUG))
 
 	return nil
 }

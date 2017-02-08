@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -16,6 +17,8 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	auth "github.com/sapcc/go-openstack-auth"
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/restclient"
 )
 
@@ -36,12 +39,43 @@ func FullCmdTester(testCommand *cobra.Command, input string) resulter {
 	c := cmdTestRootNoRun
 	c.SetOutput(buf)
 	c.AddCommand(testCommand)
-	c.SetArgs(strings.Split(input, " "))
+	//c.SetArgs(strings.Split(input, " "))
+	c.SetArgs(argsSplit(input))
 	err := c.Execute()
 	output := buf.String()
 	return resulter{err, output, c}
 }
 
+// added from
+// https://gist.github.com/jmervine/d88c75329f98e09f5c87
+func argsSplit(s string) []string {
+	split := strings.Split(s, " ")
+	var splitedArgs []string
+	var argsInQuote string
+	var block string
+	for _, v := range split {
+		if argsInQuote == "" {
+			if strings.HasPrefix(v, "'") || strings.HasPrefix(v, "\"") {
+				argsInQuote = string(v[0])
+				block = strings.TrimPrefix(v, argsInQuote) + " "
+			} else {
+				splitedArgs = append(splitedArgs, v)
+			}
+		} else {
+			if !strings.HasSuffix(v, argsInQuote) {
+				block += v + " "
+			} else {
+				block += strings.TrimSuffix(v, argsInQuote)
+				argsInQuote = ""
+				splitedArgs = append(splitedArgs, block)
+				block = ""
+			}
+		}
+	}
+	return splitedArgs
+}
+
+// TestServer should be closed afterwards
 func TestServer(code int, body string, headers map[string]string) *httptest.Server {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -52,6 +86,12 @@ func TestServer(code int, body string, headers map[string]string) *httptest.Serv
 		fmt.Fprintln(w, body)
 	}))
 	return server
+}
+
+func newMockAuthenticationV3(testServer *httptest.Server) func(authOpts auth.AuthOptions) auth.Authentication {
+	return func(authOpts auth.AuthOptions) auth.Authentication {
+		return &auth.MockV3{Options: authOpts, TestServer: testServer}
+	}
 }
 
 func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, input string) {
@@ -65,6 +105,12 @@ func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, i
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error because of missing token and endpoint`)
 	}
+
+	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
+	if !strings.Contains(resulter.Output, errorMsg) {
+		diffString := StringDiff(resulter.Output, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+	}
 }
 
 func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input string) {
@@ -77,6 +123,12 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 	resulter := FullCmdTester(cmd, input)
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error because of missing endpoint`)
+	}
+
+	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
+	if !strings.Contains(resulter.Output, errorMsg) {
+		diffString := StringDiff(resulter.Output, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
 
@@ -96,6 +148,12 @@ func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error because of missing token`)
 	}
+
+	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
+	if !strings.Contains(resulter.Output, errorMsg) {
+		diffString := StringDiff(resulter.Output, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+	}
 }
 
 func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, input string, responseBody string) {
@@ -114,6 +172,38 @@ func CheckCmdWorksWithEndpointAndTokenFlag(t *testing.T, cmd *cobra.Command, inp
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
+}
+
+func JsonDiff(responseBody, resulterOutput string) (bool, error) {
+	source := map[string]interface{}{}
+	err := json.Unmarshal([]byte(responseBody), &source)
+	if err != nil {
+		return false, err
+	}
+
+	response := map[string]interface{}{}
+	err = json.Unmarshal([]byte(resulterOutput), &response)
+	if err != nil {
+		return false, err
+	}
+
+	return reflect.DeepEqual(source, response), nil
+}
+
+func JsonListDiff(responseBody, resulterOutput string) (bool, error) {
+	source := []map[string]interface{}{}
+	err := json.Unmarshal([]byte(responseBody), &source)
+	if err != nil {
+		return false, err
+	}
+
+	response := []map[string]interface{}{}
+	err = json.Unmarshal([]byte(resulterOutput), &response)
+	if err != nil {
+		return false, err
+	}
+
+	return reflect.DeepEqual(source, response), nil
 }
 
 func StringDiff(text1, text2 string) string {
@@ -148,7 +238,7 @@ func StringDiff(text1, text2 string) string {
 
 func ResetFlags() {
 	// reset other stuff
-	RestClient = restclient.NewClient([]restclient.Endpoint{}, "")
+	RestClient = restclient.NewClient([]restclient.Endpoint{}, "", false)
 
 	// Remove env variablen
 	os.Unsetenv(ENV_VAR_TOKEN_NAME)
@@ -162,6 +252,7 @@ func ResetFlags() {
 	AutomationCreateChefCmd.ResetFlags()
 	AutomationCreateScriptCmd.ResetFlags()
 	AutomationCreateCmd.ResetFlags()
+	AutomationDeleteCmd.ResetFlags()
 	AutomationExecuteCmd.ResetFlags()
 	AutomationListCmd.ResetFlags()
 	AutomationShowCmd.ResetFlags()
@@ -174,7 +265,14 @@ func ResetFlags() {
 	JobShowCmd.ResetFlags()
 	JobCmd.ResetFlags()
 	NodeCmd.ResetFlags()
+	NodeDeleteCmd.ResetFlags()
 	NodeInstallCmd.ResetFlags()
+	NodeListCmd.ResetFlags()
+	NodeTagCmd.ResetFlags()
+	NodeTagAddCmd.ResetFlags()
+	NodeTagDeleteCmd.ResetFlags()
+	NodeTagListCmd.ResetFlags()
+	NodeShowCmd.ResetFlags()
 	RunListCmd.ResetFlags()
 	RunShowCmd.ResetFlags()
 	RunCmd.ResetFlags()
@@ -184,6 +282,7 @@ func ResetFlags() {
 	initAutomationCreateChefCmdFlags()
 	initAutomationCreateScriptCmdFlags()
 	initAutomationCreateCmdFlags()
+	initAutomationDeleteCmdFlags()
 	initAutomationExecuteCmdFlags()
 	initAutomationListCmdFlags()
 	initAutomationShowCmdFlags()
@@ -195,8 +294,12 @@ func ResetFlags() {
 	initJobLogCmdFlags()
 	initJobShowCmdFlags()
 	initJobCmdFlags()
-	initNodeCmdFlags()
+	initNodeDeleteCmdFlags()
 	initNodeInstallCmdFlags()
+	initNodeShowCmdFlags()
+	initNodeTagAddCmdFlags()
+	initNodeTagDeleteCmdFlags()
+	initNodeTagListCmdFlags()
 	initRunListCmdFlags()
 	initRunShowCmdFlags()
 	initRunCmdFlags()

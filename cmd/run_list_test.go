@@ -17,24 +17,19 @@ func resetRunList() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3RunList(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `[{
-  "id": "30",
-  "created_at": "2016-04-07T21:42:07.416Z",
-  "state": "executing",
-  "owner": "u-fa35bbc5f",
-  "automation_id": "6",
-  "automation_name": "Chef_test"
-}]`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
 func TestRunListCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3RunList
+	responseBody := `[{
+	  "id": "30",
+	  "created_at": "2016-04-07T21:42:07.416Z",
+	  "state": "executing",
+	  "owner": "u-fa35bbc5f",
+	  "automation_id": "6",
+	  "automation_name": "Chef_test"
+	}]`
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 	want := `+----+---------------+-----------------+-----------+-------------+--------------------------+
 | ID | AUTOMATION ID | AUTOMATION NAME |   STATE   |    OWNER    |        CREATED AT        |
 +----+---------------+-----------------+-----------+-------------+--------------------------+
@@ -123,27 +118,15 @@ func TestRunListCmdWithResultJSON(t *testing.T) {
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra run list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
 
-	source := []map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := []map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }
-
-func TestRunListCmdResultTableExtraCustomColumns(t *testing.T) {}
 
 func TestRunListCmdWithPaginationResultTable(t *testing.T) {
 	// set test server

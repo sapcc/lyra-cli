@@ -1,10 +1,8 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -112,21 +110,11 @@ func TestAuthenticationResultJSON(t *testing.T) {
 	resetAuthenticate()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s --password=%s --json", "http://some_test_url", "miau", "bup", "123456789"))
 
-	wantSource := map[string]string{}
-	err := json.Unmarshal([]byte(want), &wantSource)
+	eq, err := JsonDiff(want, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := map[string]string{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(wantSource, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}

@@ -26,14 +26,9 @@ import (
 	"github.com/sapcc/lyra-cli/locales"
 )
 
-const (
-	ARC_INSTALL_NODE_IDENTITY_FLAG = "node-identity"
-	ARC_INSTALL_FORMAT_FLAG        = "install-format"
-)
-
 var NodeInstallCmd = &cobra.Command{
 	Use:   "install",
-	Short: locales.CmdShortDescription("arc-install"),
+	Short: locales.CmdShortDescription("arc-node-install"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		err := checkArcInstallParams()
 		if err != nil {
@@ -57,35 +52,35 @@ func init() {
 	initNodeInstallCmdFlags()
 }
 
+func initNodeInstallCmdFlags() {
+	NodeInstallCmd.Flags().StringP(FLAG_ARC_NODE_ID, "", "", locales.AttributeDescription(FLAG_ARC_NODE_ID))
+	viper.BindPFlag("arc-node-id", NodeInstallCmd.Flags().Lookup(FLAG_ARC_NODE_ID))
+	NodeInstallCmd.Flags().StringP(FLAG_ARC_INSTALL_FORMAT, "", "json", locales.AttributeDescription(FLAG_ARC_INSTALL_FORMAT))
+	viper.BindPFlag("arc-install-format", NodeInstallCmd.Flags().Lookup(FLAG_ARC_INSTALL_FORMAT))
+}
+
 func checkArcInstallParams() error {
-	switch viper.GetString(ARC_INSTALL_FORMAT_FLAG) {
+	switch viper.GetString("arc-install-format") {
 	case "linux":
 	case "windows":
 	case "cloud-config":
 	case "json":
 	default:
-		return fmt.Errorf("Invalid %#v given. Valid: windows,linux,cloud-config,json", ARC_INSTALL_FORMAT_FLAG)
+		return fmt.Errorf("Invalid %#v given. Valid: windows,linux,cloud-config,json", "arc-install-format")
 	}
 
 	return nil
 }
 
-func initNodeInstallCmdFlags() {
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_NODE_IDENTITY_FLAG, "", "", locales.AttributeDescription(ARC_INSTALL_NODE_IDENTITY_FLAG))
-	viper.BindPFlag(ARC_INSTALL_NODE_IDENTITY_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_NODE_IDENTITY_FLAG))
-	NodeInstallCmd.Flags().StringP(ARC_INSTALL_FORMAT_FLAG, "", "json", locales.AttributeDescription(ARC_INSTALL_FORMAT_FLAG))
-	viper.BindPFlag(ARC_INSTALL_FORMAT_FLAG, NodeInstallCmd.Flags().Lookup(ARC_INSTALL_FORMAT_FLAG))
-}
-
 func generateScript() (string, error) {
-	requestBody, err := json.Marshal(&map[string]string{"CN": viper.GetString(ARC_INSTALL_NODE_IDENTITY_FLAG)})
+	requestBody, err := json.Marshal(&map[string]string{"CN": viper.GetString("arc-node-id")})
 	if err != nil {
 		return "", errors.New("Failed to marshel request body")
 	}
 	arcService := RestClient.Services["arc"]
 
 	acceptHeader := "application/json"
-	switch viper.GetString(ARC_INSTALL_FORMAT_FLAG) {
+	switch viper.GetString("arc-install-format") {
 	case "linux", "shell":
 		acceptHeader = "text/x-shellscript"
 	case "windows", "powershell":

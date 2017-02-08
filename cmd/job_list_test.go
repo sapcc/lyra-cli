@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -17,17 +15,12 @@ func resetJobList() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3JobList(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `[{"request_id": "10ed3681-0f48-4564-a3fd-c7dfcb0c87c1", "agent": "execute", "action": "tarball", "status": "complete", "created_at": "2016-06-24T11:52:06.834057Z", "user": {"name": "user123"}}]`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
 func TestJobListCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3JobList
+	responseBody := `[{"request_id": "10ed3681-0f48-4564-a3fd-c7dfcb0c87c1", "agent": "execute", "action": "tarball", "status": "complete", "created_at": "2016-06-24T11:52:06.834057Z", "user": {"name": "user123"}}]`
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 	want := `+--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
 |              REQUEST ID              |  STATUS  | ACTION  |  AGENT  |       USER        |         CREATED AT          |
 +--------------------------------------+----------+---------+---------+-------------------+-----------------------------+
@@ -95,27 +88,15 @@ func TestJobListCmdWithResultJSON(t *testing.T) {
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra job list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", "http://somewhere.com", server.URL, "token123"))
 
-	source := []map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := []map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }
-
-func TestJobListCmdResultTableExtraCustomColumns(t *testing.T) {}
 
 func TestJobListCmdWithPaginationResultTable(t *testing.T) {
 	// set test server
@@ -150,21 +131,11 @@ func TestJobListCmdWithPaginationResultJSON(t *testing.T) {
 {"request_id": "2", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:12.260715Z", "user": {"name": "user123"}},
 {"request_id": "3", "agent": "chef", "action": "zero", "status": "failed", "created_at": "2016-04-07T15:47:22.260715Z", "user": {"name": "user123"}}]`
 
-	source := []map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := []map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}

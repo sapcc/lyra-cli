@@ -13,17 +13,11 @@ func resetJobLog() {
 	ResetFlags()
 }
 
-func newMockAuthenticationV3JobLog(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `This is a job log`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
-}
-
 func TestJobLogCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3JobLog
+	testServer := TestServer(200, `This is a job log`, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 	want := `This is a job log`
 
 	// reset stuff

@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -15,14 +13,6 @@ import (
 func resetAutomationList() {
 	// reset automation flag vars
 	ResetFlags()
-}
-
-func newMockAuthenticationV3AutomationList(authOpts auth.AuthOptions) auth.Authentication {
-	// set test server
-	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
-	server := TestServer(200, responseBody, map[string]string{})
-
-	return &auth.MockV3{Options: authOpts, TestServer: server}
 }
 
 func TestAutomationListCmdWithNoEnvEndpointAndTokenSet(t *testing.T) {
@@ -50,8 +40,12 @@ func TestAutomationListCmdWithEndpointsTokenFlag(t *testing.T) {
 }
 
 func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
-	// mock interface for authenticationt test
-	auth.AuthenticationV3 = newMockAuthenticationV3AutomationList
+	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	testServer := TestServer(200, responseBody, map[string]string{})
+	defer testServer.Close()
+	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
+	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
+
 	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
 | ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
 +----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
@@ -105,21 +99,11 @@ func TestAutomationListCmdWithResultJSON(t *testing.T) {
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
 
-	source := []map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := []map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}
@@ -161,21 +145,11 @@ func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
 {"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
 {"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 
-	source := []map[string]interface{}{}
-	err := json.Unmarshal([]byte(responseBody), &source)
+	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-
-	response := []map[string]interface{}{}
-	err = json.Unmarshal([]byte(resulter.Output), &response)
-	if err != nil {
-		t.Error(err.Error())
-		return
-	}
-
-	eq := reflect.DeepEqual(source, response)
 	if eq == false {
 		t.Error("Json response body and print out Json do not match.")
 	}

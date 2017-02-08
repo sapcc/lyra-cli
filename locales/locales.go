@@ -7,10 +7,10 @@ import (
 var attrDesc = map[string]string{
 	"json":                            `Attributes are JSON format.`,
 	"selector":                        `Filter used to select on which nodes should the automation be executed. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
-	"run-id":                          `Automation run id.`,
-	"job-id":                          `Job id.`,
+	"run-id":                          `Automation run identity.`,
+	"job-id":                          `Job identity.`,
 	"watch":                           `Keep track of the running process.`,
-	"automation-id":                   `Automation id.`,
+	"automation-id":                   `Automation identity.`,
 	"automation-name":                 `Describes the template. Should be short and alphanumeric without white spaces.`,
 	"automation-repository":           `Describes the place where the automation is being described. Git is the only supported repository type. Ex: https://github.com/user123/automation-test.git.`,
 	"automation-repository-revision":  `Describes the repository branch.`,
@@ -23,21 +23,31 @@ var attrDesc = map[string]string{
 	"automation-path":                 `Path to the script`,
 	"automation-arguments":            `Arguments is an array of strings. Array of strings are separated by ','.`,
 	"automation-environment":          `Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.`,
-	"node-identity":                   `Request installation script for specific node identity.`,
-	"install-format":                  `Installation script format. Supported: linux,windows,cloud-config,json`,
+	"install-format":                  `Installation script format. Supported: linux,windows,cloud-config,json.`,
+	"node-id":                         `Node identity.`,
 }
 
 var errMsg = map[string]string{
-	"automation-id-missing":       "No automation id provided.",
+	"automation-id-missing":       "No automation identity provided.",
 	"automation-selector-missing": "No automation selector given.",
-	"run-id-missing":              "No automation run id given.",
-	"job-id-missing":              "No job id provided.",
+	"run-id-missing":              "No automation run identity given.",
+	"job-id-missing":              "No job identity provided.",
+	"node-id-missing":             "No node identity provided.",
 	"job-missing":                 fmt.Sprint(jobMissingDesc),
+	"node-missing":                fmt.Sprint(nodeMissingDesc),
+	"flag-missing":                "Please make sure to provide following flags: ",
 }
 
 var cmdShortDescription = map[string]string{
 	"arc":                               "Remote job execution framework.",
-	"arc-install":                       "Retrieves the script used to install arc nodes on instances. User authentication flags are mandatory.",
+	"arc-node-install":                  "Retrieves the script used to install arc nodes on instances. User authentication flags are mandatory.",
+	"arc-node-list":                     "List all nodes.",
+	"arc-node-show":                     "Shows an especific node.",
+	"arc-node-delete":                   "Deletes an especific node. This will just delete the entry in the data base. For permanent deletion the node itself must be removed from the instance.",
+	"arc-node-tag":                      "Node tags.",
+	"arc-node-tag-list":                 "List all tags from an especific node.",
+	"arc-node-tag-add":                  "Add tags to a given node.",
+	"arc-node-tag-delete":               "Deletes tags from a given node.",
 	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
 	"automation-create-chef":            "Create a new chef automation.",
 	"automation-create-script":          "Create a new script automation.",
@@ -45,6 +55,7 @@ var cmdShortDescription = map[string]string{
 	"automation-execute":                "Runs an exsiting automation",
 	"automation-list":                   "List all available automations",
 	"automation-show":                   "Show a specific automation",
+	"automation-delete":                 "Deletes a specific automation.",
 	"automation-update-chef-attributes": "Updates chef attributes",
 	"automation-update-chef":            "Updates a chef automation",
 	"automation-update":                 "Updates an exsiting automation",
@@ -62,8 +73,10 @@ var cmdShortDescription = map[string]string{
 }
 
 var cmdLongDescription = map[string]string{
-	"bash-completion": `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
-	"root":            `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+	"bash-completion":     `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
+	"root":                `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+	"arc-node-tag-add":    fmt.Sprint(nodeTagAddCmdLongDescription),
+	"arc-node-tag-delete": fmt.Sprint(nodeTagDeleteCmdLongDescription),
 }
 
 func AttributeDescription(id string) string {
@@ -77,15 +90,31 @@ func ErrorMessages(id string) string {
 func CmdShortDescription(id string) string {
 	return cmdShortDescription[id]
 }
-
 func CmdLongDescription(id string) string {
 	return cmdLongDescription[id]
 }
 
+var nodeTagDeleteCmdLongDescription = `Deletes tags from a given node. Add the keys from the desired tags as command arguments.
+
+Example:
+lyra node tag delete --node-id 123456789 pool name plan"
+`
+
+var nodeTagAddCmdLongDescription = `Add tags to a given node. Tags are key value pairs separated by the first "=" or ":" and added as command arguments. When using spacial characters use quotations.
+
+Example:
+lyra node tag add --node-id 123456789 pool:green name=db "plan=test new"`
+
 var jobMissingDesc = `Job not found.
 
 Note:
-- Check if the job id matches.
+- Check if the job identity matches.
 - Jobs older than 30 days will be removed from the system. Check when the automation run is created by running following command:
 lyra-cli run show --run-id={run_id}
+`
+
+var nodeMissingDesc = `Node not found.
+
+Note:
+- Check if the node identity matches.
 `

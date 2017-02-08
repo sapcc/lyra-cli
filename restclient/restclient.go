@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"path"
 	"strconv"
@@ -21,19 +22,15 @@ var AUTOMATION_URI = "https://automation-staging.***REMOVED***/api/v1/"
 type Client struct {
 	Services map[string]Endpoint
 	Token    string
+	Debug    bool
 }
 
 type Endpoint struct {
 	ID    string
 	Url   string
 	token string
+	debug bool
 }
-
-// type Services struct {
-//   Automation Endpoint
-//   Arc        Endpoint
-//   Services   map[string]Endpoint
-// }
 
 type Pagination struct {
 	Page    int `json:"page"`
@@ -46,24 +43,23 @@ type PagResp struct {
 	Data       []interface{} `json:"data"`
 }
 
-func NewClient(endpoints []Endpoint, token string) *Client {
-	// services.Automation.token = token
-	// services.Arc.token = token
-
+func NewClient(endpoints []Endpoint, token string, debug bool) *Client {
 	services := map[string]Endpoint{}
 	for _, e := range endpoints {
 		e.token = token
+		e.debug = debug
 		services[e.ID] = e
 	}
 
 	return &Client{
 		Services: services,
 		Token:    token,
+		Debug:    debug,
 	}
 }
 
 func (e *Endpoint) Put(pathAction string, params url.Values, body string) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "PUT", params, http.Header{}, bytes.NewBufferString(body))
+	resp, err := restCall(e.Url, e.token, pathAction, "PUT", params, http.Header{}, bytes.NewBufferString(body), e.debug)
 	if err != nil {
 		return "", 0, err
 	}
@@ -83,7 +79,7 @@ func (e *Endpoint) Put(pathAction string, params url.Values, body string) (strin
 }
 
 func (e *Endpoint) Post(pathAction string, params url.Values, header http.Header, body string) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "POST", params, header, bytes.NewBufferString(body))
+	resp, err := restCall(e.Url, e.token, pathAction, "POST", params, header, bytes.NewBufferString(body), e.debug)
 	if err != nil {
 		return "", 0, err
 	}
@@ -105,11 +101,12 @@ func (e *Endpoint) Post(pathAction string, params url.Values, header http.Header
 func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{}, int, error) {
 	page := 1
 	pages := 1
+	per_page := 100
 	result := []interface{}{}
 
 	for i := 0; i < pages; i++ {
 		// merge orig url values with the pagination
-		helpers.MapMerge(params, url.Values{"page": []string{fmt.Sprintf("%d", page)}, "per_page": []string{fmt.Sprintf("%d", 1)}})
+		helpers.MapMerge(params, url.Values{"page": []string{fmt.Sprintf("%d", page)}, "per_page": []string{fmt.Sprintf("%d", per_page)}})
 
 		// get list entry
 		pagData, _, err := e.getListEntry(pathAction, params)
@@ -118,7 +115,12 @@ func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{},
 		}
 
 		// update pagination data
-		pages = pagData.Pagination.Pages
+		if pagData.Pagination.Pages > 0 {
+			pages = pagData.Pagination.Pages
+		}
+		if pagData.Pagination.PerPage > 0 {
+			per_page = pagData.Pagination.PerPage
+		}
 		page++
 
 		// add to the resutls
@@ -129,7 +131,27 @@ func (e *Endpoint) GetList(pathAction string, params url.Values) ([]interface{},
 }
 
 func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool) (string, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil)
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil, e.debug)
+	if err != nil {
+		return "", 0, err
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", 0, err
+	}
+	defer resp.Body.Close()
+
+	// check response code
+	if resp.StatusCode >= 400 {
+		return "", resp.StatusCode, errors.New(string(respBody))
+	}
+
+	return jsonPrettyPrint(string(respBody)), resp.StatusCode, nil
+}
+
+func (e *Endpoint) Delete(pathAction string, params url.Values) (string, int, error) {
+	resp, err := restCall(e.Url, e.token, pathAction, "DELETE", params, http.Header{}, nil, e.debug)
 	if err != nil {
 		return "", 0, err
 	}
@@ -151,7 +173,7 @@ func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool
 // private
 
 func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp, int, error) {
-	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil)
+	resp, err := restCall(e.Url, e.token, pathAction, "GET", params, http.Header{}, nil, e.debug)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -179,7 +201,7 @@ func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp,
 	return &pagData, resp.StatusCode, nil
 }
 
-func restCall(endpoint string, token string, pathAction string, method string, params url.Values, headers http.Header, body *bytes.Buffer) (*http.Response, error) {
+func restCall(endpoint string, token string, pathAction string, method string, params url.Values, headers http.Header, body *bytes.Buffer, debug bool) (*http.Response, error) {
 	// set up the rest url
 	u, err := url.Parse(endpoint)
 	if err != nil {
@@ -197,13 +219,15 @@ func restCall(endpoint string, token string, pathAction string, method string, p
 	// set up the request
 	httpclient := &http.Client{}
 	req, err := http.NewRequest(method, u.String(), reqBody)
+	if debug {
+		debugOutput(httputil.DumpRequestOut(req, true))
+	}
 	if err != nil {
 		return nil, err
 	}
 	for k, entries := range headers {
 		for _, v := range entries {
 			req.Header.Add(k, v)
-
 		}
 	}
 	req.Header.Add("User-Agent", fmt.Sprint("lyra-cli/", version.String()))
@@ -212,6 +236,9 @@ func restCall(endpoint string, token string, pathAction string, method string, p
 
 	// send the request
 	resp, err := httpclient.Do(req)
+	if debug {
+		debugOutput(httputil.DumpResponse(resp, true))
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -249,4 +276,12 @@ func jsonPrettyPrint(in string) string {
 		return in
 	}
 	return out.String()
+}
+
+func debugOutput(data []byte, err error) {
+	if err == nil {
+		fmt.Printf("%s\n\n", data)
+	} else {
+		fmt.Printf("%s\n\n", err)
+	}
 }

@@ -40,7 +40,7 @@ var AutomationDeleteCmd = &cobra.Command{
 			return err
 		}
 		// Print response
-		cmd.Print("Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
+		cmd.Println("Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
 
 		return nil
 	},

@@ -52,7 +52,7 @@ var NodeTagAddCmd = &cobra.Command{
 		}
 
 		// Print response
-		cmd.Print("Tags added successfully to the node with id ", viper.GetString("arc-tag-add-node-id"))
+		cmd.Println("Tags added successfully to the node with id ", viper.GetString("arc-tag-add-node-id"))
 
 		return nil
 	},

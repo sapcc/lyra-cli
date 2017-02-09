@@ -42,7 +42,7 @@ var NodeDeleteCmd = &cobra.Command{
 		}
 
 		// Print response
-		cmd.Print("Node with id ", viper.GetString("arc-delete-node-id"), " deleted.")
+		cmd.Println("Node with id ", viper.GetString("arc-delete-node-id"), " deleted.")
 
 		return nil
 	},

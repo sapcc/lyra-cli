@@ -27,6 +27,7 @@ import (
 var NodeDeleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: locales.CmdShortDescription("arc-node-delete"),
+	Long:  locales.CmdLongDescription("arc-node-delete"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required node id
 		if len(viper.GetString("arc-delete-node-id")) == 0 {

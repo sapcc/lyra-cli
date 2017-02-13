@@ -80,9 +80,9 @@ func TestNodeTagListSuccessTable(t *testing.T) {
 
 func TestNodeTagListSuccessJson(t *testing.T) {
 	// set test server
-	server := TestServer(200, `{"test1":"test1","test2":"test2","test3":"test 3","test4":"test 4"}`, map[string]string{})
-	defer server.Close()
 	want := `{"test1":"test1","test2":"test2","test3":"test 3","test4":"test 4"}`
+	server := TestServer(200, want, map[string]string{})
+	defer server.Close()
 
 	// reset stuff
 	ResetFlags()

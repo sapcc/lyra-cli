@@ -17,6 +17,15 @@ func resetRunList() {
 	ResetFlags()
 }
 
+func TestRunListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
+	resetRunList()
+	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra run list")
+	resetRunList()
+	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra run list")
+	resetRunList()
+	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra run list")
+}
+
 func TestRunListCmdWithAuthenticationFlags(t *testing.T) {
 	responseBody := `[{
 	  "id": "30",
@@ -48,15 +57,6 @@ func TestRunListCmdWithAuthenticationFlags(t *testing.T) {
 		diffString := StringDiff(resulter.Output, want)
 		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
 	}
-}
-
-func TestRunListCmdWithNoEnvEndpointsAndTokenSet(t *testing.T) {
-	resetRunList()
-	CheckhErrorWhenNoEnvEndpointAndTokenSet(t, RootCmd, "lyra run list")
-	resetRunList()
-	CheckhErrorWhenNoEnvEndpointSet(t, RootCmd, "lyra run list")
-	resetRunList()
-	CheckhErrorWhenNoEnvTokenSet(t, RootCmd, "lyra run list")
 }
 
 func TestRunListCmdResultTable(t *testing.T) {

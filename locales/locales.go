@@ -43,11 +43,13 @@ var cmdShortDescription = map[string]string{
 	"arc-node-install":                  "Retrieves the script used to install arc nodes on instances. User authentication flags are mandatory.",
 	"arc-node-list":                     "List all nodes.",
 	"arc-node-show":                     "Shows an especific node.",
-	"arc-node-delete":                   "Deletes an especific node. This will just delete the entry in the data base. For permanent deletion the node itself must be removed from the instance.",
+	"arc-node-delete":                   "Deletes an especific node.",
 	"arc-node-tag":                      "Node tags.",
 	"arc-node-tag-list":                 "List all tags from an especific node.",
 	"arc-node-tag-add":                  "Add tags to a given node.",
 	"arc-node-tag-delete":               "Deletes tags from a given node.",
+	"arc-node-fact":                     "Node facts.",
+	"arc-node-fact-list":                "List all facts from an especific node.",
 	"authenticate":                      "Get an authentication token and endpoints for the automation and arc service.",
 	"automation-create-chef":            "Create a new chef automation.",
 	"automation-create-script":          "Create a new script automation.",
@@ -75,6 +77,7 @@ var cmdShortDescription = map[string]string{
 var cmdLongDescription = map[string]string{
 	"bash-completion":     `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
 	"root":                `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+	"arc-node-delete":     "Deletes an especific node. \nThis will just delete the entry in the data base. For a permanent deletion you have to remove the node itself from the instance.",
 	"arc-node-tag-add":    fmt.Sprint(nodeTagAddCmdLongDescription),
 	"arc-node-tag-delete": fmt.Sprint(nodeTagDeleteCmdLongDescription),
 }
@@ -94,13 +97,15 @@ func CmdLongDescription(id string) string {
 	return cmdLongDescription[id]
 }
 
-var nodeTagDeleteCmdLongDescription = `Deletes tags from a given node. Add the keys from the desired tags as command arguments.
+var nodeTagDeleteCmdLongDescription = `Deletes tags from a given node.
+Add the keys from the desired tags as command arguments.
 
 Example:
 lyra node tag delete --node-id 123456789 pool name plan"
 `
 
-var nodeTagAddCmdLongDescription = `Add tags to a given node. Tags are key value pairs separated by the first "=" or ":" and added as command arguments. When using spacial characters use quotations.
+var nodeTagAddCmdLongDescription = `Add tags to a given node.
+Tags are key value pairs separated by the first "=" or ":" and added as command arguments. When using spacial characters use quotations.
 
 Example:
 lyra node tag add --node-id 123456789 pool:green name=db "plan=test new"`

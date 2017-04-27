@@ -55,12 +55,23 @@ var NodeListCmd = &cobra.Command{
 
 func init() {
 	NodeCmd.AddCommand(NodeListCmd)
+	initNodeListCmdFlags()
+}
+
+func initNodeListCmdFlags() {
+	//flags
+	NodeListCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription("node-selector"))
+	viper.BindPFlag("node-selector", NodeListCmd.Flags().Lookup(FLAG_SELECTOR))
 }
 
 func nodeList() (interface{}, error) {
 	// collect all automations do the pagination
 	arcService := RestClient.Services["arc"]
-	response, _, err := arcService.GetList("agents", url.Values{})
+	urlValues := url.Values{}
+	if viper.GetString("node-selector") != "" {
+		urlValues.Set("q", viper.GetString("node-selector"))
+	}
+	response, _, err := arcService.GetList("agents", urlValues)
 	if err != nil {
 		return "", err
 	}

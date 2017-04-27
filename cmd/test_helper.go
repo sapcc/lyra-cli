@@ -297,6 +297,7 @@ func ResetFlags() {
 	initJobCmdFlags()
 	initNodeDeleteCmdFlags()
 	initNodeInstallCmdFlags()
+	initNodeListCmdFlags()
 	initNodeShowCmdFlags()
 	initNodeFactListCmdFlags()
 	initNodeTagAddCmdFlags()

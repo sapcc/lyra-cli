@@ -96,6 +96,23 @@ func TestNodeListCmdWithPaginationResultJson(t *testing.T) {
 	}
 }
 
+func TestNodeListCmdWithFilter(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		path := r.URL
+
+		if !strings.Contains(path.Query()["q"][0], "selector_filter") {
+			diffString := StringDiff(path.Query()["q"][0], "selector_filter")
+			t.Error(fmt.Sprintf("Command API selector doesn't match. \n \n %s", diffString))
+		}
+	}))
+	defer server.Close()
+	// reset stuff
+	ResetFlags()
+	// run commando
+	FullCmdTester(RootCmd, fmt.Sprintf("lyra node list --selector=%s --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", "selector_filter", "https://somewhere.com", server.URL, "token123"))
+}
+
 func TestNodeListCmdRightParams(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

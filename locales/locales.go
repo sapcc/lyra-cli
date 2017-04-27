@@ -25,6 +25,7 @@ var attrDesc = map[string]string{
 	"automation-environment":          `Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'.`,
 	"install-format":                  `Installation script format. Supported: linux,windows,cloud-config,json.`,
 	"node-id":                         `Node identity.`,
+	"node-selector":                   `Filter nodes. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
 }
 
 var errMsg = map[string]string{

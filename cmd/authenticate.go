@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/howeyc/gopass"
 	auth "github.com/sapcc/go-openstack-auth"
@@ -137,8 +138,8 @@ func checkAuthenticateAuthParams(opts *auth.AuthOptions) error {
 
 	// check password and prompt
 	if len(opts.Password) == 0 {
-		// ask the user for the password
-		fmt.Print("Enter password: ")
+		// ask the user for the password -- stderr??
+		fmt.Fprint(os.Stderr, "Enter password: ")
 		pass, err := gopass.GetPasswd()
 		if err != nil {
 			return err

@@ -45,8 +45,8 @@ func TestNodeShowCmdMissingId(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node show --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", "https://somewhere.com", server.URL, "token123"))
 
 	errorMsg := locales.ErrorMessages("node-id-missing")
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }

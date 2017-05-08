@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 
@@ -27,37 +25,20 @@ func TestRootDebugFlag(t *testing.T) {
 	server := TestServer(200, "Arc API", map[string]string{})
 	defer server.Close()
 
-	// keep backup of the real stdout
-	oldStdout := os.Stdout
-
-	// pipe std out
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Error(err)
-	}
-	os.Stdout = w
-
 	// add test command
 	RootCmd.AddCommand(testCmd)
 	// reset stuff
 	ResetFlags()
 	// run commando
-	FullCmdTester(RootCmd, fmt.Sprintf("lyra test --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --debug", "http://somewhere.com", server.URL, "token123"))
-
-	// flush, restore close
-	os.Stdout = oldStdout
-	w.Close()
-
-	// read log
-	loggedStuff, _ := ioutil.ReadAll(r)
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra test --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --debug", "http://somewhere.com", server.URL, "token123"))
 
 	// request object
-	if !strings.Contains(string(loggedStuff), "User-Agent") {
+	if !strings.Contains(resulter.ErrorOutput, "User-Agent") {
 		t.Error(fmt.Sprintf("Debug request object missing."))
 	}
 
 	// response object
-	if !strings.Contains(string(loggedStuff), "Content-Length") {
+	if !strings.Contains(resulter.ErrorOutput, "Content-Length") {
 		t.Error(fmt.Sprintf("Debug response object missing"))
 	}
 

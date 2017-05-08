@@ -64,6 +64,9 @@ func init() {
 }
 
 func initRootCmdFlags() {
+	// set command standard output to the stdout
+	RootCmd.SetOutput(os.Stdout)
+
 	// Cobra flags
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lyra-cli.yaml)")
 	RootCmd.Flags().BoolP("toggle", "g", false, "Help message for toggle")
@@ -137,14 +140,14 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Fprintln(os.Stderr, "Using config file: ", viper.ConfigFileUsed())
 	}
 }
 
 // setup the rest client
 func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) error {
 	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
-		fmt.Println("Using password authentication.")
+		fmt.Fprintln(os.Stderr, "Using password authentication.")
 
 		// authentication object
 		if authV3 == nil {
@@ -177,7 +180,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 		viper.Set(ENV_VAR_TOKEN_NAME, authParams[ENV_VAR_TOKEN_NAME])
 		viper.Set(TOKEN_EXPIRES_AT, authParams[TOKEN_EXPIRES_AT])
 	} else {
-		fmt.Println("Using token authentication.")
+		fmt.Fprintln(os.Stderr, "Using token authentication.")
 	}
 
 	// add api version to the automation url

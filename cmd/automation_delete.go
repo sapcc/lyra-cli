@@ -16,7 +16,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
+	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -40,7 +42,7 @@ var AutomationDeleteCmd = &cobra.Command{
 			return err
 		}
 		// Print response
-		cmd.Println("Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
+		fmt.Fprintln(os.Stderr, "Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
 
 		return nil
 	},

@@ -16,7 +16,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
+	"os"
 	"path"
 
 	"github.com/sapcc/lyra-cli/locales"
@@ -45,7 +47,7 @@ var NodeTagDeleteCmd = &cobra.Command{
 			}
 
 			// Print response
-			cmd.Println("Tag from agent with id ", viper.GetString("arc-tag-delete-node-id"), " and value ", element, " is deleted.")
+			fmt.Fprintln(os.Stderr, "Tag from agent with id ", viper.GetString("arc-tag-delete-node-id"), " and value ", element, " is deleted.")
 		}
 
 		return nil

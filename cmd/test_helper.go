@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -23,9 +24,10 @@ import (
 )
 
 type resulter struct {
-	Error   error
-	Output  string
-	Command *cobra.Command
+	Error       error
+	Output      string
+	ErrorOutput string
+	Command     *cobra.Command
 }
 
 var cmdTestRootNoRun = &cobra.Command{
@@ -35,15 +37,39 @@ var cmdTestRootNoRun = &cobra.Command{
 }
 
 func FullCmdTester(testCommand *cobra.Command, input string) resulter {
-	buf := new(bytes.Buffer)
+	// pipe std err
+	oldStderr := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Stderr = w
+
+	// pipe std out
+	outputBuf := new(bytes.Buffer)
+	testCommand.SetOutput(outputBuf)
+
+	// add comand and run
 	c := cmdTestRootNoRun
-	c.SetOutput(buf)
 	c.AddCommand(testCommand)
-	//c.SetArgs(strings.Split(input, " "))
 	c.SetArgs(argsSplit(input))
-	err := c.Execute()
-	output := buf.String()
-	return resulter{err, output, c}
+	err = c.Execute()
+
+	// read std error
+	outC := make(chan string)
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, r)
+		outC <- buf.String()
+	}()
+	os.Stderr = oldStderr
+	w.Close()
+
+	//save outputs and return
+	output := outputBuf.String()
+	outErr := <-outC
+	return resulter{err, output, outErr, c}
 }
 
 // added from
@@ -107,8 +133,8 @@ func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, i
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
@@ -126,8 +152,8 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
@@ -150,8 +176,8 @@ func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }

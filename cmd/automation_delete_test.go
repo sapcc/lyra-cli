@@ -52,8 +52,8 @@ func TestAutomationDeleteCmdMissingId(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation delete --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "https://somewhere.com", "token123"))
 
 	errorMsg := locales.ErrorMessages("automation-id-missing")
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
@@ -67,8 +67,9 @@ func TestAutomationDeleteCmdSuccess(t *testing.T) {
 	resetAutomationDeleteFlagVars()
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation delete --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --automation-id=%s", server.URL, "https://somewhere.com", "token123", "123456789"))
-	if !strings.Contains(resulter.Output, "123456789") || !strings.Contains(resulter.Output, "deleted") {
-		diffString := StringDiff(resulter.Output, "deleted")
+
+	if !strings.Contains(resulter.ErrorOutput, "123456789") || !strings.Contains(resulter.ErrorOutput, "deleted") {
+		diffString := StringDiff(resulter.ErrorOutput, "deleted")
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }

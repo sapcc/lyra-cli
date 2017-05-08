@@ -37,38 +37,61 @@ var cmdTestRootNoRun = &cobra.Command{
 }
 
 func FullCmdTester(testCommand *cobra.Command, input string) resulter {
-	// pipe std err
-	oldStderr := os.Stderr
-	r, w, err := os.Pipe()
+	// pipe std out
+	oldStdout := os.Stdout
+	rOut, wOut, err := os.Pipe()
 	if err != nil {
 		os.Exit(1)
 	}
-	os.Stderr = w
+	os.Stdout = wOut
 
-	// pipe std out
+	// pipe std err
+	oldStderr := os.Stderr
+	rErr, wErr, err := os.Pipe()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Stderr = wErr
+
+	// set buf for the command
 	outputBuf := new(bytes.Buffer)
 	testCommand.SetOutput(outputBuf)
 
-	// add comand and run
+	// set buf for the testCommand
 	c := cmdTestRootNoRun
+	rootOutputBuf := new(bytes.Buffer)
+	c.SetOutput(rootOutputBuf)
+
+	// add comand and run
 	c.AddCommand(testCommand)
 	c.SetArgs(argsSplit(input))
 	err = c.Execute()
 
-	// read std error
-	outC := make(chan string)
+	// read std output
+	outOutC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, r)
-		outC <- buf.String()
+		io.Copy(&buf, rOut)
+		outOutC <- buf.String()
+	}()
+	os.Stdout = oldStdout
+	wOut.Close()
+
+	// read std outerr
+	outErrC := make(chan string)
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, rErr)
+		outErrC <- buf.String()
 	}()
 	os.Stderr = oldStderr
-	w.Close()
+	wErr.Close()
 
 	//save outputs and return
-	output := outputBuf.String()
-	outErr := <-outC
+	output := <-outOutC
+	outErr := fmt.Sprint(outputBuf.String(), rootOutputBuf.String(), <-outErrC)
 	return resulter{err, output, outErr, c}
 }
 

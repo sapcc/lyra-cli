@@ -16,9 +16,7 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
-	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -41,8 +39,8 @@ var AutomationDeleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		// Print response
-		fmt.Fprintln(os.Stderr, "Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
+		// Print response to the sdterr. No response got it
+		cmd.Println("Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
 
 		return nil
 	},

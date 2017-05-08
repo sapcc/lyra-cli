@@ -17,10 +17,8 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"regexp"
 
@@ -53,8 +51,8 @@ var NodeTagAddCmd = &cobra.Command{
 			return err
 		}
 
-		// Print response
-		fmt.Fprintln(os.Stderr, "Tags added successfully to the node with id ", viper.GetString("arc-tag-add-node-id"))
+		// Print response to the sdterr. No response got it
+		cmd.Println("Tags added successfully to the node with id ", viper.GetString("arc-tag-add-node-id"))
 
 		return nil
 	},

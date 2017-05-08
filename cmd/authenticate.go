@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/howeyc/gopass"
 	auth "github.com/sapcc/go-openstack-auth"
@@ -54,7 +53,7 @@ var AuthenticateCmd = &cobra.Command{
 		authV3 := auth.AuthenticationV3(options)
 
 		// authenticate
-		response, err := authenticate(authV3)
+		response, err := authenticate(cmd, authV3)
 		if err != nil {
 			return err
 		}
@@ -75,7 +74,7 @@ var AuthenticateCmd = &cobra.Command{
 		}
 
 		// Print response
-		cmd.Println(bodyPrint)
+		fmt.Println(bodyPrint)
 
 		return nil
 	},
@@ -90,9 +89,9 @@ func initAuthenticationCmdFlags() {
 	// authenticate flags are global
 }
 
-func authenticate(authV3 auth.Authentication) (map[string]string, error) {
+func authenticate(cmd *cobra.Command, authV3 auth.Authentication) (map[string]string, error) {
 	// do the check params inside do that authenticate is being called from other places
-	err := checkAuthenticateAuthParams(authV3.GetOptions())
+	err := checkAuthenticateAuthParams(cmd, authV3.GetOptions())
 	if err != nil {
 		return map[string]string{}, err
 	}
@@ -122,7 +121,7 @@ func authenticate(authV3 auth.Authentication) (map[string]string, error) {
 	}, nil
 }
 
-func checkAuthenticateAuthParams(opts *auth.AuthOptions) error {
+func checkAuthenticateAuthParams(cmd *cobra.Command, opts *auth.AuthOptions) error {
 	// check some params
 	if len(opts.UserId) == 0 && len(opts.Username) == 0 {
 		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
@@ -139,7 +138,7 @@ func checkAuthenticateAuthParams(opts *auth.AuthOptions) error {
 	// check password and prompt
 	if len(opts.Password) == 0 {
 		// ask the user for the password -- stderr??
-		fmt.Fprint(os.Stderr, "Enter password: ")
+		cmd.Print("Enter password: ")
 		pass, err := gopass.GetPasswd()
 		if err != nil {
 			return err

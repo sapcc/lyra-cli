@@ -35,6 +35,7 @@ func TestRootDebugFlag(t *testing.T) {
 	// request object
 	if !strings.Contains(resulter.ErrorOutput, "User-Agent") {
 		t.Error(fmt.Sprintf("Debug request object missing."))
+		return
 	}
 
 	// response object

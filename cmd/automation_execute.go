@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -70,19 +69,19 @@ var AutomationExecuteCmd = &cobra.Command{
 			}
 			ExecuteAuthV3 = auth.AuthenticationV3(ExecuteAuthOps)
 			// force reauthenticate with password and keep values
-			err := setupRestClient(&ExecuteAuthV3, true)
+			err := setupRestClient(cmd, &ExecuteAuthV3, true)
 			if err != nil {
 				return err
 			}
 
-			response, err = automationRunWait()
+			response, err = automationRunWait(cmd)
 			if err != nil {
 				return err
 			}
 
 		} else {
 			// get std authentication
-			err := setupRestClient(nil, false)
+			err := setupRestClient(cmd, nil, false)
 			if err != nil {
 				return err
 			}
@@ -117,7 +116,7 @@ var AutomationExecuteCmd = &cobra.Command{
 		}
 
 		// Print response
-		cmd.Println(bodyPrint)
+		fmt.Println(bodyPrint)
 
 		return nil
 	},
@@ -174,7 +173,7 @@ type AutomationRun struct {
 	Jobs  []string `json:"jobs"`
 }
 
-func automationRunWait() (string, error) {
+func automationRunWait(cmd *cobra.Command) (string, error) {
 	//run automation
 	runData, err := automationRun()
 	if err != nil {
@@ -188,8 +187,8 @@ func automationRunWait() (string, error) {
 		return "", err
 	}
 
-	fmt.Fprintf(os.Stderr, "Run automation is created with id %s\n", automationRun.Id)
-	fmt.Fprintf(os.Stderr, "Automation state %s\n", automationRun.State)
+	cmd.Printf("Run automation is created with id %s\n", automationRun.Id)
+	cmd.Printf("Automation state %s\n", automationRun.State)
 
 	// update data
 	tickChan := time.NewTicker(time.Second * 5)
@@ -207,9 +206,9 @@ func automationRunWait() (string, error) {
 				return "", err
 			}
 			if isExpired {
-				fmt.Fprintln(os.Stderr, "WARNING: token expired.")
+				cmd.Println("WARNING: token expired.")
 				// reauthenticate
-				err = setupRestClient(&ExecuteAuthV3, true)
+				err = setupRestClient(cmd, &ExecuteAuthV3, true)
 				if err != nil {
 					return "", err
 				}
@@ -237,7 +236,7 @@ func automationRunWait() (string, error) {
 
 				if automationRun.State != RunFailed && automationRun.State != RunCompleted {
 					// print out for run state
-					fmt.Fprintf(os.Stderr, "Automation %s\n", automationRun.State)
+					cmd.Printf("Automation %s\n", automationRun.State)
 				}
 			}
 
@@ -245,12 +244,12 @@ func automationRunWait() (string, error) {
 			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(automationRun.Jobs) {
 				// update jobs
 				automationRun.Jobs = runUpdate.Jobs
-				fmt.Fprintf(os.Stderr, "Scheduled %d jobs:\n", len(runUpdate.Jobs))
+				cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
 				for _, v := range runUpdate.Jobs {
 					// save them to keep track
 					runningJobs = append(automationRun.Jobs, v)
 					jobsState[v] = ""
-					fmt.Fprintf(os.Stderr, "%s\n", v)
+					cmd.Printf("%s\n", v)
 				}
 			}
 
@@ -264,7 +263,7 @@ func automationRunWait() (string, error) {
 						return "", err
 					}
 					if stateStr != jobsState[v] {
-						fmt.Fprintf(os.Stderr, "Job %s is %s\n", v, stateStr)
+						cmd.Printf("Job %s is %s\n", v, stateStr)
 						jobsState[v] = stateStr
 					}
 					// if state is failed or complete then remove entry
@@ -275,10 +274,10 @@ func automationRunWait() (string, error) {
 				runningJobs = stillrunningJobs
 			} else {
 				if automationRun.State == RunCompleted {
-					fmt.Fprintf(os.Stderr, "Automation run %s %s\n.", automationRun.Id, automationRun.State)
+					cmd.Printf("Automation run %s %s\n.", automationRun.Id, automationRun.State)
 				}
 				if automationRun.State == RunFailed {
-					fmt.Fprintf(os.Stderr, "Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
+					cmd.Printf("Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
 				}
 
 				resultRun, err := runShow(automationRun.Id)

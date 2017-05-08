@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"path"
 
@@ -66,7 +67,7 @@ var NodeFactListCmd = &cobra.Command{
 		}
 
 		// print response
-		cmd.Println(bodyPrint)
+		fmt.Println(bodyPrint)
 
 		return nil
 	},

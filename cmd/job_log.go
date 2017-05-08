@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"path"
 
@@ -42,7 +43,7 @@ var JobLogCmd = &cobra.Command{
 		}
 
 		// print response
-		cmd.Println(response)
+		fmt.Println(response)
 
 		return nil
 	},

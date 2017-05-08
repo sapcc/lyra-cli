@@ -16,9 +16,7 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"net/url"
-	"os"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -44,8 +42,8 @@ var NodeDeleteCmd = &cobra.Command{
 			return err
 		}
 
-		// Print response
-		fmt.Fprintln(os.Stderr, "Node with id ", viper.GetString("arc-delete-node-id"), " deleted.")
+		// Print response to std error. No response got
+		cmd.Println("Node with id ", viper.GetString("arc-delete-node-id"), " deleted.")
 
 		return nil
 	},

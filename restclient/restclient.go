@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 
@@ -280,8 +281,8 @@ func jsonPrettyPrint(in string) string {
 
 func debugOutput(data []byte, err error) {
 	if err == nil {
-		fmt.Printf("%s\n\n", data)
+		fmt.Fprintf(os.Stderr, "%s\n\n", data)
 	} else {
-		fmt.Printf("%s\n\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n\n", err)
 	}
 }

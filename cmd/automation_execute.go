@@ -52,6 +52,7 @@ var AutomationExecuteCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		response := ""
 		if viper.GetBool("watch") {
 			// keep the auth options for reauthentication
 			ExecuteAuthOps = auth.AuthOptions{
@@ -68,53 +69,54 @@ var AutomationExecuteCmd = &cobra.Command{
 			}
 			ExecuteAuthV3 = auth.AuthenticationV3(ExecuteAuthOps)
 			// force reauthenticate with password and keep values
-			err := setupRestClient(&ExecuteAuthV3, true)
+			err := setupRestClient(cmd, &ExecuteAuthV3, true)
 			if err != nil {
 				return err
 			}
 
-			err = automationRunWait()
+			response, err = automationRunWait(cmd)
 			if err != nil {
 				return err
 			}
+
 		} else {
 			// get std authentication
-			err := setupRestClient(nil, false)
+			err := setupRestClient(cmd, nil, false)
 			if err != nil {
 				return err
 			}
 
 			//run automation
-			response, err := automationRun()
+			response, err = automationRun()
 			if err != nil {
 				return err
 			}
-
-			// convert data to struct
-			var dataStruct map[string]interface{}
-			err = helpers.JSONStringToStructure(response, &dataStruct)
-			if err != nil {
-				return err
-			}
-
-			// print the data out
-			printer := print.Print{Data: dataStruct}
-			bodyPrint := ""
-			if viper.GetBool("json") {
-				bodyPrint, err = printer.JSON()
-				if err != nil {
-					return err
-				}
-			} else {
-				bodyPrint, err = printer.Table()
-				if err != nil {
-					return err
-				}
-			}
-
-			// Print response
-			cmd.Println(bodyPrint)
 		}
+
+		// convert data to struct
+		var dataStruct map[string]interface{}
+		err := helpers.JSONStringToStructure(response, &dataStruct)
+		if err != nil {
+			return err
+		}
+
+		// print the data out
+		printer := print.Print{Data: dataStruct}
+		bodyPrint := ""
+		if viper.GetBool("json") {
+			bodyPrint, err = printer.JSON()
+			if err != nil {
+				return err
+			}
+		} else {
+			bodyPrint, err = printer.Table()
+			if err != nil {
+				return err
+			}
+		}
+
+		// Print response
+		fmt.Println(bodyPrint)
 
 		return nil
 	},
@@ -171,22 +173,22 @@ type AutomationRun struct {
 	Jobs  []string `json:"jobs"`
 }
 
-func automationRunWait() error {
+func automationRunWait(cmd *cobra.Command) (string, error) {
 	//run automation
 	runData, err := automationRun()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// convert data to struct
 	automationRun := AutomationRun{}
 	err = helpers.JSONStringToStructure(runData, &automationRun)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("Run automation is created with id %s\n", automationRun.Id)
-	fmt.Printf("Automation state %s\n", automationRun.State)
+	cmd.Printf("Run automation is created with id %s\n", automationRun.Id)
+	cmd.Printf("Automation state %s\n", automationRun.State)
 
 	// update data
 	tickChan := time.NewTicker(time.Second * 5)
@@ -201,14 +203,14 @@ func automationRunWait() error {
 			// check if the token still valid
 			isExpired, err := tokenExpired()
 			if err != nil {
-				return err
+				return "", err
 			}
 			if isExpired {
-				fmt.Println("WARNING: token expired.")
+				cmd.Println("WARNING: token expired.")
 				// reauthenticate
-				err := setupRestClient(&ExecuteAuthV3, true)
+				err = setupRestClient(cmd, &ExecuteAuthV3, true)
 				if err != nil {
-					return err
+					return "", err
 				}
 			}
 
@@ -224,8 +226,7 @@ func automationRunWait() error {
 
 			// exit if error occurs
 			if err != nil {
-				fmt.Println(err)
-				return nil
+				return "", err
 			}
 
 			// run state changed
@@ -235,7 +236,7 @@ func automationRunWait() error {
 
 				if automationRun.State != RunFailed && automationRun.State != RunCompleted {
 					// print out for run state
-					fmt.Printf("Automation %s\n", automationRun.State)
+					cmd.Printf("Automation %s\n", automationRun.State)
 				}
 			}
 
@@ -243,12 +244,12 @@ func automationRunWait() error {
 			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(automationRun.Jobs) {
 				// update jobs
 				automationRun.Jobs = runUpdate.Jobs
-				fmt.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
+				cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
 				for _, v := range runUpdate.Jobs {
 					// save them to keep track
 					runningJobs = append(automationRun.Jobs, v)
 					jobsState[v] = ""
-					fmt.Printf("%s\n", v)
+					cmd.Printf("%s\n", v)
 				}
 			}
 
@@ -259,10 +260,10 @@ func automationRunWait() error {
 					// get job update
 					stateStr, err := getJobStateUpdate(v)
 					if err != nil {
-						return err
+						return "", err
 					}
 					if stateStr != jobsState[v] {
-						fmt.Printf("Job %s is %s\n", v, stateStr)
+						cmd.Printf("Job %s is %s\n", v, stateStr)
 						jobsState[v] = stateStr
 					}
 					// if state is failed or complete then remove entry
@@ -273,17 +274,20 @@ func automationRunWait() error {
 				runningJobs = stillrunningJobs
 			} else {
 				if automationRun.State == RunCompleted {
-					fmt.Printf("Automation %s\n.", automationRun.State)
-					return nil
+					cmd.Printf("Automation run %s %s\n.", automationRun.Id, automationRun.State)
 				}
 				if automationRun.State == RunFailed {
-					// exit with error
-					return fmt.Errorf("Automation %s. %d of %d jobs failed\n", automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
+					cmd.Printf("Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
 				}
+
+				resultRun, err := runShow(automationRun.Id)
+				if err != nil {
+					return "", err
+				}
+				return resultRun, nil
 			}
 		}
 	}
-	return nil
 }
 
 func jobsFailed(jobsState map[string]string) int {
@@ -313,7 +317,6 @@ func tokenExpired() (bool, error) {
 	} else {
 		return true, nil
 	}
-	return false, nil
 }
 
 const (

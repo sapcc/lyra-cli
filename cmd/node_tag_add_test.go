@@ -66,8 +66,8 @@ func TestNodeTagAddCmdSuccess(t *testing.T) {
 	// run commando
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node tag add --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --node-id=123456789", "http://somewhere.com", server.URL, "token123"))
 
-	if !strings.Contains(resulter.Output, "Tags") || !strings.Contains(resulter.Output, "123456789") || !strings.Contains(resulter.Output, "added") {
-		diffString := StringDiff(resulter.Output, "added")
+	if !strings.Contains(resulter.ErrorOutput, "Tags") || !strings.Contains(resulter.ErrorOutput, "123456789") || !strings.Contains(resulter.ErrorOutput, "added") {
+		diffString := StringDiff(resulter.ErrorOutput, "added")
 		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
 	}
 }

@@ -44,7 +44,7 @@ var NodeTagDeleteCmd = &cobra.Command{
 				return err
 			}
 
-			// Print response
+			// Print response to the stderr. No response got it
 			cmd.Println("Tag from agent with id ", viper.GetString("arc-tag-delete-node-id"), " and value ", element, " is deleted.")
 		}
 

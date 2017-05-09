@@ -42,7 +42,7 @@ var NodeDeleteCmd = &cobra.Command{
 			return err
 		}
 
-		// Print response
+		// Print response to std error. No response got
 		cmd.Println("Node with id ", viper.GetString("arc-delete-node-id"), " deleted.")
 
 		return nil

@@ -41,7 +41,7 @@ var RootCmd = &cobra.Command{
 	SilenceUsage: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
-		err := setupRestClient(nil, false)
+		err := setupRestClient(cmd, nil, false)
 		if err != nil {
 			return err
 		}
@@ -53,7 +53,6 @@ var RootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		// fmt.Println(err)
 		os.Exit(1)
 	}
 }
@@ -64,6 +63,9 @@ func init() {
 }
 
 func initRootCmdFlags() {
+	// set command standard output to the stdout
+	RootCmd.SetOutput(os.Stderr)
+
 	// Cobra flags
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lyra-cli.yaml)")
 	RootCmd.Flags().BoolP("toggle", "g", false, "Help message for toggle")
@@ -137,14 +139,14 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Fprintln(os.Stderr, "Using config file: ", viper.ConfigFileUsed())
 	}
 }
 
 // setup the rest client
-func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) error {
+func setupRestClient(cmd *cobra.Command, authV3 *auth.Authentication, forceReauthenticate bool) error {
 	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
-		fmt.Println("Using password authentication.")
+		fmt.Fprintln(os.Stderr, "Using password authentication.")
 
 		// authentication object
 		if authV3 == nil {
@@ -166,7 +168,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 		}
 
 		// authenticate
-		authParams, err := authenticate(*authV3)
+		authParams, err := authenticate(cmd, *authV3)
 		if err != nil {
 			return err
 		}
@@ -177,7 +179,7 @@ func setupRestClient(authV3 *auth.Authentication, forceReauthenticate bool) erro
 		viper.Set(ENV_VAR_TOKEN_NAME, authParams[ENV_VAR_TOKEN_NAME])
 		viper.Set(TOKEN_EXPIRES_AT, authParams[TOKEN_EXPIRES_AT])
 	} else {
-		fmt.Println("Using token authentication.")
+		fmt.Fprintln(os.Stderr, "Using token authentication.")
 	}
 
 	// add api version to the automation url

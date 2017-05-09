@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -23,9 +24,10 @@ import (
 )
 
 type resulter struct {
-	Error   error
-	Output  string
-	Command *cobra.Command
+	Error       error
+	Output      string
+	ErrorOutput string
+	Command     *cobra.Command
 }
 
 var cmdTestRootNoRun = &cobra.Command{
@@ -35,15 +37,62 @@ var cmdTestRootNoRun = &cobra.Command{
 }
 
 func FullCmdTester(testCommand *cobra.Command, input string) resulter {
-	buf := new(bytes.Buffer)
+	// pipe std out
+	oldStdout := os.Stdout
+	rOut, wOut, err := os.Pipe()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Stdout = wOut
+
+	// pipe std err
+	oldStderr := os.Stderr
+	rErr, wErr, err := os.Pipe()
+	if err != nil {
+		os.Exit(1)
+	}
+	os.Stderr = wErr
+
+	// set buf for the command
+	outputBuf := new(bytes.Buffer)
+	testCommand.SetOutput(outputBuf)
+
+	// set buf for the testCommand
 	c := cmdTestRootNoRun
-	c.SetOutput(buf)
+	rootOutputBuf := new(bytes.Buffer)
+	c.SetOutput(rootOutputBuf)
+
+	// add comand and run
 	c.AddCommand(testCommand)
-	//c.SetArgs(strings.Split(input, " "))
 	c.SetArgs(argsSplit(input))
-	err := c.Execute()
-	output := buf.String()
-	return resulter{err, output, c}
+	err = c.Execute()
+
+	// read std output
+	outOutC := make(chan string)
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, rOut)
+		outOutC <- buf.String()
+	}()
+	os.Stdout = oldStdout
+	wOut.Close()
+
+	// read std outerr
+	outErrC := make(chan string)
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, rErr)
+		outErrC <- buf.String()
+	}()
+	os.Stderr = oldStderr
+	wErr.Close()
+
+	//save outputs and return
+	output := <-outOutC
+	outErr := fmt.Sprint(outputBuf.String(), rootOutputBuf.String(), <-outErrC)
+	return resulter{err, output, outErr, c}
 }
 
 // added from
@@ -107,8 +156,8 @@ func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, i
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
@@ -126,8 +175,8 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
@@ -150,8 +199,8 @@ func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string
 	}
 
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
-	if !strings.Contains(resulter.Output, errorMsg) {
-		diffString := StringDiff(resulter.Output, errorMsg)
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
 		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }

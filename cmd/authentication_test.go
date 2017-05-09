@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	auth "github.com/sapcc/go-openstack-auth"
+	"github.com/sapcc/lyra-cli/locales"
 )
 
 func resetAuthenticate() {
@@ -24,6 +25,12 @@ func TestAuthenticationUserIdOrNameRequired(t *testing.T) {
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
 	}
+
+	errorMsg := locales.ErrorMessages("flag-missing")
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+	}
 }
 
 func TestAuthenticationProjectIdOrNameRequired(t *testing.T) {
@@ -33,6 +40,12 @@ func TestAuthenticationProjectIdOrNameRequired(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --password=%s", "http://some_test_url", "bup", "123456789"))
 	if resulter.Error == nil {
 		t.Error(`Command expected to get an error`)
+	}
+
+	errorMsg := locales.ErrorMessages("flag-missing")
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
 	}
 }
 

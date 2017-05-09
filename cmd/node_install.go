@@ -41,7 +41,7 @@ var NodeInstallCmd = &cobra.Command{
 		}
 
 		// print response
-		cmd.Println(script)
+		fmt.Println(script)
 
 		return nil
 	},

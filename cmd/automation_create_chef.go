@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -76,7 +77,7 @@ var AutomationCreateChefCmd = &cobra.Command{
 		}
 
 		// Print response
-		cmd.Println(bodyPrint)
+		fmt.Println(bodyPrint)
 
 		return nil
 	},

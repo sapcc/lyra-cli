@@ -39,7 +39,7 @@ var AutomationDeleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		// Print response
+		// Print response to the sdterr. No response got it
 		cmd.Println("Automation with id ", viper.GetString("automation-delete-id"), " deleted.")
 
 		return nil

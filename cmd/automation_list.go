@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/spf13/cobra"
@@ -49,7 +50,7 @@ var AutomationListCmd = &cobra.Command{
 		}
 
 		// print response
-		cmd.Println(tablePrint)
+		fmt.Println(tablePrint)
 
 		return nil
 	},

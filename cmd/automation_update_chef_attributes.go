@@ -17,6 +17,7 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/url"
 	"path"
 
@@ -77,7 +78,7 @@ var AutomationUpdateChefAttributesCmd = &cobra.Command{
 		}
 
 		// print response
-		cmd.Println(bodyPrint)
+		fmt.Println(bodyPrint)
 
 		return nil
 	},

@@ -41,7 +41,7 @@ var NodeListCmd = &cobra.Command{
 				return err
 			}
 		} else {
-			tablePrint, err = printer.TableList([]string{"agent_id", "organization", "project", "created_at", "updated_at", "updated_by", "updated_with"})
+			tablePrint, err = printer.TableList([]string{"agent_id", "display_name", "organization", "project", "created_at", "updated_at", "updated_by", "updated_with"})
 			if err != nil {
 				return err
 			}

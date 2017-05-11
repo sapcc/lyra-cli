@@ -18,6 +18,7 @@ var attrDesc = map[string]string{
 	"automation-log-level":            `Describes the level should be used when logging.`,
 	"automation-tags":                 `"Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'."`,
 	"automation-runlist":              `Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.`,
+	"automation-chef-version":         `Specifies the Chef version should be installed in case no Chef is already been installed. (default latest)`,
 	"automation-attributes":           `Attributes are JSON based.`,
 	"automation-attributes-from-file": `Path to the file containing the chef attributes in JSON format. Giving a dash '-' will be read from standard input.`,
 	"automation-path":                 `Path to the script`,

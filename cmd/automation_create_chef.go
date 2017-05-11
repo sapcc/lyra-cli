@@ -39,7 +39,8 @@ var AutomationCreateChefCmd = &cobra.Command{
 				RepositoryRevision: viper.GetString("automation-create-chef-repository-revision"),
 				Timeout:            viper.GetInt("automation-create-chef-timeout"),
 			},
-			LogLevel: viper.GetString("automation-create-chef-log-level"),
+			ChefVersion: viper.GetString("automation-create-chef-version"),
+			LogLevel:    viper.GetString("automation-create-chef-log-level"),
 		}
 
 		// setup automation create chef attributes
@@ -96,6 +97,7 @@ func initAutomationCreateChefCmdFlags() {
 	AutomationCreateChefCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
 	AutomationCreateChefCmd.Flags().StringP("log-level", "", "", locales.AttributeDescription("automation-log-level"))
 	AutomationCreateChefCmd.Flags().StringP("runlist", "", "", locales.AttributeDescription("automation-runlist"))
+	AutomationCreateChefCmd.Flags().StringP("chef-version", "", "", locales.AttributeDescription("automation-chef-version"))
 	AutomationCreateChefCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
 	AutomationCreateChefCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
 	viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name"))
@@ -103,6 +105,7 @@ func initAutomationCreateChefCmdFlags() {
 	viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision"))
 	viper.BindPFlag("automation-create-chef-timeout", AutomationCreateChefCmd.Flags().Lookup("timeout"))
 	viper.BindPFlag("automation-create-chef-log-level", AutomationCreateChefCmd.Flags().Lookup("log-level"))
+	viper.BindPFlag("automation-create-chef-version", AutomationCreateChefCmd.Flags().Lookup("chef-version"))
 	viper.BindPFlag("automation-create-chef-runlist", AutomationCreateChefCmd.Flags().Lookup("runlist"))
 	viper.BindPFlag("automation-create-chef-attributes", AutomationCreateChefCmd.Flags().Lookup("attributes"))
 	viper.BindPFlag("automation-create-chef-attributes-from-file", AutomationCreateChefCmd.Flags().Lookup("attributes-from-file"))

@@ -16,6 +16,7 @@ var attrDesc = map[string]string{
 	"automation-repository-revision":  `Describes the repository branch.`,
 	"automation-timeout":              `Describes the time elapsed before a timeout is being triggered.`,
 	"automation-log-level":            `Describes the level should be used when logging.`,
+	"automation-debug":                `Debug mode will not delete the temporary working directory on the instance when the automation job exists. This allows you to inspect the bundled automation artifacts, modify them and run the automation manually. Enabling debug mode for an extended period of time can exhaust  your instances disk space as each automation run will leave a directory behind. Also be aware that the payload may contain secrets which are persisted to disk indefinitely when debug mode is enabled. (default false)`,
 	"automation-tags":                 `"Are key value pairs. Key-value pairs are separated by ':' or '='. Following this pattern: 'key1:value1,key2=value2...'."`,
 	"automation-runlist":              `Describes the sequence of recipes should be executed. Runlist is an array of strings. Array of strings are separated by ','.`,
 	"automation-chef-version":         `Specifies the Chef version should be installed in case no Chef is already been installed. (default latest)`,

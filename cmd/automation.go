@@ -35,6 +35,7 @@ type Chef struct {
 	Runlist        []string    `json:"run_list,omitempty"`        // required, JSON
 	Attributes     interface{} `json:"chef_attributes,omitempty"` // JSON
 	LogLevel       string      `json:"log_level,omitempty"`
+	Debug          bool        `json:"debug,omitempty"`
 	ChefVersion    string      `json:"chef_version,omitempty"`
 }
 

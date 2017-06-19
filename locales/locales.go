@@ -78,11 +78,12 @@ var cmdShortDescription = map[string]string{
 }
 
 var cmdLongDescription = map[string]string{
-	"bash-completion":     `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
-	"root":                `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
-	"arc-node-delete":     "Deletes an especific node. \nThis will just delete the entry in the data base. For a permanent deletion you have to remove the node itself from the instance.",
-	"arc-node-tag-add":    fmt.Sprint(nodeTagAddCmdLongDescription),
-	"arc-node-tag-delete": fmt.Sprint(nodeTagDeleteCmdLongDescription),
+	"bash-completion":                   `Add $(lyra bash-completion) to your .bashrc to enable tab completion for lyra`,
+	"root":                              `Execute ad-hoc jobs using scripts, Chef and Ansible to configure machines and install the open source IaC service into any other OpenStack.`,
+	"arc-node-delete":                   "Deletes an especific node. \nThis will just delete the entry in the data base. For a permanent deletion you have to remove the node itself from the instance.",
+	"arc-node-tag-add":                  fmt.Sprint(nodeTagAddCmdLongDescription),
+	"arc-node-tag-delete":               fmt.Sprint(nodeTagDeleteCmdLongDescription),
+	"automation-update-chef-attributes": fmt.Sprint(automationUpdateChefAttributesLongDescription),
 }
 
 func AttributeDescription(id string) string {
@@ -99,6 +100,8 @@ func CmdShortDescription(id string) string {
 func CmdLongDescription(id string) string {
 	return cmdLongDescription[id]
 }
+
+var automationUpdateChefAttributesLongDescription = fmt.Sprint(CmdShortDescription("automation-update-chef-attributes"), "\n\n", `Example: lyra automation update chef attributes --automation-id=34 --attributes='{"test":"test2"}'`)
 
 var nodeTagDeleteCmdLongDescription = `Deletes tags from a given node.
 Add the keys from the desired tags as command arguments.

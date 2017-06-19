@@ -32,6 +32,7 @@ import (
 var AutomationUpdateChefAttributesCmd = &cobra.Command{
 	Use:   "attributes",
 	Short: locales.CmdShortDescription("automation-update-chef-attributes"),
+	Long:  locales.CmdLongDescription("automation-update-chef-attributes"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
 		if len(viper.GetString("automation-update-chef-automation-id")) == 0 {

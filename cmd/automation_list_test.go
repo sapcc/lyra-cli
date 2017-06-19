@@ -46,11 +46,11 @@ func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
 	auth.AuthenticationV3 = newMockAuthenticationV3(testServer)
 
-	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
-| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
-+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
-| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
-+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+`
+	want := `+----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
++----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
++----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	// reset stuff
 	resetAutomationList()
@@ -60,6 +60,7 @@ func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 	if resulter.Error != nil {
 		t.Error(`Command expected to not get an error`)
 	}
+
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
 		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
@@ -71,11 +72,11 @@ func TestAutomationListCmdResultTable(t *testing.T) {
 	responseBody := `[{"id":"6","name":"Chef_test", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-	want := `+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
-| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
-+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+
-| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
-+----+-----------+------+---------------------------------------------------------+---------------------+-------+---------+`
+	want := `+----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
++----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
++----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	// reset stuff
 	resetAutomationList()
@@ -116,13 +117,13 @@ func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 	server := automationPaginationServer()
 	defer server.Close()
 
-	want := `+----+------------+------+---------------------------------------------------------+---------------------+-------+---------+
-| ID |    NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TAGS  | TIMEOUT |
-+----+------------+------+---------------------------------------------------------+---------------------+-------+---------+
-| 1  | Chef_test1 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
-| 2  | Chef_test2 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
-| 3  | Chef_test3 | Chef | https://github.com/user123/automation-test.git | master              | <nil> | 3600    |
-+----+------------+------+---------------------------------------------------------+---------------------+-------+---------+`
+	want := `+----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| ID |    NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
++----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
+| 1  | Chef_test1 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 2  | Chef_test2 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 3  | Chef_test3 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
++----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	resetAutomationList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", server.URL, "http://somewhere.com", "token123"))

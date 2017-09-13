@@ -215,46 +215,25 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 			}
 
 			var runUpdate AutomationRun
-			switch automationRun.State {
-			case RunPreparing:
-				// get new run update
-				runUpdate, err = getAutomationRun(automationRun.Id)
-			case RunExecuting:
-				// get new run update
-				runUpdate, err = getAutomationRun(automationRun.Id)
-			}
-
-			// exit if error occurs
-			if err != nil {
+			// get new run update
+			if runUpdate, err = getAutomationRun(automationRun.Id); err != nil {
 				return "", err
 			}
-
-			// run state changed
-			if len(runUpdate.State) > 0 && runUpdate.State != automationRun.State {
-				// update state
-				automationRun.State = runUpdate.State
-
-				if automationRun.State != RunFailed && automationRun.State != RunCompleted {
-					// print out for run state
-					cmd.Printf("Automation %s\n", automationRun.State)
+			switch automationRun.State {
+			case RunPreparing:
+				// add new jobs
+				if len(runUpdate.Jobs) != len(automationRun.Jobs) {
+					// update jobs
+					automationRun.Jobs = runUpdate.Jobs
+					cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
+					for _, v := range runUpdate.Jobs {
+						// save them to keep track
+						runningJobs = append(automationRun.Jobs, v)
+						jobsState[v] = ""
+						cmd.Printf("%s\n", v)
+					}
 				}
-			}
-
-			// add new jobs
-			if len(runUpdate.Jobs) > 0 && len(runUpdate.Jobs) != len(automationRun.Jobs) {
-				// update jobs
-				automationRun.Jobs = runUpdate.Jobs
-				cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
-				for _, v := range runUpdate.Jobs {
-					// save them to keep track
-					runningJobs = append(automationRun.Jobs, v)
-					jobsState[v] = ""
-					cmd.Printf("%s\n", v)
-				}
-			}
-
-			// update running jobs
-			if len(runningJobs) > 0 {
+			case RunExecuting:
 				stillrunningJobs := []string{}
 				for _, v := range runningJobs {
 					// get job update
@@ -272,19 +251,20 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 					}
 				}
 				runningJobs = stillrunningJobs
-			} else {
-				if automationRun.State == RunCompleted {
-					cmd.Printf("Automation run %s %s\n.", automationRun.Id, automationRun.State)
-				}
-				if automationRun.State == RunFailed {
+			}
+			// did the run state change?
+			if runUpdate.State != automationRun.State {
+				// update state
+				automationRun.State = runUpdate.State
+				switch automationRun.State {
+				case RunFailed:
 					cmd.Printf("Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
+					return runShow(automationRun.Id)
+				case RunCompleted:
+					cmd.Printf("Automation run %s %s. %d jobs succeeded\n", automationRun.Id, automationRun.State, len(automationRun.Jobs))
+					return runShow(automationRun.Id)
 				}
-
-				resultRun, err := runShow(automationRun.Id)
-				if err != nil {
-					return "", err
-				}
-				return resultRun, nil
+				cmd.Printf("Automation run %s %s\n", automationRun.Id, automationRun.State)
 			}
 		}
 	}

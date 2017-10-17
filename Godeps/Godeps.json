@@ -1,10 +1,7 @@
 {
 	"ImportPath": "github.com/sapcc/lyra-cli",
-	"GoVersion": "go1.6",
-	"GodepVersion": "v66",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
 	"Deps": [
 		{
 			"ImportPath": "github.com/BurntSushi/toml",
@@ -168,11 +165,13 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
-			"Rev": "8f6a28b0916586e7f22fe931ae2fcfc380b1c0e6"
+			"Comment": "v1.0.0-8-g1f33b80",
+			"Rev": "1f33b80956cde38911d1f23d764deb8d77a649ce"
 		},
 		{
 			"ImportPath": "github.com/spf13/viper",
-			"Rev": "f904a1790545169368e8d37badd19d1895d94f29"
+			"Comment": "v1.0.0-2-gd9cca5e",
+			"Rev": "d9cca5ef33035202efb1586825bdbb15ff9ec3ba"
 		},
 		{
 			"ImportPath": "github.com/sapcc/go-openstack-auth",
@@ -189,6 +188,27 @@
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
 			"Rev": "7ad95dd0798a40da1ccdff6dff35fd177b5edf40"
+		},
+		{
+			"ImportPath": "github.com/pelletier/go-toml",
+			"Comment": "v1.0.1-2-g2009e44",
+			"Rev": "2009e44b6f182e34d8ce081ac2767622937ea3d4"
+		},
+		{
+			"ImportPath": "github.com/spf13/afero",
+			"Rev": "e67d870304c4bca21331b02f414f970df13aa694"
+		},
+		{
+			"ImportPath": "github.com/spf13/afero/mem",
+			"Rev": "e67d870304c4bca21331b02f414f970df13aa694"
+		},
+		{
+			"ImportPath": "golang.org/x/text/transform",
+			"Rev": "c01e4764d870b77f8abe5096ee19ad20d80e8075"
+		},
+		{
+			"ImportPath": "golang.org/x/text/unicode/norm",
+			"Rev": "c01e4764d870b77f8abe5096ee19ad20d80e8075"
 		}
 	]
 }

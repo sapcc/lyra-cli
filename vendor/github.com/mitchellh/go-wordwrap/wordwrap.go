@@ -48,15 +48,6 @@ func WrapString(s string, lim uint) string {
 			}
 
 			spaceBuf.WriteRune(char)
-		} else if unicode.IsPunct(char) {
-			if spaceBuf.Len() == 0 || wordBuf.Len() > 0 {
-				current += uint(spaceBuf.Len() + wordBuf.Len())
-				spaceBuf.WriteTo(buf)
-				spaceBuf.Reset()
-				wordBuf.WriteTo(buf)
-				wordBuf.Reset()
-			}
-			wordBuf.WriteRune(char)
 		} else {
 
 			wordBuf.WriteRune(char)

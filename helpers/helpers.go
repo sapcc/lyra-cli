@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -11,22 +12,26 @@ import (
 	"strings"
 )
 
-func StringTokeyValueMap(data string) map[string]string {
-	result_map := make(map[string]string)
-	if len(data) > 0 {
-		keyValues := strings.Split(data, ",")
-		for _, kv := range keyValues {
-			reg := regexp.MustCompile(`\:|\=`)
-			tags_array := reg.Split(kv, -1)
-			if len(tags_array) == 2 {
-				result_map[tags_array[0]] = tags_array[1]
-			}
-		}
-	} else {
-		return map[string]string{}
+func KeyValueSplit(data string) (string, string, error) {
+	parts := regexp.MustCompile(`:|=`).Split(data, 2)
+	if len(parts) == 2 {
+		return parts[0], parts[1], nil
 	}
 
-	return result_map
+	return "", "", fmt.Errorf("%v is not a valid key value pair. split result: %#v", data, parts)
+}
+
+func StringSliceKeyValueMap(data []string) (map[string]string, error) {
+	result := map[string]string{}
+	for _, elem := range data {
+		key, value, err := KeyValueSplit(elem)
+		if err != nil {
+			return nil, err
+		}
+		result[key] = value
+	}
+
+	return result, nil
 }
 
 func StringToArray(data string) []string {

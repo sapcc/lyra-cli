@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -67,7 +68,7 @@ func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create script --name=test_script_cli --repository=http://some_repository --path=path_to_the_file --auth-url=http://some_auth_url --user-id=u-519166a05  --project-id=p-9597d2775 --password=123456789"))
 
 	if resulter.Error != nil {
-		t.Error(`Command expected to not get an error`)
+		t.Errorf(`Command expected to not get an error: %s`, resulter.Error)
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -187,7 +188,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --path=%s --arguments=%s --environment=%s",
+		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --path=%s --arg=%s --arg=%s --env=%s --env=%s",
 			server.URL,
 			server.URL,
 			"token123",
@@ -196,11 +197,13 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 			"master",
 			3600,
 			"some_nice_path",
-			`argument1,argument2`,
-			`PROXY:test1,NO_PROXY:test2`))
+			`arg1`,
+			`arg2,with,commas`,
+			`PROXY:test1`,
+			`NO_PROXY:test2,test4`))
 
 	if resulter.Error != nil {
-		t.Error(`Command expected to not get an error`)
+		t.Error(`Command expected to not get an error: %s`, resulter.Error)
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
@@ -225,13 +228,14 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 	if !strings.Contains(script.Path, "some_nice_path") {
 		t.Error(`Command create script expected to have same path'`)
 	}
-	if len(script.Arguments) != 2 {
-		t.Error(`Command create script expected to have same arguments.'`)
+	expectedArgs := []string{"arg1", "arg2,with,commas"}
+	if !reflect.DeepEqual(expectedArgs, script.Arguments) {
+		t.Errorf(`Expected arguments: %#v, Got %#v`, expectedArgs, script.Arguments)
 	}
 	if !strings.Contains(script.Environment["PROXY"], "test1") {
 		t.Error(`Command create script expected to have same environment'`)
 	}
-	if !strings.Contains(script.Environment["NO_PROXY"], "test2") {
+	if !strings.Contains(script.Environment["NO_PROXY"], "test2,test4") {
 		t.Error(`Command create script expected to have same environment'`)
 	}
 }

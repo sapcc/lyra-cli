@@ -76,28 +76,29 @@ func init() {
 
 func initAutomationCreateScriptCmdFlags() {
 	// flags
-	AutomationCreateScriptCmd.Flags().StringP("name", "", "", locales.AttributeDescription("automation-name"))
-	AutomationCreateScriptCmd.Flags().StringP("repository", "", "", locales.AttributeDescription("automation-repository"))
-	AutomationCreateScriptCmd.Flags().StringP("repository-revision", "", "master", locales.AttributeDescription("automation-repository-revision"))
-	AutomationCreateScriptCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
-	AutomationCreateScriptCmd.Flags().StringP("path", "", "", locales.AttributeDescription("automation-path"))
-	AutomationCreateScriptCmd.Flags().StringP("arguments", "", "", locales.AttributeDescription("automation-arguments"))
-	AutomationCreateScriptCmd.Flags().StringP("environment", "", "", locales.AttributeDescription("automation-environment"))
+	AutomationCreateScriptCmd.Flags().String("name", "", locales.AttributeDescription("automation-name"))
+	AutomationCreateScriptCmd.Flags().String("repository", "", locales.AttributeDescription("automation-repository"))
+	AutomationCreateScriptCmd.Flags().String("repository-revision", "master", locales.AttributeDescription("automation-repository-revision"))
+	AutomationCreateScriptCmd.Flags().Int("timeout", 3600, locales.AttributeDescription("automation-timeout"))
+	AutomationCreateScriptCmd.Flags().String("path", "", locales.AttributeDescription("automation-path"))
+	AutomationCreateScriptCmd.Flags().StringArray("arg", nil, locales.AttributeDescription("automation-argument"))
+	AutomationCreateScriptCmd.Flags().StringArray("env", nil, locales.AttributeDescription("automation-environment"))
 	viper.BindPFlag("automation-create-script-name", AutomationCreateScriptCmd.Flags().Lookup("name"))
 	viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository"))
 	viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision"))
 	viper.BindPFlag("automation-create-script-timeout", AutomationCreateScriptCmd.Flags().Lookup("timeout"))
 	viper.BindPFlag("automation-create-script-path", AutomationCreateScriptCmd.Flags().Lookup("path"))
-	viper.BindPFlag("automation-create-script-arguments", AutomationCreateScriptCmd.Flags().Lookup("arguments"))
-	viper.BindPFlag("automation-create-script-environment", AutomationCreateScriptCmd.Flags().Lookup("environment"))
+	viper.BindPFlag("automation-create-script-argument", AutomationCreateScriptCmd.Flags().Lookup("arg"))
+	viper.BindPFlag("automation-create-script-environment", AutomationCreateScriptCmd.Flags().Lookup("env"))
 }
 
 // private
 
-func setupAutomationScriptAttr(scriptObj *Script) error {
-	scriptObj.Arguments = helpers.StringToArray(viper.GetString("automation-create-script-arguments"))
-	scriptObj.Environment = helpers.StringTokeyValueMap(viper.GetString("automation-create-script-environment"))
-	return nil
+func setupAutomationScriptAttr(scriptObj *Script) (err error) {
+	scriptObj.Arguments = viper.GetStringSlice("automation-create-script-argument")
+
+	scriptObj.Environment, err = helpers.StringSliceKeyValueMap(viper.GetStringSlice("automation-create-script-environment"))
+	return
 }
 
 func automationCreateScript(scriptObj *Script) (string, error) {

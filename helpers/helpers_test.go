@@ -30,34 +30,37 @@ func TestStructureToJSON(t *testing.T) {
 	}
 }
 
-func TestStringTokeyValueMap(t *testing.T) {
-	result := StringTokeyValueMap("")
-	eq := reflect.DeepEqual(result, map[string]string{})
-	if !eq {
-		t.Error("Expected StringTokeyValueMap to be return empty map")
-	}
-	result = StringTokeyValueMap("name:test")
-	eq = reflect.DeepEqual(result, map[string]string{"name": "test"})
-	if !eq {
-		t.Error(`Expected StringTokeyValueMap to be map[string]string{"name": "test"}`)
-	}
-	result = StringTokeyValueMap("name:test,test1=test1")
-	eq = reflect.DeepEqual(result, map[string]string{"name": "test", "test1": "test1"})
-	if !eq {
-		t.Error(`Expected StringTokeyValueMap to be map[string]string{"name": "test", "test1": "test1"}`)
-	}
-	result = StringTokeyValueMap("name:test,test1=test1,test1:miau")
-	eq = reflect.DeepEqual(result, map[string]string{"name": "test", "test1": "miau"})
-	if !eq {
-		t.Error(`Expected StringTokeyValueMap to be map[string]string{"name": "test", "test1": "miau"}`)
-	}
-	result = StringTokeyValueMap("name:test,test1,")
-	eq = reflect.DeepEqual(result, map[string]string{"name": "test"})
-	if !eq {
-		t.Error(`Expected ignore broken key pairs`)
-	}
-}
+func TestStringSliceValueMap(t *testing.T) {
 
+	table := []struct {
+		input  []string
+		output map[string]string
+	}{
+		{[]string{}, map[string]string{}},
+		{[]string{"name:test"}, map[string]string{"name": "test"}},
+		{[]string{"name=test"}, map[string]string{"name": "test"}},
+		{[]string{"name=test:bla"}, map[string]string{"name": "test:bla"}},
+		{[]string{"name:test=bla"}, map[string]string{"name": "test=bla"}},
+		{[]string{"name=test=bla"}, map[string]string{"name": "test=bla"}},
+		{[]string{"name=test", "name2:test2,bla"}, map[string]string{"name": "test", "name2": "test2,bla"}},
+	}
+
+	for i, testCase := range table {
+		result, err := StringSliceKeyValueMap(testCase.input)
+		if err != nil {
+			t.Errorf("Case %d failed. No error expected. err=%s", i, err)
+		}
+		if !reflect.DeepEqual(result, testCase.output) {
+			t.Errorf("Case %d, Expected %#v, Got %#v", i, testCase.output, result)
+		}
+	}
+
+	_, err := StringSliceKeyValueMap([]string{"bla"})
+	if err == nil {
+		t.Error("Expected StringTokenValueMap to return an error")
+	}
+
+}
 func TestStringToArray(t *testing.T) {
 	result := StringToArray("")
 	eq := reflect.DeepEqual(result, []string{})

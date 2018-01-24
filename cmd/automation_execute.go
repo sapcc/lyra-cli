@@ -187,8 +187,8 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 		return "", err
 	}
 
-	cmd.Printf("Run automation is created with id %s\n", automationRun.Id)
-	cmd.Printf("Automation state %s\n", automationRun.State)
+	cmd.Printf("Automation run is created with id %s\n", automationRun.Id)
+	cmd.Printf("Automation run state %s\n", automationRun.State)
 
 	// update data
 	tickChan := time.NewTicker(time.Second * 5)
@@ -196,78 +196,85 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 
 	runningJobs := []string{}
 	jobsState := map[string]string{}
-	for {
-		select {
-		case <-tickChan.C:
 
-			// check if the token still valid
-			isExpired, err := tokenExpired()
+	for ; true; <-tickChan.C {
+		// check if the token still valid
+		isExpired, err := tokenExpired()
+		if err != nil {
+			return "", err
+		}
+		if isExpired {
+			cmd.Println("WARNING: token expired.")
+			// reauthenticate
+			err = setupRestClient(cmd, &ExecuteAuthV3, true)
 			if err != nil {
 				return "", err
 			}
-			if isExpired {
-				cmd.Println("WARNING: token expired.")
-				// reauthenticate
-				err = setupRestClient(cmd, &ExecuteAuthV3, true)
+		}
+
+		var runUpdate AutomationRun
+		// get new run update
+		if runUpdate, err = getAutomationRun(automationRun.Id); err != nil {
+			return "", err
+		}
+
+		switch automationRun.State {
+		case RunPreparing:
+			// add new jobs
+			if len(runUpdate.Jobs) != len(automationRun.Jobs) {
+				// update jobs
+				automationRun.Jobs = runUpdate.Jobs
+				cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
+				for _, v := range runUpdate.Jobs {
+					// save them to keep track
+					runningJobs = append(automationRun.Jobs, v)
+					jobsState[v] = ""
+					cmd.Printf("%s\n", v)
+				}
+			}
+		case RunExecuting:
+			stillrunningJobs := []string{}
+			for _, v := range runningJobs {
+				// get job update
+				stateStr, err := getJobStateUpdate(v)
 				if err != nil {
 					return "", err
 				}
+				if stateStr != jobsState[v] {
+					cmd.Printf("Job %s is %s\n", v, stateStr)
+					jobsState[v] = stateStr
+				}
+				// if state is failed or complete then remove entry
+				if stateStr != JobFailed && stateStr != JobComplete {
+					stillrunningJobs = append(stillrunningJobs, v)
+				}
 			}
+			runningJobs = stillrunningJobs
+		}
 
-			var runUpdate AutomationRun
-			// get new run update
-			if runUpdate, err = getAutomationRun(automationRun.Id); err != nil {
-				return "", err
-			}
+		// did the run state change?
+		if runUpdate.State != automationRun.State {
+			// update state
+			automationRun.State = runUpdate.State
 			switch automationRun.State {
-			case RunPreparing:
-				// add new jobs
-				if len(runUpdate.Jobs) != len(automationRun.Jobs) {
-					// update jobs
-					automationRun.Jobs = runUpdate.Jobs
-					cmd.Printf("Scheduled %d jobs:\n", len(runUpdate.Jobs))
-					for _, v := range runUpdate.Jobs {
-						// save them to keep track
-						runningJobs = append(automationRun.Jobs, v)
-						jobsState[v] = ""
-						cmd.Printf("%s\n", v)
-					}
+			case RunFailed:
+				cmd.Printf("Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
+				// get the last state of the run
+				runStr, err := runShow(automationRun.Id)
+				if err != nil {
+					return "", err
 				}
-			case RunExecuting:
-				stillrunningJobs := []string{}
-				for _, v := range runningJobs {
-					// get job update
-					stateStr, err := getJobStateUpdate(v)
-					if err != nil {
-						return "", err
-					}
-					if stateStr != jobsState[v] {
-						cmd.Printf("Job %s is %s\n", v, stateStr)
-						jobsState[v] = stateStr
-					}
-					// if state is failed or complete then remove entry
-					if stateStr != JobFailed && stateStr != JobComplete {
-						stillrunningJobs = append(stillrunningJobs, v)
-					}
-				}
-				runningJobs = stillrunningJobs
+				// force return error
+				return runStr, errors.New(locales.ErrorMessages("automation-run-failed"))
+			case RunCompleted:
+				cmd.Printf("Automation run %s %s. %d jobs succeeded\n", automationRun.Id, automationRun.State, len(automationRun.Jobs))
+				// return the last state of the run
+				return runShow(automationRun.Id)
 			}
-			// did the run state change?
-			if runUpdate.State != automationRun.State {
-				// update state
-				automationRun.State = runUpdate.State
-				switch automationRun.State {
-				case RunFailed:
-					cmd.Printf("Automation run %s %s. %d of %d jobs failed\n", automationRun.Id, automationRun.State, jobsFailed(jobsState), len(automationRun.Jobs))
-					return runShow(automationRun.Id)
-				case RunCompleted:
-					cmd.Printf("Automation run %s %s. %d jobs succeeded\n", automationRun.Id, automationRun.State, len(automationRun.Jobs))
-					return runShow(automationRun.Id)
-				}
-				cmd.Printf("Automation run %s %s\n", automationRun.Id, automationRun.State)
-			}
+			cmd.Printf("Automation run state %s\n", automationRun.State)
 		}
 	}
+	return "", nil
 }
 
 func jobsFailed(jobsState map[string]string) int {

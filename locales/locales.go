@@ -33,6 +33,7 @@ var attrDesc = map[string]string{
 var errMsg = map[string]string{
 	"automation-id-missing":       "No automation identity provided.",
 	"automation-selector-missing": "No automation selector given.",
+	"automation-run-failed":       "Automation failed.",
 	"run-id-missing":              "No automation run identity given.",
 	"job-id-missing":              "No job identity provided.",
 	"node-id-missing":             "No node identity provided.",

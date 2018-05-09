@@ -36,7 +36,7 @@ var AutomationListCmd = &cobra.Command{
 		}
 
 		printer := print.Print{Data: response}
-		tablePrint := ""
+		var tablePrint string
 		if viper.GetBool("json") {
 			tablePrint, err = printer.JSON()
 			if err != nil {

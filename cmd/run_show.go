@@ -54,7 +54,7 @@ var RunShowCmd = &cobra.Command{
 
 		// print the data out
 		printer := print.Print{Data: dataStruct}
-		bodyPrint := ""
+		var bodyPrint string
 		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {

@@ -147,9 +147,10 @@
   revision = "285fb2ed20d1dc450fc743a1b3ff7c36bef372b9"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3826714b1e47586d04a2d62ccf2e8d13eca82790"
+  revision = "d0faeb539838e250bd0a9db4182d48d4a1915181"
 
 [[projects]]
   branch = "master"

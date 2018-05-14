@@ -6,21 +6,16 @@ help:
 	@echo "Available targets:"
 	@echo "  * test              - run metalint and unit"
 	@echo "  * unit              - run unit tests"
-	@echo "  * integration			 - run integration unit tests"
 	@echo "  * metalint          - linter which runs a number of other linters against your files, and normalises their output to a standard format."
 
 packages = $(PKG_NAME) $(shell go list -f '{{ join .Deps "\n" }}' | grep -v vendor | grep $(PKG_NAME))
 
 .PHONY: test
-test: metalint unit integration
+test: metalint unit
 
 .PHONY: unit
 unit:
 	go test -v -timeout=4s ./...
-
-.PHONY: integration
-integration:
-	go test -v ./... -tags integration
 
 .PHONY: metalint
 metalint:

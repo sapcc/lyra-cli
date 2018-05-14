@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cloudflare/cfssl/log"
+	log "github.com/Sirupsen/logrus"
 	"github.com/foize/go.sgr"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"

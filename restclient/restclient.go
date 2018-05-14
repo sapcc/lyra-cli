@@ -14,7 +14,7 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/cloudflare/cfssl/log"
+	log "github.com/Sirupsen/logrus"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/version"
 )

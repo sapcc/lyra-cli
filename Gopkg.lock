@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/Sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
   branch = "master"
   name = "github.com/foize/go.sgr"
   packages = ["."]
@@ -15,7 +21,17 @@
 
 [[projects]]
   name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token"
+  ]
   revision = "27a57f2605e04995c111273c263d51cee60d9bc4"
 
 [[projects]]
@@ -65,7 +81,17 @@
 
 [[projects]]
   name = "github.com/rackspace/gophercloud"
-  packages = [".","openstack","openstack/identity/v2/tenants","openstack/identity/v2/tokens","openstack/identity/v3/tokens","openstack/utils","pagination","testhelper","testhelper/client"]
+  packages = [
+    ".",
+    "openstack",
+    "openstack/identity/v2/tenants",
+    "openstack/identity/v2/tokens",
+    "openstack/identity/v3/tokens",
+    "openstack/utils",
+    "pagination",
+    "testhelper",
+    "testhelper/client"
+  ]
   revision = "c54bbac81d19eb4df3ad167764dbb6ff2e7194de"
 
 [[projects]]
@@ -76,7 +102,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
+  packages = [
+    ".",
+    "mem"
+  ]
   revision = "e67d870304c4bca21331b02f414f970df13aa694"
 
 [[projects]]
@@ -125,7 +154,14 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
+  packages = [
+    "internal/gen",
+    "internal/triegen",
+    "internal/ucd",
+    "transform",
+    "unicode/cldr",
+    "unicode/norm"
+  ]
   revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
 
 [[projects]]
@@ -136,6 +172,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b9a7fba3d82934bb8fa02013dd8c0f362ba147f920565684b7337642cc6098e8"
+  inputs-digest = "65879f8584b457935e9c46c2b5e401f363a55def6f35a46109fa5b7e8957ef13"
   solver-name = "gps-cdcl"
   solver-version = 1

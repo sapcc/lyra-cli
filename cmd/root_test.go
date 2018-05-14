@@ -14,10 +14,7 @@ var testCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		arcService := RestClient.Services["arc"]
 		_, _, err := arcService.Get("", url.Values{}, false)
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	},
 }
 

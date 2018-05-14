@@ -38,9 +38,7 @@ func StringToArray(data string) []string {
 	result_array := []string{}
 	if len(data) > 0 {
 		keyValues := strings.Split(data, ",")
-		for _, value := range keyValues {
-			result_array = append(result_array, value)
-		}
+		result_array = append(result_array, keyValues...)
 	} else {
 		return []string{}
 	}

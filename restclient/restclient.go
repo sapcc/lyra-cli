@@ -14,6 +14,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/cloudflare/cfssl/log"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/version"
 )
@@ -280,9 +281,13 @@ func jsonPrettyPrint(in string) string {
 }
 
 func debugOutput(data []byte, err error) {
+	var fmtError error
 	if err == nil {
-		fmt.Fprintf(os.Stderr, "%s\n\n", data)
+		_, fmtError = fmt.Fprintf(os.Stderr, "%s\n\n", data)
 	} else {
-		fmt.Fprintf(os.Stderr, "%s\n\n", err)
+		_, fmtError = fmt.Fprintf(os.Stderr, "%s\n\n", err)
+	}
+	if fmtError != nil {
+		log.Error(fmtError)
 	}
 }

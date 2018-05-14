@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudflare/cfssl/log"
 	"github.com/foize/go.sgr"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
@@ -72,22 +73,30 @@ func FullCmdTester(testCommand *cobra.Command, input string) resulter {
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, rOut)
+		if _, errorCopy := io.Copy(&buf, rOut); errorCopy != nil {
+			return
+		}
 		outOutC <- buf.String()
 	}()
 	os.Stdout = oldStdout
-	wOut.Close()
+	if errClose := wOut.Close(); errClose != nil {
+		return resulter{err, "", "", c}
+	}
 
 	// read std outerr
 	outErrC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, rErr)
+		if _, errCopy := io.Copy(&buf, rErr); errCopy != nil {
+			return
+		}
 		outErrC <- buf.String()
 	}()
 	os.Stderr = oldStderr
-	wErr.Close()
+	if errClose := wErr.Close(); errClose != nil {
+		return resulter{err, "", "", c}
+	}
 
 	//save outputs and return
 	output := <-outOutC
@@ -132,7 +141,9 @@ func TestServer(code int, body string, headers map[string]string) *httptest.Serv
 			w.Header().Set(k, v)
 		}
 		w.WriteHeader(code) // keep the code after setting headers. If not they will disapear...
-		fmt.Fprintln(w, body)
+		if _, err := fmt.Fprintln(w, body); err != nil {
+			log.Error(err)
+		}
 	}))
 	return server
 }

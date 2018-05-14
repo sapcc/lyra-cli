@@ -45,14 +45,10 @@ var AutomationExecuteCmd = &cobra.Command{
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup automation run attributes
-		err := setupAutomationRun()
-		if err != nil {
-			return err
-		}
-		return nil
+		return setupAutomationRun()
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		response := ""
+		var response string
 		if viper.GetBool("watch") {
 			// keep the auth options for reauthentication
 			ExecuteAuthOps = auth.AuthOptions{
@@ -102,7 +98,7 @@ var AutomationExecuteCmd = &cobra.Command{
 
 		// print the data out
 		printer := print.Print{Data: dataStruct}
-		bodyPrint := ""
+		var bodyPrint string
 		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {
@@ -351,6 +347,9 @@ const (
 func getJobStateUpdate(id string) (string, error) {
 	// get job update
 	job, err := jobShow(id)
+	if err != nil {
+		return "", err
+	}
 	// convert data to struct
 	var jobStruct map[string]interface{}
 	err = helpers.JSONStringToStructure(job, &jobStruct)

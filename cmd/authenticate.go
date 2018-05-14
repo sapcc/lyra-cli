@@ -63,7 +63,7 @@ var AuthenticateCmd = &cobra.Command{
 
 		// print the data out
 		printer := print.Print{Data: response}
-		bodyPrint := ""
+		var bodyPrint string
 		if viper.GetBool("json") {
 			bodyPrint, err = printer.JSON()
 			if err != nil {

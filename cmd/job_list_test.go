@@ -93,7 +93,7 @@ func TestJobListCmdWithResultJSON(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }
@@ -136,7 +136,7 @@ func TestJobListCmdWithPaginationResultJSON(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }

@@ -123,7 +123,7 @@ func TestRunShowCmdWithResultTable(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -162,7 +162,7 @@ func TestRunShowCmdWithResultJSON(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }

@@ -73,7 +73,7 @@ export OS_TOKEN=test_token_id`
 
 	// reset params
 	resetAuthenticate()
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s", "http://some_test_url", "miau", "bup", "123456789"))
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --user-id=%s --project-id=%s", "http://some_test_url", "miau", "123456789"))
 
 	// flush, restore close
 	os.Stdout = oldStdout
@@ -128,7 +128,7 @@ func TestAuthenticationResultJSON(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }

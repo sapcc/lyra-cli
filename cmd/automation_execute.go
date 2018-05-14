@@ -45,11 +45,7 @@ var AutomationExecuteCmd = &cobra.Command{
 	},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup automation run attributes
-		err := setupAutomationRun()
-		if err != nil {
-			return err
-		}
-		return nil
+		return setupAutomationRun()
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var response string

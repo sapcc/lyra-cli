@@ -123,7 +123,7 @@ func TestRunListCmdWithResultJSON(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }
@@ -177,7 +177,7 @@ func TestRunListCmdWithPaginationResultJSON(t *testing.T) {
 	}
 
 	eq := reflect.DeepEqual(source, response)
-	if eq == false {
+	if !eq {
 		t.Error("Json response body and print out Json do not match.")
 	}
 }

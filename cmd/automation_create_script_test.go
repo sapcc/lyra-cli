@@ -203,7 +203,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 			`NO_PROXY:test2,test4`))
 
 	if resulter.Error != nil {
-		t.Error(`Command expected to not get an error: %s`, resulter.Error)
+		t.Errorf(`Command expected to not get an error: %s`, resulter.Error)
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)

@@ -41,11 +41,7 @@ var RootCmd = &cobra.Command{
 	SilenceUsage: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		// setup rest client
-		err := setupRestClient(cmd, nil, false)
-		if err != nil {
-			return err
-		}
-		return nil
+		return setupRestClient(cmd, nil, false)
 	},
 }
 

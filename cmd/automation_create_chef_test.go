@@ -182,7 +182,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	if !strings.Contains(testString, `{"test":"test"}`) {
 		t.Error(`Command create chef expected to have same attributes`)
 	}
-	if chef.Debug != true {
+	if !chef.Debug {
 		t.Error(`Command create chef expected to have same debug flag`)
 	}
 }

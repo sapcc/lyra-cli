@@ -3,13 +3,13 @@ platform: linux
 
 image_resource:
   type: docker-image
-  source: 
+  source:
     repository: hub.***REMOVED***/monsoon/gobuild
-    tag: '1.7'
+    tag: '1.10'
 
 inputs:
 - name: cli.version
-- name: cli.git 
+- name: cli.git
   path: gopath/src/github.com/sapcc/lyra-cli
 
 outputs:

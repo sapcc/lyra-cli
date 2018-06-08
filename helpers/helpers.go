@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -47,7 +48,11 @@ func StringToArray(data string) []string {
 
 func JSONStringToStructure(jsonString string, structure interface{}) error {
 	jsonBytes := []byte(jsonString)
-	return json.Unmarshal(jsonBytes, structure)
+	err := json.Unmarshal(jsonBytes, structure)
+	if err != nil {
+		return errors.New(fmt.Sprint("Invalid JSON:: got: ", jsonString, ". ", err))
+	}
+	return nil
 }
 
 func StructureToJSON(structure interface{}) (string, error) {

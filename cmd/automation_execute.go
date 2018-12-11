@@ -183,7 +183,6 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cmd.Printf("test")
 
 	// convert data to struct
 	automationRun := AutomationRun{}

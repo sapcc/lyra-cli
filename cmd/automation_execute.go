@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
@@ -121,6 +122,7 @@ var AutomationExecuteCmd = &cobra.Command{
 func init() {
 	AutomationCmd.AddCommand(AutomationExecuteCmd)
 	initAutomationExecuteCmdFlags()
+	rand.Seed(time.Now().UnixNano())
 }
 
 func initAutomationExecuteCmdFlags() {
@@ -171,10 +173,20 @@ type AutomationRun struct {
 
 func automationRunWait(cmd *cobra.Command) (string, error) {
 	//run automation
-	runData, err := automationRun()
+	var runData string
+	var err error
+	err = retry(3, 5*time.Second, func() error {
+		runData, err = automationRun()
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	// retry error
 	if err != nil {
 		return "", err
 	}
+	cmd.Printf("test")
 
 	// convert data to struct
 	automationRun := AutomationRun{}
@@ -192,7 +204,6 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 
 	runningJobs := []string{}
 	jobsState := map[string]string{}
-
 	for ; true; <-tickChan.C {
 		// check if the token still valid
 		isExpired, err := tokenExpired()
@@ -202,15 +213,26 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 		if isExpired {
 			cmd.Println("WARNING: token expired.")
 			// reauthenticate
-			err = setupRestClient(cmd, &ExecuteAuthV3, true)
+			err = retry(3, 5*time.Second, func() error {
+				return setupRestClient(cmd, &ExecuteAuthV3, true)
+			})
+			// retry error
 			if err != nil {
 				return "", err
 			}
 		}
 
-		var runUpdate AutomationRun
 		// get new run update
-		if runUpdate, err = getAutomationRun(automationRun.Id); err != nil {
+		var runUpdate AutomationRun
+		err = retry(3, 5*time.Second, func() error {
+			runUpdate, err = getAutomationRun(automationRun.Id)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+		// error from retry
+		if err != nil {
 			return "", err
 		}
 
@@ -232,10 +254,19 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 			stillrunningJobs := []string{}
 			for _, v := range runningJobs {
 				// get job update
-				stateStr, err := getJobStateUpdate(v)
+				var stateStr string
+				err = retry(3, 5*time.Second, func() error {
+					stateStr, err = getJobStateUpdate(v)
+					if err != nil {
+						return err
+					}
+					return nil
+				})
+				// error from retry
 				if err != nil {
 					return "", err
 				}
+
 				if stateStr != jobsState[v] {
 					cmd.Printf("Job %s is %s\n", v, stateStr)
 					jobsState[v] = stateStr
@@ -364,4 +395,29 @@ func getJobStateUpdate(id string) (string, error) {
 		return "", fmt.Errorf("Error converting job state to string")
 	}
 	return stateStr, nil
+}
+
+func retry(attempts int, sleep time.Duration, f func() error) error {
+	if err := f(); err != nil {
+		if s, ok := err.(stop); ok {
+			// Return the original error for later checking
+			return s.error
+		}
+
+		if attempts--; attempts > 0 {
+			// Add some randomness to prevent creating a Thundering Herd
+			jitter := time.Duration(rand.Int63n(int64(sleep)))
+			sleep = sleep + jitter/2
+
+			time.Sleep(sleep)
+			return retry(attempts, 2*sleep, f)
+		}
+		return err
+	}
+
+	return nil
+}
+
+type stop struct {
+	error
 }

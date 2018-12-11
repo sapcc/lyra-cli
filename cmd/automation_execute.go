@@ -177,10 +177,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 	var err error
 	err = retry(3, 5*time.Second, func() error {
 		runData, err = automationRun()
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	})
 	// retry error
 	if err != nil {
@@ -226,10 +223,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 		var runUpdate AutomationRun
 		err = retry(3, 5*time.Second, func() error {
 			runUpdate, err = getAutomationRun(automationRun.Id)
-			if err != nil {
-				return err
-			}
-			return nil
+			return err
 		})
 		// error from retry
 		if err != nil {
@@ -257,10 +251,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 				var stateStr string
 				err = retry(3, 5*time.Second, func() error {
 					stateStr, err = getJobStateUpdate(v)
-					if err != nil {
-						return err
-					}
-					return nil
+					return err
 				})
 				// error from retry
 				if err != nil {

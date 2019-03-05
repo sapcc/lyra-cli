@@ -45,6 +45,3 @@
   name = "github.com/spf13/viper"
   source= "https://github.com/databus23/viper.git"
   branch = "patch-1"
-
-[[constraint]]
-  name = "github.com/sapcc/go-openstack-auth"

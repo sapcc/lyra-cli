@@ -50,8 +50,8 @@ func TestAuthenticationProjectIdOrNameRequired(t *testing.T) {
 }
 
 func TestAuthenticationPasswordfromStdInputWhenEmpty(t *testing.T) {
-	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
-export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***/public
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
 export OS_TOKEN=test_token_id`
 
 	// keep backup of the real stdout
@@ -87,8 +87,8 @@ export OS_TOKEN=test_token_id`
 }
 
 func TestAuthenticationWithAllFlags(t *testing.T) {
-	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
-export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***/public
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
 export OS_TOKEN=test_token_id`
 
 	// reset params
@@ -102,8 +102,8 @@ export OS_TOKEN=test_token_id`
 }
 
 func TestAuthenticationResultString(t *testing.T) {
-	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
-export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***/public
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
 export OS_TOKEN=test_token_id`
 
 	// reset params
@@ -117,7 +117,7 @@ export OS_TOKEN=test_token_id`
 }
 
 func TestAuthenticationResultJSON(t *testing.T) {
-	want := `{"ARC_SERVICE_ENDPOINT": "https://arc.staging.***REMOVED***/public","LYRA_SERVICE_ENDPOINT": "https://lyra.staging.***REMOVED***","OS_TOKEN": "test_token_id"}`
+	want := `{"ARC_SERVICE_ENDPOINT": "https://arc-app-staging/public","LYRA_SERVICE_ENDPOINT": "https://lyra-app-staging","OS_TOKEN": "test_token_id"}`
 
 	// reset params
 	resetAuthenticate()
@@ -139,8 +139,8 @@ func TestAuthenticationResultJSON(t *testing.T) {
 
 func TestAuthenticationNotGivenARegion(t *testing.T) {
 	// should return first entry from endpoints
-	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
-export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***/public
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
 export OS_TOKEN=test_token_id`
 
 	// reset params
@@ -154,8 +154,8 @@ export OS_TOKEN=test_token_id`
 }
 
 func TestAuthenticationGivenARegion(t *testing.T) {
-	want := `export LYRA_SERVICE_ENDPOINT=https://lyra.staging.***REMOVED***
-export ARC_SERVICE_ENDPOINT=https://arc.staging.***REMOVED***/public
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
 export OS_TOKEN=test_token_id`
 
 	// reset params

@@ -23,9 +23,9 @@ import (
 	"net/url"
 	"time"
 
+	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"

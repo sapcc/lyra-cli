@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -69,7 +70,9 @@ func ReadFromFile(path string) (string, error) {
 		var buffer bytes.Buffer
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
-			buffer.WriteString(scanner.Text())
+			if _, err := buffer.WriteString(scanner.Text()); err != nil {
+				return "", err
+			}
 		}
 		if err := scanner.Err(); err != nil {
 			return "", err
@@ -77,7 +80,7 @@ func ReadFromFile(path string) (string, error) {
 		return buffer.String(), nil
 	} else if len(path) > 1 {
 		// read file
-		dat, err := ioutil.ReadFile(path)
+		dat, err := ioutil.ReadFile(filepath.Clean(path))
 		if err != nil {
 			return "", err
 		}
@@ -91,5 +94,11 @@ func MapMerge(dst, src interface{}) {
 
 	for _, k := range sv.MapKeys() {
 		dv.SetMapIndex(k, sv.MapIndex(k))
+	}
+}
+
+func CheckErrAndPrintToStdErr(err error, msg string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s %s", msg, err.Error())
 	}
 }

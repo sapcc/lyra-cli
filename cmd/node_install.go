@@ -23,6 +23,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -54,9 +55,9 @@ func init() {
 
 func initNodeInstallCmdFlags() {
 	NodeInstallCmd.Flags().StringP(FLAG_ARC_NODE_ID, "", "", locales.AttributeDescription(FLAG_ARC_NODE_ID))
-	viper.BindPFlag("arc-node-id", NodeInstallCmd.Flags().Lookup(FLAG_ARC_NODE_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("arc-node-id", NodeInstallCmd.Flags().Lookup(FLAG_ARC_NODE_ID)), "BindPFlag:")
 	NodeInstallCmd.Flags().StringP(FLAG_ARC_INSTALL_FORMAT, "", "json", locales.AttributeDescription(FLAG_ARC_INSTALL_FORMAT))
-	viper.BindPFlag("arc-install-format", NodeInstallCmd.Flags().Lookup(FLAG_ARC_INSTALL_FORMAT))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("arc-install-format", NodeInstallCmd.Flags().Lookup(FLAG_ARC_INSTALL_FORMAT)), "BindPFlag:")
 }
 
 func checkArcInstallParams() error {
@@ -66,7 +67,7 @@ func checkArcInstallParams() error {
 	case "cloud-config":
 	case "json":
 	default:
-		return fmt.Errorf("Invalid %#v given. Valid: windows,linux,cloud-config,json", "arc-install-format")
+		return fmt.Errorf("invalid %#v given. Valid: windows,linux,cloud-config,json", "arc-install-format")
 	}
 
 	return nil
@@ -75,7 +76,7 @@ func checkArcInstallParams() error {
 func generateScript() (string, error) {
 	requestBody, err := json.Marshal(&map[string]string{"CN": viper.GetString("arc-node-id")})
 	if err != nil {
-		return "", errors.New("Failed to marshel request body")
+		return "", errors.New("failed to marshel request body")
 	}
 	arcService := RestClient.Services["arc"]
 
@@ -93,7 +94,7 @@ func generateScript() (string, error) {
 		return "", err
 	}
 	if status >= 400 {
-		return "", fmt.Errorf("Received %d reponse", status)
+		return "", fmt.Errorf("received %d reponse", status)
 	}
 
 	return response, nil

@@ -19,6 +19,7 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 
 	"github.com/spf13/cobra"
@@ -59,7 +60,7 @@ func init() {
 
 func initNodeTagDeleteCmdFlags() {
 	NodeTagDeleteCmd.Flags().StringP(FLAG_ARC_NODE_ID, "", "", locales.AttributeDescription(FLAG_ARC_NODE_ID))
-	viper.BindPFlag("arc-tag-delete-node-id", NodeTagDeleteCmd.Flags().Lookup(FLAG_ARC_NODE_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("arc-tag-delete-node-id", NodeTagDeleteCmd.Flags().Lookup(FLAG_ARC_NODE_ID)), "BindPFlag:")
 }
 
 func nodeTagdelete(id, tagKey string) (string, error) {

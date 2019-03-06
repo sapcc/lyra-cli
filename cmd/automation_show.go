@@ -34,7 +34,7 @@ var AutomationShowCmd = &cobra.Command{
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
 		if len(viper.GetString("show-automation-id")) == 0 {
-			return errors.New("No automation id given.")
+			return errors.New("no automation id given")
 		}
 
 		return nil
@@ -82,7 +82,7 @@ func init() {
 func initAutomationShowCmdFlags() {
 	AutomationCmd.AddCommand(AutomationShowCmd)
 	AutomationShowCmd.Flags().StringP("automation-id", "", "", locales.AttributeDescription("automation-id"))
-	viper.BindPFlag("show-automation-id", AutomationShowCmd.Flags().Lookup("automation-id"))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("show-automation-id", AutomationShowCmd.Flags().Lookup("automation-id")), "BindPFlag:")
 }
 
 func automationShow() (string, error) {

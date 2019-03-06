@@ -15,7 +15,7 @@ type Print struct {
 	Data interface{}
 }
 
-var TypeAssertionError = fmt.Errorf("Not able to convert the data.")
+var ErrTypeAssertion = fmt.Errorf("not able to convert the data	")
 
 func (p *Print) TableList(showColumns []string) (string, error) {
 	// create table
@@ -27,13 +27,13 @@ func (p *Print) TableList(showColumns []string) (string, error) {
 
 	arrayStruct, ok := p.Data.([]interface{})
 	if !ok {
-		return "", TypeAssertionError
+		return "", ErrTypeAssertion
 	}
 
 	for _, valueMap := range arrayStruct {
 		mapStruct, ok := valueMap.(map[string]interface{})
 		if !ok {
-			return "", TypeAssertionError
+			return "", ErrTypeAssertion
 		}
 
 		tableRow := []string{}
@@ -52,7 +52,7 @@ func (p *Print) TableList(showColumns []string) (string, error) {
 func (p *Print) Table() (string, error) {
 	dataStruct, ok := p.Data.(map[string]interface{})
 	if !ok {
-		return "", TypeAssertionError
+		return "", ErrTypeAssertion
 	}
 
 	// sort map

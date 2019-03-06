@@ -27,8 +27,8 @@ unit:
 	go test -v -timeout=20s ./...
 
 .PHONY: metalint
-metalint:
-	gometalinter --vendor --disable-all -E goimports -E megacheck -E ineffassign -E gas --deadline=60s ./...
+metalint:	
+	gometalinter --vendor --disable-all -E goimports -E staticcheck -E ineffassign -E gosec --deadline=60s ./...
 
 .PHONY: cross
 cross:

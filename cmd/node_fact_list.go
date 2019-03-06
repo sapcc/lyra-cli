@@ -80,7 +80,7 @@ func init() {
 
 func initNodeFactListCmdFlags() {
 	NodeFactListCmd.Flags().StringP(FLAG_ARC_NODE_ID, "", "", locales.AttributeDescription(FLAG_ARC_NODE_ID))
-	viper.BindPFlag("arc-fact-list-node-id", NodeFactListCmd.Flags().Lookup(FLAG_ARC_NODE_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("arc-fact-list-node-id", NodeFactListCmd.Flags().Lookup(FLAG_ARC_NODE_ID)), "BindPFlag:")
 }
 
 func nodeFactList(id string) (string, error) {

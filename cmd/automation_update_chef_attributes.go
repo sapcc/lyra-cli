@@ -94,9 +94,9 @@ func initAutomationUpdateChefAttributesCmdFlags() {
 	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
 	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
 	AutomationUpdateChefAttributesCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription("automation-id"))
-	viper.BindPFlag("automation-update-chef-attributes", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes"))
-	viper.BindPFlag("automation-update-chef-attributes-from-file", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes-from-file"))
-	viper.BindPFlag("automation-update-chef-automation-id", AutomationUpdateChefAttributesCmd.Flags().Lookup("automation-id"))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-attributes", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-attributes-from-file", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes-from-file")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-automation-id", AutomationUpdateChefAttributesCmd.Flags().Lookup("automation-id")), "BindPFlag:")
 }
 
 func setupAutomationUpdateChefAttributes(chefObj *Chef) error {

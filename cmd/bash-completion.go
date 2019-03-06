@@ -18,6 +18,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -30,7 +31,7 @@ var bashCompletionCmd = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		RootCmd.GenBashCompletion(os.Stdout)
+		helpers.CheckErrAndPrintToStdErr(RootCmd.GenBashCompletion(os.Stdout), "bashCompletionCmd:")
 	},
 }
 

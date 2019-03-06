@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
 )
@@ -62,7 +63,7 @@ func init() {
 func initNodeListCmdFlags() {
 	//flags
 	NodeListCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription("node-selector"))
-	viper.BindPFlag("node-selector", NodeListCmd.Flags().Lookup(FLAG_SELECTOR))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("node-selector", NodeListCmd.Flags().Lookup(FLAG_SELECTOR)), "BindPFlag:")
 }
 
 func nodeList() (interface{}, error) {

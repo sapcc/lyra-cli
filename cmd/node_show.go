@@ -80,7 +80,7 @@ func init() {
 
 func initNodeShowCmdFlags() {
 	NodeShowCmd.Flags().StringP(FLAG_ARC_NODE_ID, "", "", locales.AttributeDescription(FLAG_ARC_NODE_ID))
-	viper.BindPFlag("arc-show-node-id", NodeShowCmd.Flags().Lookup(FLAG_ARC_NODE_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("arc-show-node-id", NodeShowCmd.Flags().Lookup(FLAG_ARC_NODE_ID)), "BindPFlag:")
 }
 
 func nodeShow(id string) (string, error) {

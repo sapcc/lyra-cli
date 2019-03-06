@@ -83,13 +83,13 @@ func initAutomationCreateScriptCmdFlags() {
 	AutomationCreateScriptCmd.Flags().String("path", "", locales.AttributeDescription("automation-path"))
 	AutomationCreateScriptCmd.Flags().StringArray("arg", nil, locales.AttributeDescription("automation-argument"))
 	AutomationCreateScriptCmd.Flags().StringArray("env", nil, locales.AttributeDescription("automation-environment"))
-	viper.BindPFlag("automation-create-script-name", AutomationCreateScriptCmd.Flags().Lookup("name"))
-	viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository"))
-	viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision"))
-	viper.BindPFlag("automation-create-script-timeout", AutomationCreateScriptCmd.Flags().Lookup("timeout"))
-	viper.BindPFlag("automation-create-script-path", AutomationCreateScriptCmd.Flags().Lookup("path"))
-	viper.BindPFlag("automation-create-script-argument", AutomationCreateScriptCmd.Flags().Lookup("arg"))
-	viper.BindPFlag("automation-create-script-environment", AutomationCreateScriptCmd.Flags().Lookup("env"))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-name", AutomationCreateScriptCmd.Flags().Lookup("name")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-timeout", AutomationCreateScriptCmd.Flags().Lookup("timeout")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-path", AutomationCreateScriptCmd.Flags().Lookup("path")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-argument", AutomationCreateScriptCmd.Flags().Lookup("arg")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-environment", AutomationCreateScriptCmd.Flags().Lookup("env")), "BindPFlag:")
 }
 
 // private

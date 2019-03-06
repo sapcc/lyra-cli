@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -56,7 +57,7 @@ func init() {
 
 func initJobLogCmdFlags() {
 	JobLogCmd.Flags().StringP(FLAG_JOB_ID, "", "", locales.AttributeDescription("job-id"))
-	viper.BindPFlag("log-job-id", JobLogCmd.Flags().Lookup(FLAG_JOB_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("log-job-id", JobLogCmd.Flags().Lookup(FLAG_JOB_ID)), "BindPFlag:")
 }
 
 func jobLog(id string) (string, error) {

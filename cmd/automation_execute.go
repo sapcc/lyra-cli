@@ -128,11 +128,11 @@ func init() {
 func initAutomationExecuteCmdFlags() {
 	//flags
 	AutomationExecuteCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription("automation-id"))
-	viper.BindPFlag(FLAG_AUTOMATION_ID, AutomationExecuteCmd.Flags().Lookup(FLAG_AUTOMATION_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(FLAG_AUTOMATION_ID, AutomationExecuteCmd.Flags().Lookup(FLAG_AUTOMATION_ID)), "BindPFlag:")
 	AutomationExecuteCmd.Flags().StringP(FLAG_SELECTOR, "", "", locales.AttributeDescription("selector"))
-	viper.BindPFlag(FLAG_SELECTOR, AutomationExecuteCmd.Flags().Lookup(FLAG_SELECTOR))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(FLAG_SELECTOR, AutomationExecuteCmd.Flags().Lookup(FLAG_SELECTOR)), "BindPFlag:")
 	AutomationExecuteCmd.Flags().BoolP("watch", "", false, locales.AttributeDescription("watch"))
-	viper.BindPFlag("watch", AutomationExecuteCmd.Flags().Lookup("watch"))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("watch", AutomationExecuteCmd.Flags().Lookup("watch")), "BindPFlag:")
 }
 
 func setupAutomationRun() error {
@@ -382,7 +382,7 @@ func getJobStateUpdate(id string) (string, error) {
 	state := jobStruct["status"]
 	stateStr, ok := state.(string)
 	if !ok {
-		return "", fmt.Errorf("Error converting job state to string")
+		return "", fmt.Errorf("error converting job state to string")
 	}
 	return stateStr, nil
 }

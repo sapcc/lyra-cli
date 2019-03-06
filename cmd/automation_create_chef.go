@@ -100,15 +100,16 @@ func initAutomationCreateChefCmdFlags() {
 	AutomationCreateChefCmd.Flags().StringP("chef-version", "", "", locales.AttributeDescription("automation-chef-version"))
 	AutomationCreateChefCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
 	AutomationCreateChefCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
-	viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name"))
-	viper.BindPFlag("automation-create-chef-repository", AutomationCreateChefCmd.Flags().Lookup("repository"))
-	viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision"))
-	viper.BindPFlag("automation-create-chef-timeout", AutomationCreateChefCmd.Flags().Lookup("timeout"))
-	viper.BindPFlag("automation-create-chef-debug", AutomationCreateChefCmd.Flags().Lookup("chef-debug"))
-	viper.BindPFlag("automation-create-chef-version", AutomationCreateChefCmd.Flags().Lookup("chef-version"))
-	viper.BindPFlag("automation-create-chef-runlist", AutomationCreateChefCmd.Flags().Lookup("runlist"))
-	viper.BindPFlag("automation-create-chef-attributes", AutomationCreateChefCmd.Flags().Lookup("attributes"))
-	viper.BindPFlag("automation-create-chef-attributes-from-file", AutomationCreateChefCmd.Flags().Lookup("attributes-from-file"))
+
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-repository", AutomationCreateChefCmd.Flags().Lookup("repository")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-timeout", AutomationCreateChefCmd.Flags().Lookup("timeout")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-debug", AutomationCreateChefCmd.Flags().Lookup("chef-debug")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-version", AutomationCreateChefCmd.Flags().Lookup("chef-version")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-runlist", AutomationCreateChefCmd.Flags().Lookup("runlist")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-attributes", AutomationCreateChefCmd.Flags().Lookup("attributes")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-attributes-from-file", AutomationCreateChefCmd.Flags().Lookup("attributes-from-file")), "BindPFlag:")
 }
 
 // private

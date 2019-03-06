@@ -21,6 +21,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 )
 
@@ -53,7 +54,7 @@ func init() {
 
 func initAutomationDeleteCmdFlags() {
 	AutomationDeleteCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription(FLAG_AUTOMATION_ID))
-	viper.BindPFlag("automation-delete-id", AutomationDeleteCmd.Flags().Lookup(FLAG_AUTOMATION_ID))
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-delete-id", AutomationDeleteCmd.Flags().Lookup(FLAG_AUTOMATION_ID)), "BindPFlag:")
 }
 
 func automationDelete(id string) (string, error) {

@@ -84,6 +84,19 @@ func initRootCmdFlags() {
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(ENV_VAR_ARC_ENDPOINT_NAME, RootCmd.PersistentFlags().Lookup("arc-service-endpoint")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindEnv(ENV_VAR_ARC_ENDPOINT_NAME), "BindEnv:")
 
+	// Authentication with application credential flags
+	RootCmd.PersistentFlags().StringP(FLAG_APPLICATION_CREDENTIAL_ID, "", "", fmt.Sprint("The ID of the application credential used for authentication. If not provided, the application credential must be identified by its name and its owning user. (default ", fmt.Sprintf("[$%s]", ENV_VAR_APPLICATION_CREDENTIAL_ID), ")"))
+	RootCmd.PersistentFlags().StringP(FLAG_APPLICATION_CREDENTIAL_NAME, "", "", fmt.Sprint("The name of the application credential used for authentication. If provided, must be accompanied by a username. (default ", fmt.Sprintf("[$%s]", ENV_VAR_APPLICATION_CREDENTIAL_NAME), ")"))
+	RootCmd.PersistentFlags().StringP(FLAG_APPLICATION_CREDENTIAL_SECRET, "", "", fmt.Sprint("The secret for authenticating the application credential. (default ", fmt.Sprintf("[$%s]", ENV_VAR_APPLICATION_CREDENTIAL_SECRET), ")"))
+
+	// bind to env variables
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(ENV_VAR_APPLICATION_CREDENTIAL_ID, RootCmd.PersistentFlags().Lookup(FLAG_APPLICATION_CREDENTIAL_ID)), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindEnv(ENV_VAR_APPLICATION_CREDENTIAL_ID), "BindEnv:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(ENV_VAR_APPLICATION_CREDENTIAL_NAME, RootCmd.PersistentFlags().Lookup(FLAG_APPLICATION_CREDENTIAL_NAME)), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindEnv(ENV_VAR_APPLICATION_CREDENTIAL_NAME), "BindEnv:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag(ENV_VAR_APPLICATION_CREDENTIAL_SECRET, RootCmd.PersistentFlags().Lookup(FLAG_APPLICATION_CREDENTIAL_SECRET)), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindEnv(ENV_VAR_APPLICATION_CREDENTIAL_SECRET), "BindEnv:")
+
 	// Authentication user flags
 	RootCmd.PersistentFlags().StringP(FLAG_AUTH_URL, "", "", fmt.Sprint("Endpoint entities represent URL endpoints for OpenStack web services. (default ", fmt.Sprintf("[$%s]", ENV_VAR_AUTH_URL), ")"))
 	RootCmd.PersistentFlags().StringP(FLAG_REGION, "", "", fmt.Sprint("A region is a general division of an OpenStack deployment. (default ", fmt.Sprintf("[$%s]", ENV_VAR_REGION), " or the first entry found in catalog)"))
@@ -143,25 +156,32 @@ func initConfig() {
 // setup the rest client
 func setupRestClient(cmd *cobra.Command, authV3 *auth.Authentication, forceReauthenticate bool) error {
 	if len(viper.GetString(ENV_VAR_TOKEN_NAME)) == 0 || len(viper.GetString(ENV_VAR_AUTOMATION_ENDPOINT_NAME)) == 0 || len(viper.GetString(ENV_VAR_ARC_ENDPOINT_NAME)) == 0 || forceReauthenticate {
-		fmt.Fprintln(os.Stderr, "Using password authentication.")
-
 		// authentication object
 		if authV3 == nil {
 			lyraAuthOps := auth.AuthOptions{
-				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-				Username:          viper.GetString(ENV_VAR_USERNAME),
-				UserId:            viper.GetString(ENV_VAR_USER_ID),
-				Password:          viper.GetString(ENV_VAR_PASSWORD),
-				ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-				ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-				UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-				UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-				ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+				IdentityEndpoint:            viper.GetString(ENV_VAR_AUTH_URL),
+				Username:                    viper.GetString(ENV_VAR_USERNAME),
+				UserId:                      viper.GetString(ENV_VAR_USER_ID),
+				Password:                    viper.GetString(ENV_VAR_PASSWORD),
+				ProjectName:                 viper.GetString(ENV_VAR_PROJECT_NAME),
+				ProjectId:                   viper.GetString(ENV_VAR_PROJECT_ID),
+				UserDomainName:              viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+				UserDomainId:                viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+				ProjectDomainName:           viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+				ProjectDomainId:             viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+				ApplicationCredentialID:     viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_ID),
+				ApplicationCredentialName:   viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_NAME),
+				ApplicationCredentialSecret: viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_SECRET),
 			}
 
 			newAuthV3 := auth.AuthenticationV3(lyraAuthOps)
 			authV3 = &newAuthV3
+		}
+
+		if len((*authV3).GetOptions().ApplicationCredentialID) == 0 && len((*authV3).GetOptions().ApplicationCredentialName) == 0 {
+			fmt.Fprintln(os.Stderr, "Using password authentication.")
+		} else {
+			fmt.Fprintln(os.Stderr, "Using application credential authentication.")
 		}
 
 		// authenticate

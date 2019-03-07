@@ -101,6 +101,83 @@ export OS_TOKEN=test_token_id`
 	}
 }
 
+func TestAuthenticationApplicationCredential(t *testing.T) {
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
+export OS_TOKEN=test_token_id`
+
+	// reset params
+	resetAuthenticate()
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --application-credential-name=%s --application-credential-secret=%s --user-id=%s", "http://some_test_url", "miau", "123456789", "1234567890"))
+
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
+func TestAuthenticationApplicationCredentialAllRequiredDomainName(t *testing.T) {
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
+export OS_TOKEN=test_token_id`
+
+	// reset params
+	resetAuthenticate()
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --application-credential-name=%s --application-credential-secret=%s --username=%s --user-domain-name=%s", "http://some_test_url", "miau", "123456789", "1234567890", "default"))
+
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
+func TestAuthenticationApplicationCredentialAllRequiredDomainId(t *testing.T) {
+	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
+export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public
+export OS_TOKEN=test_token_id`
+
+	// reset params
+	resetAuthenticate()
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --application-credential-name=%s --application-credential-secret=%s --username=%s --user-domain-id=%s", "http://some_test_url", "miau", "123456789", "1234567890", "0987654321"))
+
+	if !strings.Contains(resulter.Output, want) {
+		diffString := StringDiff(resulter.Output, want)
+		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+	}
+}
+
+func TestAuthenticationApplicationCredentialDomainIdOrNameRequired(t *testing.T) {
+	// reset params
+	resetAuthenticate()
+	// run cmd
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --application-credential-name=%s --application-credential-secret=%s --username=%s", "http://some_test_url", "miau", "123456789", "user"))
+	if resulter.Error == nil {
+		t.Error(`Command expected to get an error`)
+	}
+
+	errorMsg := locales.ErrorMessages("flag-missing")
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+	}
+}
+
+func TestAuthenticationApplicationCredentialUserIdOrNameRequired(t *testing.T) {
+	// reset params
+	resetAuthenticate()
+	// run cmd
+	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra authenticate --auth-url=%s --application-credential-name=%s --application-credential-secret=%s", "http://some_test_url", "miau", "123456789"))
+	if resulter.Error == nil {
+		t.Error(`Command expected to get an error`)
+	}
+
+	errorMsg := locales.ErrorMessages("flag-missing")
+	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
+		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
+		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+	}
+}
+
 func TestAuthenticationResultString(t *testing.T) {
 	want := `export LYRA_SERVICE_ENDPOINT=https://lyra-app-staging
 export ARC_SERVICE_ENDPOINT=https://arc-app-staging/public

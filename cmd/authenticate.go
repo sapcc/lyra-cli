@@ -37,16 +37,19 @@ var AuthenticateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// set authentication params
 		options := auth.AuthOptions{
-			IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-			Username:          viper.GetString(ENV_VAR_USERNAME),
-			UserId:            viper.GetString(ENV_VAR_USER_ID),
-			Password:          viper.GetString(ENV_VAR_PASSWORD),
-			ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-			ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-			UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-			UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-			ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-			ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+			IdentityEndpoint:            viper.GetString(ENV_VAR_AUTH_URL),
+			Username:                    viper.GetString(ENV_VAR_USERNAME),
+			UserId:                      viper.GetString(ENV_VAR_USER_ID),
+			Password:                    viper.GetString(ENV_VAR_PASSWORD),
+			ProjectName:                 viper.GetString(ENV_VAR_PROJECT_NAME),
+			ProjectId:                   viper.GetString(ENV_VAR_PROJECT_ID),
+			UserDomainName:              viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+			UserDomainId:                viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+			ProjectDomainName:           viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+			ProjectDomainId:             viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+			ApplicationCredentialID:     viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_ID),
+			ApplicationCredentialName:   viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_NAME),
+			ApplicationCredentialSecret: viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_SECRET),
 		}
 
 		// authentication object
@@ -122,28 +125,51 @@ func authenticate(cmd *cobra.Command, authV3 auth.Authentication) (map[string]st
 }
 
 func checkAuthenticateAuthParams(cmd *cobra.Command, opts *auth.AuthOptions) error {
-	// check some params
-	if len(opts.UserId) == 0 && len(opts.Username) == 0 {
-		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
-	}
-
-	if len(opts.ProjectId) == 0 && len(opts.ProjectName) == 0 {
-		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_PROJECT_ID, ", ", FLAG_PROJECT_NAME))
-	}
-
-	if len(opts.IdentityEndpoint) == 0 {
-		return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_AUTH_URL))
-	}
-
-	// check password and prompt
-	if len(opts.Password) == 0 {
-		// ask the user for the password -- stderr??
-		cmd.Print("Enter password: ")
-		pass, err := gopass.GetPasswd()
-		if err != nil {
-			return err
+	if len(opts.ApplicationCredentialID) == 0 && len(opts.ApplicationCredentialName) == 0 {
+		// check some params
+		if len(opts.UserId) == 0 && len(opts.Username) == 0 {
+			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
 		}
-		opts.Password = string(pass)
+
+		if len(opts.ProjectId) == 0 && len(opts.ProjectName) == 0 {
+			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_PROJECT_ID, ", ", FLAG_PROJECT_NAME))
+		}
+
+		if len(opts.IdentityEndpoint) == 0 {
+			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_AUTH_URL))
+		}
+
+		// check password and prompt
+		if len(opts.Password) == 0 {
+			// ask the user for the password -- stderr??
+			cmd.Print("Enter password: ")
+			pass, err := gopass.GetPasswd()
+			if err != nil {
+				return err
+			}
+			opts.Password = string(pass)
+		}
+	} else {
+		if len(opts.ApplicationCredentialID) == 0 {
+			if len(opts.UserId) == 0 && len(opts.Username) == 0 {
+				return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
+			}
+			if len(opts.UserId) == 0 {
+				// when only Username is specified, we need at least one of DomainId and DomainName
+				if len(opts.UserDomainId) == 0 && len(opts.UserDomainName) == 0 {
+					return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_DOMAIN_ID, ", ", FLAG_USER_DOMAIN_NAME))
+				}
+			}
+		}
+		if len(opts.ApplicationCredentialSecret) == 0 {
+			// ask the user for the password -- stderr??
+			cmd.Print("Enter application credential secret: ")
+			secret, err := gopass.GetPasswd()
+			if err != nil {
+				return err
+			}
+			opts.ApplicationCredentialSecret = string(secret)
+		}
 	}
 
 	return nil

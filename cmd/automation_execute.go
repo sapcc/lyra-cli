@@ -53,16 +53,19 @@ var AutomationExecuteCmd = &cobra.Command{
 		if viper.GetBool("watch") {
 			// keep the auth options for reauthentication
 			ExecuteAuthOps = auth.AuthOptions{
-				IdentityEndpoint:  viper.GetString(ENV_VAR_AUTH_URL),
-				Username:          viper.GetString(ENV_VAR_USERNAME),
-				UserId:            viper.GetString(ENV_VAR_USER_ID),
-				Password:          viper.GetString(ENV_VAR_PASSWORD),
-				ProjectName:       viper.GetString(ENV_VAR_PROJECT_NAME),
-				ProjectId:         viper.GetString(ENV_VAR_PROJECT_ID),
-				UserDomainName:    viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
-				UserDomainId:      viper.GetString(ENV_VAR_USER_DOMAIN_ID),
-				ProjectDomainName: viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
-				ProjectDomainId:   viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+				IdentityEndpoint:            viper.GetString(ENV_VAR_AUTH_URL),
+				Username:                    viper.GetString(ENV_VAR_USERNAME),
+				UserId:                      viper.GetString(ENV_VAR_USER_ID),
+				Password:                    viper.GetString(ENV_VAR_PASSWORD),
+				ProjectName:                 viper.GetString(ENV_VAR_PROJECT_NAME),
+				ProjectId:                   viper.GetString(ENV_VAR_PROJECT_ID),
+				UserDomainName:              viper.GetString(ENV_VAR_USER_DOMAIN_NAME),
+				UserDomainId:                viper.GetString(ENV_VAR_USER_DOMAIN_ID),
+				ProjectDomainName:           viper.GetString(ENV_VAR_PROJECT_DOMAIN_NAME),
+				ProjectDomainId:             viper.GetString(ENV_VAR_PROJECT_DOMAIN_ID),
+				ApplicationCredentialID:     viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_ID),
+				ApplicationCredentialName:   viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_NAME),
+				ApplicationCredentialSecret: viper.GetString(ENV_VAR_APPLICATION_CREDENTIAL_SECRET),
 			}
 			ExecuteAuthV3 = auth.AuthenticationV3(ExecuteAuthOps)
 			// force reauthenticate with password and keep values

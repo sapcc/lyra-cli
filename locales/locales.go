@@ -6,13 +6,13 @@ import (
 
 var attrDesc = map[string]string{
 	"json":                            `Attributes are JSON format.`,
-	"selector":                        `Filter used to select on which nodes should the automation be executed. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
+	"selector":                        `Filter used to select on which nodes should the automation be executed. Basic ex: @identity='{node_id}'.`,
 	"run-id":                          `Automation run identity.`,
 	"job-id":                          `Job identity.`,
 	"watch":                           `Keep track of the running process.`,
 	"automation-id":                   `Automation identity.`,
 	"automation-name":                 `Describes the template. Should be short and alphanumeric without white spaces.`,
-	"automation-repository":           `Describes the place where the automation is being described. Git is the only supported repository type. Ex: https://github.com/user123/automation-test.git.`,
+	"automation-repository":           `Describes the place where the automation is being described. Git is the only supported repository type. Ex: https://github.com/userId0123456789/automation-test.git.`,
 	"automation-repository-revision":  `Describes the repository branch.`,
 	"automation-timeout":              `Describes the time elapsed before a timeout is being triggered.`,
 	"automation-log-level":            `Describes the level should be used when logging.`,
@@ -27,7 +27,7 @@ var attrDesc = map[string]string{
 	"automation-environment":          `Specify an environment variable (NAME=VALUE). Can by specified multiple times.`,
 	"install-format":                  `Installation script format. Supported: linux,windows,cloud-config,json.`,
 	"node-id":                         `Node identity.`,
-	"node-selector":                   `Filter nodes. See link https://github.com/pages/monsoon/arc/docs/api/api.html#filter_agents for more information. Basic ex: @identity='{node_id}'.`,
+	"node-selector":                   `Filter nodes. Basic ex: @identity='{node_id}'.`,
 }
 
 var errMsg = map[string]string{

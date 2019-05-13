@@ -14,7 +14,7 @@ func resetAutomationShow() {
 }
 
 func TestAutomationShowCmdWithUserAuthenticationFlags(t *testing.T) {
-	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	testServer := TestServer(200, responseBody, map[string]string{})
 	defer testServer.Close()
 	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
@@ -27,7 +27,7 @@ func TestAutomationShowCmdWithUserAuthenticationFlags(t *testing.T) {
 | id                  | 1                                                       |
 | log_level           | info                                                    |
 | name                | Chef_test1                                              |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | [recipe[nginx]]                                         |
 +---------------------+---------------------------------------------------------+`
@@ -57,7 +57,7 @@ func TestAutomationShowCmdWithWrongEnvEndpointAndTokenSet(t *testing.T) {
 
 func TestAutomationShowCmdWithResultTable(t *testing.T) {
 	// set test server
-	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 	want := `+---------------------+---------------------------------------------------------+
@@ -68,7 +68,7 @@ func TestAutomationShowCmdWithResultTable(t *testing.T) {
 | id                  | 1                                                       |
 | log_level           | info                                                    |
 | name                | Chef_test1                                              |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | [recipe[nginx]]                                         |
 +---------------------+---------------------------------------------------------+`
@@ -86,7 +86,7 @@ func TestAutomationShowCmdWithResultTable(t *testing.T) {
 
 func TestAutomationShowCmdWithResultJSON(t *testing.T) {
 	// set test server
-	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 

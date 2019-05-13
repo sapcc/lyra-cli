@@ -25,7 +25,7 @@ func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 	"name": "test_script_cli",
 	"path": "path_to_the_file",
 	"project_id": "p-9597d2775",
-	"repository": "https://github.com/user123/automation-test.git",
+	"repository": "https://github.com/userId0123456789/automation-test.git",
 	"repository_revision": "master",
 	"run_list": null,
 	"tags": {
@@ -53,7 +53,7 @@ func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 | name                | test_script_cli                                         |
 | path                | path_to_the_file                                        |
 | project_id          | p-9597d2775                                             |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | <nil>                                                   |
 | tags                | map[name:arturo]                                        |
@@ -89,7 +89,7 @@ func TestAutomationCreateScriptShouldSetMinimumAttributes(t *testing.T) {
   "name": "test",
   "path": "path_to_the_file",
   "project_id": "p-9597d2775",
-  "repository": "https://github.com/user123/automation-test.git",
+  "repository": "https://github.com/userId0123456789/automation-test.git",
   "repository_revision": "master",
   "run_list": null,
   "tags": null,
@@ -110,7 +110,7 @@ func TestAutomationCreateScriptShouldSetMinimumAttributes(t *testing.T) {
 | name                | test                                                    |
 | path                | path_to_the_file                                        |
 | project_id          | p-9597d2775                                             |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | <nil>                                                   |
 | tags                | <nil>                                                   |
@@ -154,7 +154,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
   "name": "script_test",
   "path": "path_to_the_file",
   "project_id": "p-9597d2775",
-  "repository": "https://github.com/user123/automation-test.git",
+  "repository": "https://github.com/userId0123456789/automation-test.git",
   "repository_revision": "master",
   "run_list": null,
   "tags": null,
@@ -177,7 +177,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 | name                | script_test                                             |
 | path                | path_to_the_file                                        |
 | project_id          | p-9597d2775                                             |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | <nil>                                                   |
 | tags                | <nil>                                                   |

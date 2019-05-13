@@ -40,7 +40,7 @@ func TestAutomationListCmdWithEndpointsTokenFlag(t *testing.T) {
 }
 
 func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
-	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"6","name":"Chef_test","type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	testServer := TestServer(200, responseBody, map[string]string{})
 	defer testServer.Close()
 	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
@@ -49,7 +49,7 @@ func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 	want := `+----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
 | ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
 +----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
-| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 6  | Chef_test | Chef | https://github.com/userId0123456789/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
 +----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	// reset stuff
@@ -69,13 +69,13 @@ func TestAutomationListCmdWithAuthenticationFlags(t *testing.T) {
 
 func TestAutomationListCmdResultTable(t *testing.T) {
 	// set test server
-	responseBody := `[{"id":"6","name":"Chef_test", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"6","name":"Chef_test", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 	want := `+----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
 | ID |   NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
 +----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
-| 6  | Chef_test | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 6  | Chef_test | Chef | https://github.com/userId0123456789/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
 +----+-----------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	// reset stuff
@@ -91,7 +91,7 @@ func TestAutomationListCmdResultTable(t *testing.T) {
 
 func TestAutomationListCmdWithResultJSON(t *testing.T) {
 	// set test server
-	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"6","name":"Chef_test","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
@@ -120,9 +120,9 @@ func TestAutomationListCmdWithPaginationResultTable(t *testing.T) {
 	want := `+----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
 | ID |    NAME    | TYPE |                       REPOSITORY                        | REPOSITORY REVISION | TIMEOUT |    RUN LIST     | CHEF VERSION | DEBUG |
 +----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+
-| 1  | Chef_test1 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
-| 2  | Chef_test2 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
-| 3  | Chef_test3 | Chef | https://github.com/user123/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 1  | Chef_test1 | Chef | https://github.com/userId0123456789/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 2  | Chef_test2 | Chef | https://github.com/userId0123456789/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
+| 3  | Chef_test3 | Chef | https://github.com/userId0123456789/automation-test.git | master              | 3600    | [recipe[nginx]] | <nil>        | <nil> |
 +----+------------+------+---------------------------------------------------------+---------------------+---------+-----------------+--------------+-------+`
 
 	resetAutomationList()
@@ -142,9 +142,9 @@ func TestAutomationListCmdWithPaginationResultJSON(t *testing.T) {
 	resetAutomationList()
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --json", server.URL, "http://somewhere.com", "token123"))
 
-	responseBody := `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
-{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
-{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
+	responseBody := `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"},
+{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`
 
 	eq, err := JsonListDiff(responseBody, resulter.Output)
 	if err != nil {
@@ -165,19 +165,19 @@ func automationPaginationServer() *httptest.Server {
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"1","name":"Chef_test1", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		} else if page == "2" {
 			w.Header().Set("Pagination-Page", "2")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"2","name":"Chef_test2", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		} else if page == "3" {
 			w.Header().Set("Pagination-Page", "3")
 			w.Header().Set("Pagination-Per-Page", "1")
 			w.Header().Set("Pagination-Pages", "3")
 			w.WriteHeader(200) // keep the code after setting headers. If not they will disapear...
-			fmt.Fprintln(w, `[{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
+			fmt.Fprintln(w, `[{"id":"3","name":"Chef_test3", "type":"Chef", "timeout":"3600", "repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}]`)
 		}
 	}))
 	return server

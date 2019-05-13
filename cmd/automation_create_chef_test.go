@@ -19,7 +19,7 @@ func resetAutomationCreateChefFlagVars() {
 }
 
 func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
-	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[App:Nginx]"],"chef_attributes": null,"log_level": null,"chef_version": "1.2.3","path": null,"arguments": null,"environment": null}`
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/userId0123456789/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[App:Nginx]"],"chef_attributes": null,"log_level": null,"chef_version": "1.2.3","path": null,"arguments": null,"environment": null}`
 	testServer := TestServer(200, responseBody, map[string]string{})
 	defer testServer.Close()
 	// mock interface for authenticationt test to return mocked endopoints and tokens and test method can use user authentication params to run
@@ -37,7 +37,7 @@ func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 | name                | test                                                    |
 | path                | <nil>                                                   |
 | project_id          | p-9597d2775                                             |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | [recipe[App:Nginx]]                                     |
 | tags                | <nil>                                                   |
@@ -62,7 +62,7 @@ func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 	// set test server
-	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/user123/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"debug":false,"chef_version": null,"path": null,"arguments": null,"environment": null}`
+	responseBody := `{"id": 40,"type": "Chef","name": "test","project_id": "p-9597d2775","repository": "https://github.com/userId0123456789/automation-test.git","repository_revision": "master","timeout": 3600,"tags": null,"created_at": "2016-05-19T12:48:51.629Z","updated_at": "2016-05-19T12:48:51.629Z","run_list": ["recipe[nginx]"],"chef_attributes": null,"log_level": null,"debug":false,"chef_version": null,"path": null,"arguments": null,"environment": null}`
 	want := `+---------------------+---------------------------------------------------------+
 |         KEY         |                          VALUE                          |
 +---------------------+---------------------------------------------------------+
@@ -77,7 +77,7 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 | name                | test                                                    |
 | path                | <nil>                                                   |
 | project_id          | p-9597d2775                                             |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | [recipe[nginx]]                                         |
 | tags                | <nil>                                                   |
@@ -110,7 +110,7 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	// set test server
-	responseBody := `{"id":932,"type":"Chef","name":"test","project_id":"abcdefghijklmnopqrstuwxyz1234567","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","timeout":4000,"tags":null,"created_at":"2017-06-19T11:54:30.329Z","updated_at":"2017-06-19T11:54:30.329Z","run_list":["recipe[nginx]","recipe[test]"],"chef_attributes":{"test":"test"},"log_level":null,"debug":true,"chef_version":"1.2.3","path":null,"arguments":null,"environment":null}`
+	responseBody := `{"id":932,"type":"Chef","name":"test","project_id":"abcdefghijklmnopqrstuwxyz1234567","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","timeout":4000,"tags":null,"created_at":"2017-06-19T11:54:30.329Z","updated_at":"2017-06-19T11:54:30.329Z","run_list":["recipe[nginx]","recipe[test]"],"chef_attributes":{"test":"test"},"log_level":null,"debug":true,"chef_version":"1.2.3","path":null,"arguments":null,"environment":null}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 	want := `+---------------------+---------------------------------------------------------+
@@ -127,7 +127,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 | name                | test                                                    |
 | path                | <nil>                                                   |
 | project_id          | abcdefghijklmnopqrstuwxyz1234567                        |
-| repository          | https://github.com/user123/automation-test.git |
+| repository          | https://github.com/userId0123456789/automation-test.git |
 | repository_revision | master                                                  |
 | run_list            | [recipe[nginx] recipe[test]]                            |
 | tags                | <nil>                                                   |
@@ -189,7 +189,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	// set test server
-	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 
@@ -224,7 +224,7 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributesFromStdInput(t *testing.T) {
 	// set test server
-	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/user123/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
+	responseBody := `{"id":"1","name":"Chef_test1","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","run_list":"[recipe[nginx]]","chef_attributes":{"test":"test"},"log_level":"info","arguments":"{}"}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
 

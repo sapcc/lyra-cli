@@ -19,8 +19,6 @@ import (
 	"github.com/sapcc/lyra-cli/version"
 )
 
-var AUTOMATION_URI = "https://automation-staging.***REMOVED***/api/v1/"
-
 type Client struct {
 	Services map[string]Endpoint
 	Token    string

@@ -48,7 +48,7 @@ func TestJobShowCmdResultTable(t *testing.T) {
   "timeout": 3600,
   "agent": "chef",
   "action": "zero",
-  "payload": "{\"run_list\":[\"recipe[nginx]\"],\"recipe_url\":\"https://objectstore.***REMOVED***:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\\u0026temp_url_expires=1462899028\",\"attributes\":null,\"debug\":false}",
+  "payload": "{\"run_list\":[\"recipe[nginx]\"],\"recipe_url\":\"https://objectstore-3.application.com:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\\u0026temp_url_expires=1462899028\",\"attributes\":null,\"debug\":false}",
   "status": "failed",
   "created_at": "2016-05-10T15:50:28.286532Z",
   "updated_at": "2016-05-10T15:50:33.402484Z",
@@ -63,7 +63,7 @@ func TestJobShowCmdResultTable(t *testing.T) {
 | action     | zero                                                                                                                                                                                                                                                                                                                         |
 | agent      | chef                                                                                                                                                                                                                                                                                                                         |
 | created_at | 2016-05-10T15:50:28.286532Z                                                                                                                                                                                                                                                                                                  |
-| payload    | {"run_list":["recipe[nginx]"],"recipe_url":"https://objectstore.***REMOVED***:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\u0026temp_url_expires=1462899028","attributes":null,"debug":false} |
+| payload    | {"run_list":["recipe[nginx]"],"recipe_url":"https://objectstore-3.application.com:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\u0026temp_url_expires=1462899028","attributes":null,"debug":false} |
 | project    | p-9597d2775                                                                                                                                                                                                                                                                                                                  |
 | request_id | e24e86fa-4bbd-47f3-a4d2-1566618ef765                                                                                                                                                                                                                                                                                         |
 | sender     | api-7461f075665433b2bb80d4c9031bbff8-4c4ab                                                                                                                                                                                                                                                                                   |
@@ -96,7 +96,7 @@ func TestJobShowCmdResultJSON(t *testing.T) {
   "timeout": 3600,
   "agent": "chef",
   "action": "zero",
-  "payload": "{\"run_list\":[\"recipe[nginx]\"],\"recipe_url\":\"https://objectstore.***REMOVED***:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\\u0026temp_url_expires=1462899028\",\"attributes\":null,\"debug\":false}",
+  "payload": "{\"run_list\":[\"recipe[nginx]\"],\"recipe_url\":\"https://objectstore-3.application.com:443/v1/AUTH_abcdefghyjklmnopqrstuwxyz1234567/monsoon-automation/0c2ae56428273ed2f542104b2d67ab4b4d9ed6bc-chef.tgz?temp_url_sig=bd8ad675e854210689613d735bbbd43b7bc334ee\\u0026temp_url_expires=1462899028\",\"attributes\":null,\"debug\":false}",
   "status": "failed",
   "created_at": "2016-05-10T15:50:28.286532Z",
   "updated_at": "2016-05-10T15:50:33.402484Z",

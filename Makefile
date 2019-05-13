@@ -1,6 +1,6 @@
 PKG_NAME:=github.com/sapcc/lyra-cli
-BUILD_IMAGE:=hub.***REMOVED***/monsoon/gobuild:1.10
-TARGETS:=linux/amd64 windows/amd64
+BUILD_IMAGE:=sapcc/gobuild:1.10
+TARGETS:=linux/amd64 windows/amd64 darwin/amd64
 
 LYRA_CLI_BIN_TPL:=lyra_cli_{{.OS}}_{{.Arch}}
 ifneq ($(BUILD_VERSION),)
@@ -27,7 +27,7 @@ unit:
 	go test -v -timeout=20s ./...
 
 .PHONY: metalint
-metalint:	
+metalint:
 	gometalinter --vendor --disable-all -E goimports -E staticcheck -E ineffassign -E gosec --deadline=60s ./...
 
 .PHONY: cross

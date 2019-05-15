@@ -17,9 +17,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/spf13/cobra"
 )
 
 var bashCompletionCmd = &cobra.Command{

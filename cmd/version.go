@@ -15,9 +15,9 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/version"
+	"github.com/spf13/cobra"
 )
 
 var VersionCmd = &cobra.Command{

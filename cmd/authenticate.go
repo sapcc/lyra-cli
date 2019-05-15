@@ -21,9 +21,9 @@ import (
 	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/print"
 
+	"github.com/sapcc/lyra-cli/locales"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/sapcc/lyra-cli/locales"
 )
 
 // authenticateCmd represents the authenticate command

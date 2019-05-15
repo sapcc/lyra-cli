@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/print"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // createCmd represents the create command

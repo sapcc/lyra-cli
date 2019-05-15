@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/sapcc/lyra-cli/locales"
+	"github.com/spf13/cobra"
 )
 
 // removed tags since no use case yet

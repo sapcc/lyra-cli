@@ -18,11 +18,11 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/foize/go.sgr"
 	auth "github.com/sapcc/go-openstack-auth"
+	"github.com/sapcc/lyra-cli/locales"
+	"github.com/sapcc/lyra-cli/restclient"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/sapcc/lyra-cli/locales"
-	"github.com/sapcc/lyra-cli/restclient"
 )
 
 type resulter struct {

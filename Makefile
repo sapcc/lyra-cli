@@ -24,7 +24,7 @@ test: metalint unit
 
 .PHONY: unit
 unit:
-	go test -v -timeout=20s ./...
+	go test -v -timeout=60s ./...
 
 .PHONY: metalint
 metalint:

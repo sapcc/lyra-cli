@@ -178,7 +178,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 	//run automation
 	var runData string
 	var err error
-	err = retry(3, 5*time.Second, func() error {
+	err = retry(5, 30*time.Second, func() error {
 		runData, err = automationRun()
 		return err
 	})
@@ -212,7 +212,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 		if isExpired {
 			cmd.Println("WARNING: token expired.")
 			// reauthenticate
-			err = retry(3, 5*time.Second, func() error {
+			err = retry(5, 30*time.Second, func() error {
 				return setupRestClient(cmd, &ExecuteAuthV3, true)
 			})
 			// retry error
@@ -223,7 +223,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 
 		// get new run update
 		var runUpdate AutomationRun
-		err = retry(3, 5*time.Second, func() error {
+		err = retry(5, 30*time.Second, func() error {
 			runUpdate, err = getAutomationRun(automationRun.Id)
 			return err
 		})
@@ -251,7 +251,7 @@ func automationRunWait(cmd *cobra.Command) (string, error) {
 			for _, v := range runningJobs {
 				// get job update
 				var stateStr string
-				err = retry(3, 5*time.Second, func() error {
+				err = retry(5, 30*time.Second, func() error {
 					stateStr, err = getJobStateUpdate(v)
 					return err
 				})

@@ -22,11 +22,13 @@ import (
 // removed tags since no use case yet
 // Tags               map[string]string `json:"tags,omitempty"`      // JSON
 type Automation struct {
-	Id                 int    `json:"id"`
-	Name               string `json:"name"`                // required
-	Repository         string `json:"repository"`          // required
-	RepositoryRevision string `json:"repository_revision"` // required
-	Timeout            int    `json:"timeout"`             // required
+	Id                              int    `json:"id"`
+	Name                            string `json:"name"`                // required
+	Repository                      string `json:"repository"`          // required
+	RepositoryRevision              string `json:"repository_revision"` // required
+	RepositoryCredentials           string `json:"repository_credentials"`
+	RepositoryAuthenticationEnabled bool   `json:"repository_authentication_enabled"`
+	Timeout                         int    `json:"timeout"` // required
 }
 
 type Chef struct {

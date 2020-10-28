@@ -20,10 +20,11 @@ var AutomationCreateScriptCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		script = Script{
 			Automation: Automation{
-				Name:               viper.GetString("automation-create-script-name"),
-				Repository:         viper.GetString("automation-create-script-repository"),
-				RepositoryRevision: viper.GetString("automation-create-script-repository-revision"),
-				Timeout:            viper.GetInt("automation-create-script-timeout"),
+				Name:                  viper.GetString("automation-create-script-name"),
+				Repository:            viper.GetString("automation-create-script-repository"),
+				RepositoryRevision:    viper.GetString("automation-create-script-repository-revision"),
+				RepositoryCredentials: viper.GetString("automation-create-script-repository-credentials"),
+				Timeout:               viper.GetInt("automation-create-script-timeout"),
 			},
 			Path: viper.GetString("automation-create-script-path"),
 		}
@@ -78,6 +79,7 @@ func initAutomationCreateScriptCmdFlags() {
 	// flags
 	AutomationCreateScriptCmd.Flags().String("name", "", locales.AttributeDescription("automation-name"))
 	AutomationCreateScriptCmd.Flags().String("repository", "", locales.AttributeDescription("automation-repository"))
+	AutomationCreateScriptCmd.Flags().String("repository-credentials", "", locales.AttributeDescription("automation-repository-credentials"))
 	AutomationCreateScriptCmd.Flags().String("repository-revision", "master", locales.AttributeDescription("automation-repository-revision"))
 	AutomationCreateScriptCmd.Flags().Int("timeout", 3600, locales.AttributeDescription("automation-timeout"))
 	AutomationCreateScriptCmd.Flags().String("path", "", locales.AttributeDescription("automation-path"))
@@ -85,6 +87,7 @@ func initAutomationCreateScriptCmdFlags() {
 	AutomationCreateScriptCmd.Flags().StringArray("env", nil, locales.AttributeDescription("automation-environment"))
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-name", AutomationCreateScriptCmd.Flags().Lookup("name")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-repository", AutomationCreateScriptCmd.Flags().Lookup("repository")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-repository-credentials", AutomationCreateScriptCmd.Flags().Lookup("repository-credentials")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-repository-revision", AutomationCreateScriptCmd.Flags().Lookup("repository-revision")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-timeout", AutomationCreateScriptCmd.Flags().Lookup("timeout")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-script-path", AutomationCreateScriptCmd.Flags().Lookup("path")), "BindPFlag:")

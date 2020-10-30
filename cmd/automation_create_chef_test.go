@@ -110,31 +110,52 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 
 func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	// set test server
-	responseBody := `{"id":932,"type":"Chef","name":"test","project_id":"abcdefghijklmnopqrstuwxyz1234567","repository":"https://github.com/userId0123456789/automation-test.git","repository_revision":"master","timeout":4000,"tags":null,"created_at":"2017-06-19T11:54:30.329Z","updated_at":"2017-06-19T11:54:30.329Z","run_list":["recipe[nginx]","recipe[test]"],"chef_attributes":{"test":"test"},"log_level":null,"debug":true,"chef_version":"1.2.3","path":null,"arguments":null,"environment":null}`
+	responseBody := `{
+	"id":932,
+	"type":"Chef",
+	"name":"test",
+	"project_id":"abcdefghijklmnopqrstuwxyz1234567",
+	"repository":"https://github.com/userId0123456789/automation-test.git",
+	"repository_authentication_enabled": true,
+	"repository_revision":"master",
+	"timeout":4000,
+	"tags":null,
+	"created_at":"2017-06-19T11:54:30.329Z",
+	"updated_at":"2017-06-19T11:54:30.329Z",
+	"run_list":["recipe[nginx]","recipe[test]"],
+	"chef_attributes":{"test":"test"},
+	"log_level":null,
+	"debug":true,
+	"chef_version":"1.2.3",
+	"path":null,
+	"arguments":[],
+	"environment":{}
+}`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-	want := `+---------------------+---------------------------------------------------------+
-|         KEY         |                          VALUE                          |
-+---------------------+---------------------------------------------------------+
-| arguments           | <nil>                                                   |
-| chef_attributes     | map[test:test]                                          |
-| chef_version        | 1.2.3                                                   |
-| created_at          | 2017-06-19T11:54:30.329Z                                |
-| debug               | true                                                    |
-| environment         | <nil>                                                   |
-| id                  | 932                                                     |
-| log_level           | <nil>                                                   |
-| name                | test                                                    |
-| path                | <nil>                                                   |
-| project_id          | abcdefghijklmnopqrstuwxyz1234567                        |
-| repository          | https://github.com/userId0123456789/automation-test.git |
-| repository_revision | master                                                  |
-| run_list            | [recipe[nginx] recipe[test]]                            |
-| tags                | <nil>                                                   |
-| timeout             | 4000                                                    |
-| type                | Chef                                                    |
-| updated_at          | 2017-06-19T11:54:30.329Z                                |
-+---------------------+---------------------------------------------------------+`
+	want := `+-----------------------------------+---------------------------------------------------------+
+|                KEY                |                          VALUE                          |
++-----------------------------------+---------------------------------------------------------+
+| arguments                         | []                                                      |
+| chef_attributes                   | map[test:test]                                          |
+| chef_version                      | 1.2.3                                                   |
+| created_at                        | 2017-06-19T11:54:30.329Z                                |
+| debug                             | true                                                    |
+| environment                       | map[]                                                   |
+| id                                | 932                                                     |
+| log_level                         | <nil>                                                   |
+| name                              | test                                                    |
+| path                              | <nil>                                                   |
+| project_id                        | abcdefghijklmnopqrstuwxyz1234567                        |
+| repository                        | https://github.com/userId0123456789/automation-test.git |
+| repository_authentication_enabled | true                                                    |
+| repository_revision               | master                                                  |
+| run_list                          | [recipe[nginx] recipe[test]]                            |
+| tags                              | <nil>                                                   |
+| timeout                           | 4000                                                    |
+| type                              | Chef                                                    |
+| updated_at                        | 2017-06-19T11:54:30.329Z                                |
++-----------------------------------+---------------------------------------------------------+`
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,

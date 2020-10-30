@@ -144,17 +144,19 @@ func TestAutomationCreateScriptShouldSetMinimumAttributes(t *testing.T) {
 func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 	// set test server
 	responseBody := `{
-  "arguments": null,
+  "arguments": [],
   "chef_attributes": null,
   "chef_version": null,
   "created_at": "2016-06-01T08:34:11.761Z",
-  "environment": null,
+	"debug": false,
+  "environment": {},
   "id": 45,
   "log_level": null,
   "name": "script_test",
   "path": "path_to_the_file",
   "project_id": "p-9597d2775",
   "repository": "https://github.com/userId0123456789/automation-test.git",
+	"repository_authentication_enabled": true,
   "repository_revision": "master",
   "run_list": null,
   "tags": null,
@@ -164,36 +166,40 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 }`
 	server := TestServer(200, responseBody, map[string]string{})
 	defer server.Close()
-	want := `+---------------------+---------------------------------------------------------+
-|         KEY         |                          VALUE                          |
-+---------------------+---------------------------------------------------------+
-| arguments           | <nil>                                                   |
-| chef_attributes     | <nil>                                                   |
-| chef_version        | <nil>                                                   |
-| created_at          | 2016-06-01T08:34:11.761Z                                |
-| environment         | <nil>                                                   |
-| id                  | 45                                                      |
-| log_level           | <nil>                                                   |
-| name                | script_test                                             |
-| path                | path_to_the_file                                        |
-| project_id          | p-9597d2775                                             |
-| repository          | https://github.com/userId0123456789/automation-test.git |
-| repository_revision | master                                                  |
-| run_list            | <nil>                                                   |
-| tags                | <nil>                                                   |
-| timeout             | 3600                                                    |
-| type                | Script                                                  |
-| updated_at          | 2016-06-01T08:34:11.761Z                                |
-+---------------------+---------------------------------------------------------+`
+	// go run main.go automation create script --name=script_test --repository=https://github.com/userId0123456789/automation-test.git --repository-credentials=secret_credentials --repository-revision=master --path=path_to_the_file
+	want := `+-----------------------------------+---------------------------------------------------------+
+|                KEY                |                          VALUE                          |
++-----------------------------------+---------------------------------------------------------+
+| arguments                         | []                                                      |
+| chef_attributes                   | <nil>                                                   |
+| chef_version                      | <nil>                                                   |
+| created_at                        | 2016-06-01T08:34:11.761Z                                |
+| debug                             | false                                                   |
+| environment                       | map[]                                                   |
+| id                                | 45                                                      |
+| log_level                         | <nil>                                                   |
+| name                              | script_test                                             |
+| path                              | path_to_the_file                                        |
+| project_id                        | p-9597d2775                                             |
+| repository                        | https://github.com/userId0123456789/automation-test.git |
+| repository_authentication_enabled | true                                                    |
+| repository_revision               | master                                                  |
+| run_list                          | <nil>                                                   |
+| tags                              | <nil>                                                   |
+| timeout                           | 3600                                                    |
+| type                              | Script                                                  |
+| updated_at                        | 2016-06-01T08:34:11.761Z                                |
++-----------------------------------+---------------------------------------------------------+`
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --path=%s --arg=%s --arg=%s --env=%s --env=%s",
+		fmt.Sprintf("lyra automation create script --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-credentials=%s --repository-revision=%s --timeout=%d --path=%s --arg=%s --arg=%s --env=%s --env=%s",
 			server.URL,
 			server.URL,
 			"token123",
 			"script_test",
 			"http://some_repository",
+			"secret_credentials",
 			"master",
 			3600,
 			"some_nice_path",
@@ -210,6 +216,7 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 		return
 	}
+
 	if !strings.Contains(script.AutomationType, "Script") {
 		t.Error(`Command create script expected to have Script type'`)
 	}

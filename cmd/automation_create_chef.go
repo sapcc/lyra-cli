@@ -34,10 +34,11 @@ var AutomationCreateChefCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		chef = Chef{
 			Automation: Automation{
-				Name:               viper.GetString("automation-create-chef-name"),
-				Repository:         viper.GetString("automation-create-chef-repository"),
-				RepositoryRevision: viper.GetString("automation-create-chef-repository-revision"),
-				Timeout:            viper.GetInt("automation-create-chef-timeout"),
+				Name:                  viper.GetString("automation-create-chef-name"),
+				Repository:            viper.GetString("automation-create-chef-repository"),
+				RepositoryRevision:    viper.GetString("automation-create-chef-repository-revision"),
+				RepositoryCredentials: viper.GetString("automation-create-chef-repository-credentials"),
+				Timeout:               viper.GetInt("automation-create-chef-timeout"),
 			},
 			ChefVersion: viper.GetString("automation-create-chef-version"),
 			Debug:       viper.GetBool("automation-create-chef-debug"),
@@ -93,6 +94,7 @@ func initAutomationCreateChefCmdFlags() {
 	// flags
 	AutomationCreateChefCmd.Flags().StringP("name", "", "", locales.AttributeDescription("automation-name"))
 	AutomationCreateChefCmd.Flags().StringP("repository", "", "", locales.AttributeDescription("automation-repository"))
+	AutomationCreateChefCmd.Flags().StringP("repository-credentials", "", "", locales.AttributeDescription("automation-repository-credentials"))
 	AutomationCreateChefCmd.Flags().StringP("repository-revision", "", "master", locales.AttributeDescription("automation-repository-revision"))
 	AutomationCreateChefCmd.Flags().IntP("timeout", "", 3600, locales.AttributeDescription("automation-timeout"))
 	AutomationCreateChefCmd.Flags().BoolP("chef-debug", "", false, locales.AttributeDescription("automation-debug"))
@@ -103,6 +105,7 @@ func initAutomationCreateChefCmdFlags() {
 
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-name", AutomationCreateChefCmd.Flags().Lookup("name")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-repository", AutomationCreateChefCmd.Flags().Lookup("repository")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-repository-credentials", AutomationCreateChefCmd.Flags().Lookup("repository-credentials")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-repository-revision", AutomationCreateChefCmd.Flags().Lookup("repository-revision")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-timeout", AutomationCreateChefCmd.Flags().Lookup("timeout")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-create-chef-debug", AutomationCreateChefCmd.Flags().Lookup("chef-debug")), "BindPFlag:")

@@ -64,6 +64,7 @@ var cmdShortDescription = map[string]string{
 	"automation-show":                   "Show a specific automation",
 	"automation-delete":                 "Deletes a specific automation.",
 	"automation-update-chef-attributes": "Updates chef attributes",
+	"automation-update-chef-runlist":    "Updates chef runlist",
 	"automation-update-chef":            "Updates a chef automation",
 	"automation-update":                 "Updates an exsiting automation",
 	"automation":                        "Automation service.",
@@ -86,6 +87,7 @@ var cmdLongDescription = map[string]string{
 	"arc-node-tag-add":                  fmt.Sprint(nodeTagAddCmdLongDescription),
 	"arc-node-tag-delete":               fmt.Sprint(nodeTagDeleteCmdLongDescription),
 	"automation-update-chef-attributes": fmt.Sprint(automationUpdateChefAttributesLongDescription),
+	"automation-update-chef-runlist":    fmt.Sprint(automationUpdateChefRunlistLongDescription),
 }
 
 func AttributeDescription(id string) string {
@@ -104,6 +106,7 @@ func CmdLongDescription(id string) string {
 }
 
 var automationUpdateChefAttributesLongDescription = fmt.Sprint(CmdShortDescription("automation-update-chef-attributes"), "\n\n", `Example: lyra automation update chef attributes --automation-id=34 --attributes='{"test":"test2"}'`)
+var automationUpdateChefRunlistLongDescription = fmt.Sprint(CmdShortDescription("automation-update-chef-runlist"), "\n\n", `Example: lyra automation update chef runlist --automation-id=34 --runlist='recipe[nginx::default],role[staging]'`)
 
 var nodeTagDeleteCmdLongDescription = `Deletes tags from a given node.
 Add the keys from the desired tags as command arguments.

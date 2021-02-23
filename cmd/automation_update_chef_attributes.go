@@ -35,7 +35,7 @@ var AutomationUpdateChefAttributesCmd = &cobra.Command{
 	Long:  locales.CmdLongDescription("automation-update-chef-attributes"),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// check required automation id
-		if len(viper.GetString("automation-update-chef-automation-id")) == 0 {
+		if len(viper.GetString("automation-update-chef-attributes-automation-id")) == 0 {
 			return errors.New(locales.ErrorMessages("automation-id-missing"))
 		}
 		return nil
@@ -94,9 +94,10 @@ func initAutomationUpdateChefAttributesCmdFlags() {
 	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes", "", "", locales.AttributeDescription("automation-attributes"))
 	AutomationUpdateChefAttributesCmd.Flags().StringP("attributes-from-file", "", "", locales.AttributeDescription("automation-attributes-from-file"))
 	AutomationUpdateChefAttributesCmd.Flags().StringP(FLAG_AUTOMATION_ID, "", "", locales.AttributeDescription("automation-id"))
+
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-attributes", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes")), "BindPFlag:")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-attributes-from-file", AutomationUpdateChefAttributesCmd.Flags().Lookup("attributes-from-file")), "BindPFlag:")
-	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-automation-id", AutomationUpdateChefAttributesCmd.Flags().Lookup("automation-id")), "BindPFlag:")
+	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("automation-update-chef-attributes-automation-id", AutomationUpdateChefAttributesCmd.Flags().Lookup("automation-id")), "BindPFlag:")
 }
 
 func setupAutomationUpdateChefAttributes(chefObj *Chef) error {
@@ -124,7 +125,7 @@ func setupAutomationUpdateChefAttributes(chefObj *Chef) error {
 
 func automationUpdateChefAttributes(chefObj *Chef) (string, error) {
 	automationService := RestClient.Services["automation"]
-	response, code, err := automationService.Get(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, false)
+	response, code, err := automationService.Get(path.Join("automations", viper.GetString("automation-update-chef-attributes-automation-id")), url.Values{}, false)
 	if err != nil {
 		return "", err
 	}
@@ -150,7 +151,7 @@ func automationUpdateChefAttributes(chefObj *Chef) (string, error) {
 	}
 
 	// send data back
-	newResp, _, err := automationService.Put(path.Join("automations", viper.GetString("automation-update-chef-automation-id")), url.Values{}, string(body))
+	newResp, _, err := automationService.Put(path.Join("automations", viper.GetString("automation-update-chef-attributes-automation-id")), url.Values{}, string(body))
 	if err != nil {
 		return "", err
 	}

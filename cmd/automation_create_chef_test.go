@@ -237,7 +237,9 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	// convert interface to string and compare
 	testString, _ := helpers.StructureToJSON(chef.Attributes)
 	buffer := new(bytes.Buffer)
-	json.Compact(buffer, txt)
+	if err := json.Compact(buffer, txt); err != nil {
+		t.Errorf("Failed to compact json: %s", err)
+	}
 	if !strings.Contains(testString, buffer.String()) {
 		t.Error(`Command create chef expected to have same attributes'`)
 	}
@@ -289,9 +291,14 @@ func TestAutomationCreateChefShouldSetAttributesFromStdInput(t *testing.T) {
 		t.Error(`Command expected to not get an error`)
 	}
 	// convert interface to string and compare
-	testString, _ := helpers.StructureToJSON(chef.Attributes)
+	testString, err := helpers.StructureToJSON(chef.Attributes)
+	if err != nil {
+		t.Errorf("Failed to convert to JSON: %s", err)
+	}
 	buffer := new(bytes.Buffer)
-	json.Compact(buffer, txt)
+	if err := json.Compact(buffer, txt); err != nil {
+		t.Errorf("Failed to compact JSON: %s", err)
+	}
 	if !strings.Contains(testString, buffer.String()) {
 		t.Error(`Command create chef expected to have same attributes'`)
 	}

@@ -1,6 +1,6 @@
 PKG_NAME:=github.com/sapcc/lyra-cli
-BUILD_IMAGE:=sapcc/gobuild:1.10
-TARGETS:=linux/amd64 windows/amd64 darwin/amd64
+BUILD_IMAGE:=golang:1.16
+TARGETS:=linux/amd64 windows/amd64 darwin/amd64 darwin/arm64
 
 LYRA_CLI_BIN_TPL:=lyra_cli_{{.OS}}_{{.Arch}}
 ifneq ($(BUILD_VERSION),)
@@ -28,7 +28,7 @@ unit:
 
 .PHONY: metalint
 metalint:
-	gometalinter --vendor --disable-all -E goimports -E staticcheck -E ineffassign -E gosec --deadline=60s ./...
+	docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:v1.41.1 golangci-lint run -v
 
 .PHONY: cross
 cross:
@@ -39,7 +39,7 @@ cross:
 		-v $(CURDIR):/go/src/$(PKG_NAME) \
 		-w /go/src/$(PKG_NAME) \
 		$(BUILD_IMAGE) \
-		make cross-compile TARGETS="$(TARGETS)" BUILD_VERSION=$(BUILD_VERSION)
+		go get github.com/mitchellh/gox && make cross-compile TARGETS="$(TARGETS)" BUILD_VERSION=$(BUILD_VERSION)
 
 .PHONY: cross-compile
 cross-compile:

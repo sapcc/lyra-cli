@@ -69,7 +69,7 @@ func initRootCmdFlags() {
 
 	// Custom flags
 	// Results as JSON format
-	RootCmd.PersistentFlags().BoolP("json", "j", false, fmt.Sprint("Print out the data in JSON format."))
+	RootCmd.PersistentFlags().BoolP("json", "j", false, "Print out the data in JSON format.")
 	helpers.CheckErrAndPrintToStdErr(viper.BindPFlag("json", RootCmd.PersistentFlags().Lookup("json")), "BindPFlag:")
 
 	// Authentication with token und services flags

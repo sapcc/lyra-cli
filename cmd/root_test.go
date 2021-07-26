@@ -31,13 +31,13 @@ func TestRootDebugFlag(t *testing.T) {
 
 	// request object
 	if !strings.Contains(resulter.ErrorOutput, "User-Agent") {
-		t.Error(fmt.Sprintf("Debug request object missing."))
+		t.Error("Debug request object missing.")
 		return
 	}
 
 	// response object
 	if !strings.Contains(resulter.ErrorOutput, "Content-Length") {
-		t.Error(fmt.Sprintf("Debug response object missing"))
+		t.Error("Debug response object missing")
 	}
 
 }

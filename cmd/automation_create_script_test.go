@@ -65,7 +65,7 @@ func TestAutomationCreateScriptCmdWithAuthenticationFlags(t *testing.T) {
 	// reset stuff
 	resetAutomationCreateScriptFlagVars()
 	// run commando
-	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation create script --name=test_script_cli --repository=http://some_repository --path=path_to_the_file --auth-url=http://some_auth_url --user-id=u-519166a05  --project-id=p-9597d2775 --password=123456789"))
+	resulter := FullCmdTester(RootCmd, "lyra automation create script --name=test_script_cli --repository=http://some_repository --path=path_to_the_file --auth-url=http://some_auth_url --user-id=u-519166a05  --project-id=p-9597d2775 --password=123456789")
 
 	if resulter.Error != nil {
 		t.Errorf(`Command expected to not get an error: %s`, resulter.Error)

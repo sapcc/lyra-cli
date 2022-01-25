@@ -159,12 +159,13 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
-		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-revision=%s --timeout=%d --runlist=%s --attributes=%s --chef-version=%s --chef-debug=%t",
+		fmt.Sprintf("lyra automation create chef --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --name=%s --repository=%s --repository-credentials=%s --repository-revision=%s --timeout=%d --runlist=%s --attributes=%s --chef-version=%s --chef-debug=%t",
 			server.URL,
 			server.URL,
 			"token123",
 			"chef_test",
 			"http://some_repository",
+			"ex_github_personal_access_toke",
 			"master",
 			3600,
 			"recipe[nginx],recipe[test]",
@@ -189,6 +190,9 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 	}
 	if !strings.Contains(chef.Repository, "http://some_repository") {
 		t.Error(`Command create chef expected to have same repository'`)
+	}
+	if !strings.Contains(*chef.RepositoryCredentials, "ex_github_personal_access_toke") {
+		t.Error(`Command create chef expected to have credentials set'`)
 	}
 	if !strings.Contains(chef.RepositoryRevision, "master") {
 		t.Error(`Command create chef expected to have same repository revision'`)

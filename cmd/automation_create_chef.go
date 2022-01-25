@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -34,14 +33,19 @@ var AutomationCreateChefCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		chef = Chef{
 			Automation: Automation{
-				Name:                  viper.GetString("automation-create-chef-name"),
-				Repository:            viper.GetString("automation-create-chef-repository"),
-				RepositoryRevision:    viper.GetString("automation-create-chef-repository-revision"),
-				RepositoryCredentials: viper.GetString("automation-create-chef-repository-credentials"),
-				Timeout:               viper.GetInt("automation-create-chef-timeout"),
+				Name:               viper.GetString("automation-create-chef-name"),
+				Repository:         viper.GetString("automation-create-chef-repository"),
+				RepositoryRevision: viper.GetString("automation-create-chef-repository-revision"),
+				Timeout:            viper.GetInt("automation-create-chef-timeout"),
 			},
 			ChefVersion: viper.GetString("automation-create-chef-version"),
 			Debug:       viper.GetBool("automation-create-chef-debug"),
+		}
+
+		// set credentials if existing
+		if len(viper.GetString("automation-create-chef-repository-credentials")) > 0 {
+			credentials := viper.GetString("automation-create-chef-repository-credentials")
+			chef.Automation.RepositoryCredentials = &credentials
 		}
 
 		// setup automation create chef attributes
@@ -147,7 +151,7 @@ func automationCreateChef(chef *Chef) (string, error) {
 	// add the type
 	chef.AutomationType = "Chef"
 	// convert to Json
-	body, err := json.Marshal(chef)
+	body, err := chef.Marshal()
 	if err != nil {
 		return "", err
 	}

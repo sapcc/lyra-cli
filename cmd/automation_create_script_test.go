@@ -226,6 +226,9 @@ func TestAutomationCreateScriptShouldSetAttributes(t *testing.T) {
 	if !strings.Contains(script.Repository, "http://some_repository") {
 		t.Error(`Command create script expected to have same repository'`)
 	}
+	if !strings.Contains(*script.RepositoryCredentials, "secret_credentials") {
+		t.Error(`Command create script expected to have credentials set'`)
+	}
 	if !strings.Contains(script.RepositoryRevision, "master") {
 		t.Error(`Command create script expected to have same repository revision'`)
 	}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -93,8 +92,7 @@ func automationUpdateChefRunlist(chefObj *Chef) (string, error) {
 
 	// get the existing data
 	oldChef := Chef{}
-	respByt := []byte(response)
-	if err := json.Unmarshal(respByt, &oldChef); err != nil {
+	if err := oldChef.Unmarshal(response); err != nil {
 		return "", err
 	}
 
@@ -102,7 +100,7 @@ func automationUpdateChefRunlist(chefObj *Chef) (string, error) {
 	oldChef.Runlist = chefObj.Runlist
 
 	// convert to Json
-	body, err := json.Marshal(oldChef)
+	body, err := oldChef.Marshal()
 	if err != nil {
 		return "", err
 	}

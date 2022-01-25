@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -134,18 +133,16 @@ func automationUpdateChefAttributes(chefObj *Chef) (string, error) {
 		return "", errors.New(response)
 	}
 
-	// get the existing data
+	// map response to the automation object
 	oldChef := Chef{}
-	respByt := []byte(response)
-	if err := json.Unmarshal(respByt, &oldChef); err != nil {
+	if err := oldChef.Unmarshal(response); err != nil {
 		return "", err
 	}
 
 	// change attributres
 	oldChef.Attributes = chefObj.Attributes
 
-	// convert to Json
-	body, err := json.Marshal(oldChef)
+	body, err := oldChef.Marshal()
 	if err != nil {
 		return "", err
 	}

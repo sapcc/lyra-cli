@@ -91,5 +91,6 @@ func automationShow() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return response, nil
 }

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -20,13 +19,18 @@ var AutomationCreateScriptCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		script = Script{
 			Automation: Automation{
-				Name:                  viper.GetString("automation-create-script-name"),
-				Repository:            viper.GetString("automation-create-script-repository"),
-				RepositoryRevision:    viper.GetString("automation-create-script-repository-revision"),
-				RepositoryCredentials: viper.GetString("automation-create-script-repository-credentials"),
-				Timeout:               viper.GetInt("automation-create-script-timeout"),
+				Name:               viper.GetString("automation-create-script-name"),
+				Repository:         viper.GetString("automation-create-script-repository"),
+				RepositoryRevision: viper.GetString("automation-create-script-repository-revision"),
+				Timeout:            viper.GetInt("automation-create-script-timeout"),
 			},
 			Path: viper.GetString("automation-create-script-path"),
+		}
+
+		// set credentials if existing
+		if len(viper.GetString("automation-create-script-repository-credentials")) > 0 {
+			credentials := viper.GetString("automation-create-script-repository-credentials")
+			script.Automation.RepositoryCredentials = &credentials
 		}
 
 		// setup automation create script attributes
@@ -104,11 +108,11 @@ func setupAutomationScriptAttr(scriptObj *Script) (err error) {
 	return
 }
 
-func automationCreateScript(scriptObj *Script) (string, error) {
+func automationCreateScript(script *Script) (string, error) {
 	// add the type
-	scriptObj.AutomationType = "Script"
+	script.AutomationType = "Script"
 	// convert to Json
-	body, err := json.Marshal(scriptObj)
+	body, err := script.Marshal()
 	if err != nil {
 		return "", err
 	}

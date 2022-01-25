@@ -21,7 +21,7 @@ func (p *Print) TableList(showColumns []string) (string, error) {
 	// create table
 	var buf bytes.Buffer
 	table := tablewriter.NewWriter(&buf)
-	table.SetColWidth(20)
+	table.SetColWidth(40)
 	table.SetAlignment(3)
 	table.SetHeader(showColumns)
 

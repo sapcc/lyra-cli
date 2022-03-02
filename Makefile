@@ -30,6 +30,11 @@ unit:
 metalint:
 	docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:v1.41.1 golangci-lint run -v
 
+
+.PHONY: bin/lyra_cli
+bin/lyra_cli:
+	go build -o "bin/lyra_cli" -ldflags="$(LDFLAGS)" $(PKG_NAME)
+
 .PHONY: cross
 cross:
 	@# -w omit DWARF symbol table -> smaller
@@ -44,3 +49,4 @@ cross:
 .PHONY: cross-compile
 cross-compile:
 	gox -osarch="$(TARGETS)" -output="bin/$(LYRA_CLI_BIN_TPL)" -ldflags="$(LDFLAGS)" $(PKG_NAME)
+

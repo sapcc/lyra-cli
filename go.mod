@@ -15,7 +15,7 @@ require (
 	github.com/sapcc/go-openstack-auth v0.0.0-20190305150327-3ccdb846c92e
 	github.com/sergi/go-diff v1.2.0
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/spf13/cobra v0.0.0-20160403140835-4c05eb1145f1
+	github.com/spf13/cobra v0.0.7
 	github.com/spf13/viper v1.8.1
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect

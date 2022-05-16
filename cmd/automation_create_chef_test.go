@@ -150,7 +150,8 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 | repository                        | https://github.com/userId0123456789/automation-test.git |
 | repository_authentication_enabled | true                                                    |
 | repository_revision               | master                                                  |
-| run_list                          | [recipe[nginx] recipe[test]]                            |
+| run_list                          | [recipe[nginx]                                          |
+|                                   | recipe[test]]                                           |
 | tags                              | <nil>                                                   |
 | timeout                           | 4000                                                    |
 | type                              | Chef                                                    |

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -14,7 +15,6 @@ import (
 	"path"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/sapcc/lyra-cli/helpers"
 	"github.com/sapcc/lyra-cli/version"
 )
@@ -278,14 +278,16 @@ func jsonPrettyPrint(in string) string {
 	return out.String()
 }
 
+// Dump outgoing client requests. It includes any headers that the standard http.Transport adds, such as User-Agent.
 func debugOutput(data []byte, err error) {
 	var fmtError error
+	// debug information will send to the stderr so it does not get mixed with the real output
 	if err == nil {
 		_, fmtError = fmt.Fprintf(os.Stderr, "%s\n\n", data)
 	} else {
 		_, fmtError = fmt.Fprintf(os.Stderr, "%s\n\n", err)
 	}
 	if fmtError != nil {
-		log.Error(fmtError)
+		log.Fatal(fmtError)
 	}
 }

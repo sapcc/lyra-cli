@@ -15,8 +15,7 @@ import (
 	"testing"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/foize/go.sgr"
+	sgr "github.com/foize/go.sgr"
 	auth "github.com/sapcc/go-openstack-auth"
 	"github.com/sapcc/lyra-cli/locales"
 	"github.com/sapcc/lyra-cli/restclient"
@@ -143,7 +142,7 @@ func TestServer(code int, body string, headers map[string]string) *httptest.Serv
 		}
 		w.WriteHeader(code) // keep the code after setting headers. If not they will disapear...
 		if _, err := fmt.Fprintln(w, body); err != nil {
-			log.Error(err)
+			fmt.Errorf("%v", err)
 		}
 	}))
 	return server

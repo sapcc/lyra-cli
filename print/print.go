@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/mitchellh/go-wordwrap"
 	"github.com/olekukonko/tablewriter"
 	"github.com/sapcc/lyra-cli/helpers"
 )
@@ -17,11 +16,12 @@ type Print struct {
 
 var ErrTypeAssertion = fmt.Errorf("not able to convert the data	")
 
+// TableList table with specific columns
 func (p *Print) TableList(showColumns []string) (string, error) {
 	// create table
 	var buf bytes.Buffer
 	table := tablewriter.NewWriter(&buf)
-	table.SetColWidth(40)
+	table.SetColWidth(20)
 	table.SetAlignment(3)
 	table.SetHeader(showColumns)
 
@@ -49,6 +49,7 @@ func (p *Print) TableList(showColumns []string) (string, error) {
 	return buf.String(), nil
 }
 
+// Table is a table where all keys as columns will be print
 func (p *Print) Table() (string, error) {
 	dataStruct, ok := p.Data.(map[string]interface{})
 	if !ok {
@@ -73,8 +74,7 @@ func (p *Print) Table() (string, error) {
 
 	// set body
 	for _, k := range keys {
-		value := wordwrap.WrapString(fmt.Sprintf("%v", dataStruct[k]), 150)
-		table.Append([]string{fmt.Sprintf("%v", k), value})
+		table.Append([]string{fmt.Sprintf("%v", k), fmt.Sprintf("%v", dataStruct[k])})
 	}
 
 	// print out

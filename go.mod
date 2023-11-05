@@ -9,6 +9,6 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sapcc/go-openstack-auth v0.0.0-20190305150327-3ccdb846c92e
 	github.com/sergi/go-diff v1.2.0
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.12.0
 )

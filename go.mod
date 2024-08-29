@@ -7,7 +7,7 @@ require (
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sapcc/go-openstack-auth v0.0.0-20190305150327-3ccdb846c92e
-	github.com/sergi/go-diff v1.2.0
+	github.com/sergi/go-diff v1.3.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.12.0
 )

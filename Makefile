@@ -1,5 +1,5 @@
 PKG_NAME:=github.com/sapcc/lyra-cli
-BUILD_IMAGE:=golang:1.16
+BUILD_IMAGE:=golang:1.23
 TARGETS:=linux/amd64 windows/amd64 darwin/amd64 darwin/arm64
 
 LYRA_CLI_BIN_TPL:=lyra_cli_{{.OS}}_{{.Arch}}
@@ -44,7 +44,7 @@ cross:
 		-v $(CURDIR):/go/src/$(PKG_NAME) \
 		-w /go/src/$(PKG_NAME) \
 		$(BUILD_IMAGE) \
-		go get github.com/mitchellh/gox && make cross-compile TARGETS="$(TARGETS)" BUILD_VERSION=$(BUILD_VERSION)
+		go install github.com/mitchellh/gox && make cross-compile TARGETS="$(TARGETS)" BUILD_VERSION=$(BUILD_VERSION)
 
 .PHONY: cross-compile
 cross-compile:

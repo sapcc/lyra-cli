@@ -54,7 +54,7 @@ func TestAutomationDeleteCmdMissingId(t *testing.T) {
 	errorMsg := locales.ErrorMessages("automation-id-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -70,7 +70,7 @@ func TestAutomationDeleteCmdSuccess(t *testing.T) {
 
 	if !strings.Contains(resulter.ErrorOutput, "123456789") || !strings.Contains(resulter.ErrorOutput, "deleted") {
 		diffString := StringDiff(resulter.ErrorOutput, "deleted")
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -81,11 +81,11 @@ func TestAutomationDeleteCmdRightParams(t *testing.T) {
 		path := r.URL
 		if !strings.Contains(method, "DELETE") {
 			diffString := StringDiff(method, "DELETE")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "automations/123456789") {
 			diffString := StringDiff(method, "automations/123456789")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()

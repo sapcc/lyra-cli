@@ -40,11 +40,11 @@ func TestNodeTagListCmdRightParams(t *testing.T) {
 		path := r.URL
 		if !strings.Contains(method, "GET") {
 			diffString := StringDiff(method, "GET")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "agents/123456789/tags") {
 			diffString := StringDiff(method, "agents/123456789/tags")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()
@@ -74,7 +74,7 @@ func TestNodeTagListSuccessTable(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 

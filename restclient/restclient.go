@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -65,7 +64,7 @@ func (e *Endpoint) Put(pathAction string, params url.Values, body string) (strin
 	}
 	defer resp.Body.Close()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, err
 	}
@@ -85,7 +84,7 @@ func (e *Endpoint) Post(pathAction string, params url.Values, header http.Header
 	}
 	defer resp.Body.Close()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, err
 	}
@@ -136,7 +135,7 @@ func (e *Endpoint) Get(pathAction string, params url.Values, showPagination bool
 		return "", 0, err
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, err
 	}
@@ -156,7 +155,7 @@ func (e *Endpoint) Delete(pathAction string, params url.Values) (string, int, er
 		return "", 0, err
 	}
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", 0, err
 	}
@@ -179,7 +178,7 @@ func (e *Endpoint) getListEntry(pathAction string, params url.Values) (*PagResp,
 	}
 
 	// read body
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, 0, err
 	}

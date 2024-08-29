@@ -43,11 +43,11 @@ func TestAutomationExecute(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --auth-url=%s --user-id=%s --project-id=%s --password=%s --automation-id=%s --selector=%s", "some_test_url", "miau", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 
 	if resulter.Error != nil {
-		t.Error(fmt.Sprintf("Command expected to not get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to not get an error. \n \n %s", resulter.Error)
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -79,11 +79,11 @@ func TestAutomationExecuteApplicationCredential(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --auth-url=%s --application-credential-id=%s --project-id=%s --application-credential-secret=%s --automation-id=%s --selector=%s", "some_test_url", "app-cred-id", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 
 	if resulter.Error != nil {
-		t.Error(fmt.Sprintf("Command expected to not get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to not get an error. \n \n %s", resulter.Error)
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -113,7 +113,7 @@ func TestAutomationExecuteWatchSuccess(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --auth-url=%s --user-id=%s --project-id=%s --password=%s --automation-id=%s --selector=%s --watch", testServer.URL, testServer.URL, "token123", "some_test_url", "miau", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 
 	if resulter.Error != nil {
-		t.Error(fmt.Sprintf("Command expected to not get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to not get an error. \n \n %s", resulter.Error)
 	}
 }
 
@@ -143,7 +143,7 @@ func TestAutomationExecuteApplicationCredentialWatchSuccess(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --lyra-service-endpoint=%s --arc-service-endpoint=%s --auth-url=%s --application-credential-id=%s --project-id=%s --application-credential-secret=%s --automation-id=%s --selector=%s --watch", testServer.URL, testServer.URL, "some_test_url", "app-cred-id", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 
 	if resulter.Error != nil {
-		t.Error(fmt.Sprintf("Command expected to not get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to not get an error. \n \n %s", resulter.Error)
 	}
 }
 
@@ -193,7 +193,7 @@ func TestAutomationExecuteWatchRetry(t *testing.T) {
 
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --auth-url=%s --user-id=%s --project-id=%s --password=%s --automation-id=%s --selector=%s --watch", testServer.URL, testServer.URL, "token123", "some_test_url", "miau", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 	if resulter.Error != nil {
-		t.Error(fmt.Sprintf("Command expected to not get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to not get an error. \n \n %s", resulter.Error)
 	}
 }
 
@@ -229,6 +229,6 @@ func TestAutomationExecuteWatchFailed(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra automation execute --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s --auth-url=%s --user-id=%s --project-id=%s --password=%s --automation-id=%s --selector=%s --watch", testServer.URL, testServer.URL, "token123", "some_test_url", "miau", "bup", "123456789", "automation_id", "@identity=886ea868-ba06-42f8-9bde-eb1a848938"))
 
 	if resulter.Error == nil {
-		t.Error(fmt.Sprintf("Command expected to get an error. \n \n %s", resulter.Error))
+		t.Errorf("Command expected to get an error. \n \n %s", resulter.Error)
 	}
 }

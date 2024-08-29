@@ -29,7 +29,7 @@ func TestAuthenticationUserIdOrNameRequired(t *testing.T) {
 	errorMsg := locales.ErrorMessages("flag-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -45,7 +45,7 @@ func TestAuthenticationProjectIdOrNameRequired(t *testing.T) {
 	errorMsg := locales.ErrorMessages("flag-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -82,7 +82,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -97,7 +97,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -112,7 +112,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -127,7 +127,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -142,7 +142,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -158,7 +158,7 @@ func TestAuthenticationApplicationCredentialDomainIdOrNameRequired(t *testing.T)
 	errorMsg := locales.ErrorMessages("flag-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -174,7 +174,7 @@ func TestAuthenticationApplicationCredentialUserIdOrNameRequired(t *testing.T) {
 	errorMsg := locales.ErrorMessages("flag-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -189,7 +189,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -226,7 +226,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -241,7 +241,7 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -256,6 +256,6 @@ export OS_TOKEN=test_token_id`
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }

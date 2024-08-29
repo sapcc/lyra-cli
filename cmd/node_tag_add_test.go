@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -37,7 +37,7 @@ func TestNodeTagAddCmdWithUserAuthenticationFlags(t *testing.T) {
 func TestNodeTagAddCmdSuccessRequestBodyCreation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		data, _ := ioutil.ReadAll(r.Body)
+		data, _ := io.ReadAll(r.Body)
 		defer r.Body.Close()
 
 		eq, err := JsonDiff(string(data), `{"test1":"test1","test2":"test2","test3":"test 3"}`)
@@ -68,7 +68,7 @@ func TestNodeTagAddCmdSuccess(t *testing.T) {
 
 	if !strings.Contains(resulter.ErrorOutput, "Tags") || !strings.Contains(resulter.ErrorOutput, "123456789") || !strings.Contains(resulter.ErrorOutput, "added") {
 		diffString := StringDiff(resulter.ErrorOutput, "added")
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -79,11 +79,11 @@ func TestNodeTagAddCmdRightParams(t *testing.T) {
 		path := r.URL
 		if !strings.Contains(method, "POST") {
 			diffString := StringDiff(method, "POST")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "agents/123456789/tags") {
 			diffString := StringDiff(method, "agents/123456789/tags")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()

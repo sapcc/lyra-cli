@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -80,7 +79,7 @@ func ReadFromFile(path string) (string, error) {
 		return buffer.String(), nil
 	} else if len(path) > 1 {
 		// read file
-		dat, err := ioutil.ReadFile(filepath.Clean(path))
+		dat, err := os.ReadFile(filepath.Clean(path))
 		if err != nil {
 			return "", err
 		}

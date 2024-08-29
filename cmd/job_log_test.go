@@ -30,7 +30,7 @@ func TestJobLogCmdWithAuthenticationFlags(t *testing.T) {
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -61,6 +61,6 @@ func TestJobLogCmdResult(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, responseBody) {
 		diffString := StringDiff(resulter.Output, responseBody)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }

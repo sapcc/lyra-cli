@@ -47,7 +47,7 @@ func TestNodeShowCmdMissingId(t *testing.T) {
 	errorMsg := locales.ErrorMessages("node-id-missing")
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -75,7 +75,7 @@ func TestNodeShowCmdResultTable(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -106,11 +106,11 @@ func TestNodeShowCmdRightParams(t *testing.T) {
 		path := r.URL
 		if !strings.Contains(method, "GET") {
 			diffString := StringDiff(method, "GET")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "agents/123456789") {
 			diffString := StringDiff(method, "agents/123456789")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()

@@ -50,7 +50,7 @@ func TestNodeListCmdSuccess(t *testing.T) {
 	resulter := FullCmdTester(RootCmd, fmt.Sprintf("lyra node list --lyra-service-endpoint=%s --arc-service-endpoint=%s --token=%s", "https://somewhere.com", server.URL, "token123"))
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -71,7 +71,7 @@ func TestNodeListCmdWithPaginationResultTable(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -103,7 +103,7 @@ func TestNodeListCmdWithFilter(t *testing.T) {
 
 		if !strings.Contains(path.Query()["q"][0], "selector_filter") {
 			diffString := StringDiff(path.Query()["q"][0], "selector_filter")
-			t.Error(fmt.Sprintf("Command API selector doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API selector doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()
@@ -120,11 +120,11 @@ func TestNodeListCmdRightParams(t *testing.T) {
 		path := r.URL
 		if !strings.Contains(method, "GET") {
 			diffString := StringDiff(method, "GET")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "agents") {
 			diffString := StringDiff(method, "agents")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()

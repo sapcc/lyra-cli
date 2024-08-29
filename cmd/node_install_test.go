@@ -49,7 +49,7 @@ func TestNodeInstallFormatDefault(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -69,7 +69,7 @@ func TestNodeInstallJsonSuccessDefaultUrls(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -89,7 +89,7 @@ func TestNodeInstallLinuxSuccessDefaultUrls(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -108,7 +108,7 @@ func TestNodeInstallWindowsSuccessDefaultUrls(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -127,7 +127,7 @@ func TestNodeInstallCloudCinfigSuccessDefaultUrls(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -139,15 +139,15 @@ func TestNodeInstallCmdRightParams(t *testing.T) {
 		format := r.Header.Get("Accept")
 		if !strings.Contains(method, "POST") {
 			diffString := StringDiff(method, "POST")
-			t.Error(fmt.Sprintf("Command API method doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API method doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(path.String(), "agents/init") {
 			diffString := StringDiff(method, "agents/init")
-			t.Error(fmt.Sprintf("Command API path doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API path doesn't match. \n \n %s", diffString)
 		}
 		if !strings.Contains(format, "text/x-shellscript") {
 			diffString := StringDiff(format, "text/x-shellscript")
-			t.Error(fmt.Sprintf("Command API format doesn't match. \n \n %s", diffString))
+			t.Errorf("Command API format doesn't match. \n \n %s", diffString)
 		}
 	}))
 	defer server.Close()

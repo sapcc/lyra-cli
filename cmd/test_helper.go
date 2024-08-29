@@ -169,7 +169,7 @@ func CheckhErrorWhenNoEnvEndpointAndTokenSet(t *testing.T, cmd *cobra.Command, i
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -188,7 +188,7 @@ func CheckhErrorWhenNoEnvEndpointSet(t *testing.T, cmd *cobra.Command, input str
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -212,7 +212,7 @@ func CheckhErrorWhenNoEnvTokenSet(t *testing.T, cmd *cobra.Command, input string
 	errorMsg := fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME)
 	if !strings.Contains(resulter.ErrorOutput, errorMsg) {
 		diffString := StringDiff(resulter.ErrorOutput, errorMsg)
-		t.Error(fmt.Sprintf("Command error doesn't match. \n \n %s", diffString))
+		t.Errorf("Command error doesn't match. \n \n %s", diffString)
 	}
 }
 

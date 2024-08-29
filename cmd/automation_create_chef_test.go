@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -56,7 +55,7 @@ func TestAutomationCreateChefCmdWithAuthenticationFlags(t *testing.T) {
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 	}
 }
 
@@ -103,7 +102,7 @@ func TestAutomationCreateChefShouldSetMinimumAttributes(t *testing.T) {
 	}
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 		return
 	}
 }
@@ -180,7 +179,7 @@ func TestAutomationCreateChefShouldSetAttributes(t *testing.T) {
 
 	if !strings.Contains(resulter.Output, want) {
 		diffString := StringDiff(resulter.Output, want)
-		t.Error(fmt.Sprintf("Command response body doesn't match. \n \n %s", diffString))
+		t.Errorf("Command response body doesn't match. \n \n %s", diffString)
 		return
 	}
 	if !strings.Contains(chef.AutomationType, "Chef") {
@@ -222,7 +221,7 @@ func TestAutomationCreateChefShouldSetAttributesFromFile(t *testing.T) {
 	// path to the current directory
 	pwd, _ := os.Getwd()
 	file := fmt.Sprint(pwd, "/../examples/example1.JSON")
-	txt, _ := ioutil.ReadFile(file)
+	txt, _ := os.ReadFile(file)
 
 	resetAutomationCreateChefFlagVars()
 	resulter := FullCmdTester(RootCmd,
@@ -260,7 +259,7 @@ func TestAutomationCreateChefShouldSetAttributesFromStdInput(t *testing.T) {
 	pwd, _ := os.Getwd()
 	file := fmt.Sprint(pwd, "/../examples/example1.JSON")
 	// read example
-	txt, _ := ioutil.ReadFile(file)
+	txt, _ := os.ReadFile(file)
 
 	// keep backup of the real stdout
 	oldStdout := os.Stdout

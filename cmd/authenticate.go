@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"errors"
 
 	"github.com/howeyc/gopass"
 	auth "github.com/sapcc/go-openstack-auth"
@@ -128,15 +129,15 @@ func checkAuthenticateAuthParams(cmd *cobra.Command, opts *auth.AuthOptions) err
 	if len(opts.ApplicationCredentialID) == 0 && len(opts.ApplicationCredentialName) == 0 {
 		// check some params
 		if len(opts.UserId) == 0 && len(opts.Username) == 0 {
-			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
+			return errors.New(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
 		}
 
 		if len(opts.ProjectId) == 0 && len(opts.ProjectName) == 0 {
-			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_PROJECT_ID, ", ", FLAG_PROJECT_NAME))
+			return errors.New(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_PROJECT_ID, ", ", FLAG_PROJECT_NAME))
 		}
 
 		if len(opts.IdentityEndpoint) == 0 {
-			return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_AUTH_URL))
+			return errors.New(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_AUTH_URL))
 		}
 
 		// check password and prompt
@@ -152,12 +153,12 @@ func checkAuthenticateAuthParams(cmd *cobra.Command, opts *auth.AuthOptions) err
 	} else {
 		if len(opts.ApplicationCredentialID) == 0 {
 			if len(opts.UserId) == 0 && len(opts.Username) == 0 {
-				return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
+				return errors.New(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_ID, ", ", FLAG_USERNAME))
 			}
 			if len(opts.UserId) == 0 {
 				// when only Username is specified, we need at least one of DomainId and DomainName
 				if len(opts.UserDomainId) == 0 && len(opts.UserDomainName) == 0 {
-					return fmt.Errorf(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_DOMAIN_ID, ", ", FLAG_USER_DOMAIN_NAME))
+					return errors.New(fmt.Sprint(locales.ErrorMessages("flag-missing"), FLAG_USER_DOMAIN_ID, ", ", FLAG_USER_DOMAIN_NAME))
 				}
 			}
 		}

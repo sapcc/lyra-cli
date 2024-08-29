@@ -28,7 +28,7 @@ unit:
 
 .PHONY: metalint
 metalint:
-	docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:v1.41.1 golangci-lint run -v
+	docker run --rm -v $(CURDIR):/app -w /app golangci/golangci-lint:v1.60.3 golangci-lint run -v
 
 
 .PHONY: bin/lyra_cli

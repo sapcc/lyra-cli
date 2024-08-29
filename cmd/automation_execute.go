@@ -125,7 +125,7 @@ var AutomationExecuteCmd = &cobra.Command{
 func init() {
 	AutomationCmd.AddCommand(AutomationExecuteCmd)
 	initAutomationExecuteCmdFlags()
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource((time.Now().UnixNano())))
 }
 
 func initAutomationExecuteCmdFlags() {
